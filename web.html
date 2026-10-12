@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>귀시무담 컴퍼니</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;700;900&display=swap" rel="stylesheet">
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family:'Noto Sans KR', sans-serif; background:#0e0f14; color:#eee; }
+  a { color:inherit; text-decoration:none; }
+  header {
+    position:sticky; top:0; z-index:10;
+    display:flex; align-items:center; justify-content:space-between;
+    padding:14px 5vw; background:#0e0f14; border-bottom:1px solid #2a2f3d;
+  }
+  .brand { font-weight:900; font-size:20px; letter-spacing:.05em; }
+  .brand small { display:block; font-weight:300; font-size:12px; color:#aab; }
+  nav { display:flex; gap:20px; font-weight:700; font-size:15px; }
+  nav a:hover { color:#ffe14d; }
+  .hero {
+    min-height:52vh; display:flex; flex-direction:column;
+    align-items:center; justify-content:center; text-align:center;
+    padding:60px 6vw; background:radial-gradient(circle at 50% 20%, #2a2340, #0e0f14 70%);
+  }
+  .hero h1 { font-size:clamp(30px,6vw,54px); font-weight:900; margin-bottom:14px; }
+  .hero h1 span { color:#ffe14d; }
+  .hero p { font-weight:300; color:#ccd; line-height:1.8; }
+  main section { padding:64px 6vw; border-top:1px solid #1e2230; }
+  section h2 { font-size:26px; font-weight:900; margin-bottom:8px; }
+  section .desc { font-weight:300; color:#aab; margin-bottom:28px; line-height:1.7; }
+  .grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:16px; }
+  .card {
+    background:#161a26; border:1px solid #2a2f3d; border-radius:10px;
+    padding:22px; line-height:1.7;
+  }
+  .card h3 { font-size:17px; font-weight:900; margin-bottom:8px; }
+  .card p { font-size:14px; font-weight:300; color:#bbc; }
+  .tag { display:inline-block; font-size:12px; font-weight:700; color:#111; background:#ffe14d; border-radius:999px; padding:3px 10px; margin-bottom:10px; }
+  /* 채용공고 게임 요소 */
+  #hire-box { text-align:center; padding:30px; }
+  #hire-box .seal { font-size:15px; color:#aab; margin-bottom:16px; }
+  #hire-btn {
+    font-family:inherit; font-weight:900; font-size:17px; cursor:pointer;
+    background:#ffe14d; border:0; border-radius:8px; padding:15px 40px;
+  }
+  #hire-btn:hover { filter:brightness(1.1); }
+  #hire-next { display:none; margin-top:20px; }
+  #hire-next a {
+    display:inline-block; font-weight:900; color:#111; background:#fff;
+    border-radius:8px; padding:14px 34px;
+  }
+  /* FAQ */
+  details { background:#161a26; border:1px solid #2a2f3d; border-radius:8px; margin-bottom:10px; padding:16px 18px; }
+  summary { cursor:pointer; font-weight:700; }
+  details p { margin-top:10px; font-weight:300; font-size:14px; color:#bbc; line-height:1.7; }
+  footer { padding:28px 6vw; color:#778; font-size:13px; border-top:1px solid #1e2230; }
+  @media (max-width:640px){ nav { gap:12px; font-size:13px; } }
+</style>
+</head>
+<body>
+
+<header>
+  <a class="brand" href="#top">鬼市巫談<small>GWISIMUDAM COMPANY</small></a>
+  <nav>
+    <a href="#about">회사 소개</a>
+    <a href="#exec">임원 소개</a>
+    <a href="#news">NEWS</a>
+    <a href="#hire">채용공고</a>
+    <a href="#faq">FAQ</a>
+  </nav>
+</header>
+
+<div class="hero" id="top">
+  <h1>악귀를 잡아, <span>물건으로 빚는다</span></h1>
+  <p>열정 넘치는 무당들과 함께하는 자율적인 성장의 장.<br>귀시(鬼市)의 상단, 귀시무담 컴퍼니는 가족 같은 분위기 속에서 여러분의 가능성을 활짝 열어드립니다.</p>
+</div>
+
+<main>
+  <!-- 회사 소개 -->
+  <section id="about">
+    <h2>회사 소개</h2>
+    <p class="desc">귀시무담 컴퍼니는 귀시 시장의 유통을 총괄하는 상단입니다. 구성원 한 분 한 분이 주인이 되는 주인 의식으로, 포획부터 납품까지 전 과정을 함께합니다. 퇴근 시간은 자율적으로 정하시면 됩니다.</p>
+    <div class="grid">
+      <div class="card"><h3>포획팀</h3><p>밤의 현장을 누비는 외근 부서입니다. 야행성 인재를 우대하며, 달이 뜨면 자연스럽게 출근하게 됩니다.</p></div>
+      <div class="card"><h3>사육팀</h3><p>잡아온 악귀를 정성껏 돌보는 보육 부서입니다. 애정과 책임감으로 24시간 함께합니다.</p></div>
+      <div class="card"><h3>가공 · 납품팀</h3><p>잔재를 고부가가치 상품으로 빚어내는 핵심 부서입니다. 납품 기한은 협의가 아닌 약속입니다.</p></div>
+    </div>
+  </section>
+
+  <!-- 임원 소개 = 게임 캐릭터 소개 -->
+  <section id="exec">
+    <h2>임원 소개</h2>
+    <p class="desc">언제나 웃는 얼굴로 구성원을 맞이하는 든든한 리더들입니다. 면담 신청은 수시로 가능하며, 거절은 어렵습니다.</p>
+    <div class="grid">
+      <div class="card"><span class="tag">대표 무당</span><h3>상단주</h3><p>포획과 사육을 총괄합니다. "우리 모두 가족"이라는 말씀을 자주 하시며, 가족의 일은 끝이 없다고 덧붙이십니다.</p></div>
+      <div class="card"><span class="tag">가공 장인</span><h3>대장장이</h3><p>잔재 가공의 달인입니다. "못할 게 뭐 있어"를 입버릇처럼 달고 살며, 실제로 못하게 두지 않으십니다.</p></div>
+      <div class="card"><span class="tag">납품 책사</span><h3>장부지기</h3><p>납품처를 관리합니다. 미소를 지으며 기한을 앞당기는 재주가 있어, 모두가 날짜 감각을 잃었다고 합니다.</p></div>
+      <div class="card"><span class="tag">신입 환영</span><h3>빈 자리</h3><p>바로 당신의 자리입니다. 전임자는 성장하여 더 큰 곳으로 떠났다고 전해집니다. 자세한 행방은 확인 중입니다.</p></div>
+    </div>
+  </section>
+
+  <!-- NEWS = 게임 스토리 / 정보 -->
+  <section id="news">
+    <h2>NEWS</h2>
+    <p class="desc">상단의 기쁜 소식들을 가장 먼저 전해드립니다. 나쁜 소식은 없습니다.</p>
+    <div class="grid">
+      <div class="card"><span class="tag">STORY</span><h3>프롤로그: 귀시가 열리다</h3><p>악귀가 거래되는 시장 귀시, 새로운 일꾼(무당)이 들어서며 이야기가 시작됩니다. 도망칠 수 없는 구조는 아니지만, 나가는 문은 잘 보이지 않습니다.</p></div>
+      <div class="card"><span class="tag">INFO</span><h3>순환 시스템 안내</h3><p>포획 → 사육 → 가공 → 납품으로 이어지는 아름다운 순환. 멈추는 구간이 없도록 설계되어 있어, 구성원은 쉴 틈 없이 성장합니다.</p></div>
+      <div class="card"><span class="tag">NOTICE</span><h3>납품처 확대 소식</h3><p>거래처가 늘어남에 따라 업무량이 풍성해질 예정입니다. 여러분의 열정이 곧 상단의 미래입니다.</p></div>
+    </div>
+  </section>
+
+  <!-- 채용공고 = 게임적 요소 (행동 시 다음 게임으로) -->
+  <section id="hire">
+    <h2>채용공고</h2>
+    <p class="desc">열정 넘치는 새 가족을 모십니다. 경력·나이 무관, 밤눈 밝으신 분 우대. 급여는 최고의 성장으로 보답드리며, 상세 조건은 입사 후 안내됩니다. 아래 입사 서약(부적)에 3번 서명하시면 채용 절차가 시작됩니다.</p>
+    <div class="card" id="hire-box">
+      <p class="seal" id="hire-count">서약서에 서명하세요 (0/3) — 언제든 그만두실 수 있습니다. 그만둘 수만 있다면요.</p>
+      <button id="hire-btn">陰 입사 서약하기 👆</button>
+      <div id="hire-next">
+        <p style="margin-bottom:12px;">서약 접수되었습니다. 환영합니다, 이제 출근입니다.</p>
+        <a href="index.html">첫 출근하기 ▶</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ = 플레이 방법 / 출시 정보 -->
+  <section id="faq">
+    <h2>FAQ</h2>
+    <p class="desc">자주 접수되는 문의를 모아 답변드립니다. 접수된 불만은 없습니다.</p>
+    <details>
+      <summary>게임 플레이 방법은 어떻게 되나요?</summary>
+      <p>악귀를 잡고 → 키우고 → 잔재로 물건을 만들어 납품하시면 됩니다. 업무 매뉴얼은 현장에서 몸으로 익히시게 되며, 별도의 설명 시간은 마련되어 있지 않습니다.</p>
+    </details>
+    <details>
+      <summary>근무 시간과 휴일은 어떻게 되나요?</summary>
+      <p>당사는 유연한 자율 근무제를 시행합니다. 일이 끝나는 시간에 퇴근하시면 되며, 악귀는 밤에 활동하므로 자연스럽게 밤 중심의 유연한 생활이 가능합니다.</p>
+    </details>
+    <details>
+      <summary>급여와 복지는 어떻게 되나요?</summary>
+      <p>급여는 성장과 경험이라는 최고의 보상으로 지급되며, 식사(야식)·숙소(작업장)·동료(악귀)의 따뜻한 동행이 제공됩니다. 자세한 금액은 열정이 증명된 이후 안내됩니다.</p>
+    </details>
+    <details>
+      <summary>출시는 언제인가요?</summary>
+      <p>여러분의 입사가 곧 출시입니다. 서약서에 서명하시는 순간 게임은 시작됩니다.</p>
+    </details>
+  </section>
+</main>
+
+<footer>© GWISIMUDAM COMPANY — 鬼市巫談. 본 페이지는 게임 세계관 연출용이며, 실존하는 채용과 무관합니다.</footer>
+
+<script>
+  // 채용공고 미니 게임: 부적 3번 누르면 다음 게임 링크 공개
+  let seals = 0;
+  const btn = document.getElementById('hire-btn');
+  const count = document.getElementById('hire-count');
+  const next = document.getElementById('hire-next');
+  btn.addEventListener('click', ()=>{
+    seals++;
+    if(seals < 3){
+      count.textContent = '서약서에 서명하세요 (' + seals + '/3) — 언제든 그만두실 수 있습니다. 그만둘 수만 있다면요.';
+    } else {
+      count.textContent = '서약 완료 (' + seals + '/3) — 환영합니다, 가족님.';
+      btn.style.display = 'none';
+      next.style.display = 'block';
+    }
+  });
+</script>
+</body>
+</html>
