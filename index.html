@@ -137,7 +137,7 @@
   .stage.right .toon-card { margin-left:min(10vw, 120px); }
 
   .toon-card {
-    width:min(72vw, 560px);
+    width:min(80vw, 640px);
     opacity:0;
     transform:translateY(80px) scale(.96);
     transition:opacity .5s ease, transform .5s cubic-bezier(.22,1,.36,1);
@@ -153,7 +153,7 @@
     width:auto;
     height:auto;
     max-width:100%;
-    max-height:76vh;
+    max-height:86vh;
     display:block;
     border-radius:0;
     background:transparent;
@@ -591,7 +591,7 @@
   body.playing.dlgDone #dlg-wrap { display:none; }
 
   @media (max-width:640px){
-    .toon-card { width:86vw; }
+    .toon-card { width:92vw; }
     .stage { padding:1vh 7vw; min-height:48vh; }
     .pixel-btns { flex-direction:column; }
   }
@@ -611,6 +611,7 @@
   <button data-go="quit1">퇴사 고민</button>
   <button data-go="quit2">퇴사!</button>
   <button data-go="quitdecide">퇴사 결정</button>
+  <button data-go="site">회사 사이트</button>
 </nav>
 
 <!-- 스토리 -->
@@ -974,6 +975,9 @@
       const go = btn.dataset.go;
       document.body.classList.remove('menuOpen');
       if(go === 'ch1'){ startGame(); return; }
+      if(go === 'site'){ window.location.href = 'web.html'; return; }
+      if(go === 'brochure'){ window.location.href = 'brochure.html'; return; }
+      if(go === 'brochure'){ window.location.href = 'brochure.html'; return; }
       if(go === 'ch2'){ goChapter('ch2_1.png', 10); return; }
       if(go === 'quit1'){
         // 퇴사 고민: game_3 기본값이 되었을 때 나오는 부분 (하... 대사)
@@ -1840,11 +1844,12 @@
     game2wrap.addEventListener('pointercancel', (e)=>g2drop(e, true));
     game2wrap.addEventListener('click', (e)=>e.stopPropagation());
   }
-  document.addEventListener('click', (e)=>{
+  // 대화 넘기기 (클릭·스페이스·엔터 공용)
+  function advanceDialogue(e){
     if(!document.body.classList.contains('playing')) return;
     if(document.body.classList.contains('dlgDone')) return;
     resetIdle();
-    if(e.target.closest('#choices')) return;
+    if(e.target.closest && e.target.closest('#choices')) return;
     if(document.body.classList.contains('showChoices')) return; // 선택지 표시 중 배경 클릭 무시
     if(dlgIndex === 2){
       // 세 번째 설명 대사 클릭: 대화창 완전히 사라지게 + 바스락 소리 후 손님 등장
@@ -2081,6 +2086,20 @@
     dlgIndex++;
     showDialogue(dlgIndex);
     if(dlgIndex === 3) setChImage('ch1_2.png');
+  }
+  document.addEventListener('click', advanceDialogue);
+  document.addEventListener('keydown', (e)=>{
+    if(e.key !== ' ' && e.key !== 'Enter') return;
+    if(e.repeat) return;
+    const t = e.target;
+    if(t && t.closest && t.closest('button, input, textarea, select, a')) return; // 포커스된 컨트롤은 네이티브 동작
+    if(document.body.classList.contains('playing') && !document.body.classList.contains('dlgDone')){
+      e.preventDefault();
+      advanceDialogue(e);
+    } else if(document.body.classList.contains('finale') && !gameStarted){
+      e.preventDefault();
+      startGame(); // 출근할까? 프롬프트도 키보드로 시작
+    }
   });
   // 원래 화면으로 복귀 (game_1 배경만, 캐릭터 없음, 소리 정지) + ..? 대사
   function revertToBG(){

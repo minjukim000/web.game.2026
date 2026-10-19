@@ -3,171 +3,1625 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>귀시무담 컴퍼니</title>
+<title>GWISIMUDAM COMPANY | 귀시무담 컴퍼니</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;700;900&display=swap" rel="stylesheet">
 <style>
   * { margin:0; padding:0; box-sizing:border-box; }
-  body { font-family:'Noto Sans KR', sans-serif; background:#0e0f14; color:#eee; }
+  html { scroll-behavior:smooth; }
+  body {
+    font-family:'Noto Sans KR', sans-serif;
+    background:#f5f6f8;
+    color:#1a1d24;
+    line-height:1.6;
+  }
   a { color:inherit; text-decoration:none; }
+
+  /* 상단 헤더 */
   header {
-    position:sticky; top:0; z-index:10;
-    display:flex; align-items:center; justify-content:space-between;
-    padding:14px 5vw; background:#0e0f14; border-bottom:1px solid #2a2f3d;
+    position:sticky; top:0; z-index:100;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:16px 6vw;
+    background:#ffffff;
+    border-bottom:1px solid #d3d6dc;
   }
-  .brand { font-weight:900; font-size:20px; letter-spacing:.05em; }
-  .brand small { display:block; font-weight:300; font-size:12px; color:#aab; }
-  nav { display:flex; gap:20px; font-weight:700; font-size:15px; }
-  nav a:hover { color:#ffe14d; }
+  .logo {
+    position:absolute;
+    left:6vw;
+    top:50%;
+    transform:translateY(-50%);
+  }
+  nav {
+    flex:1;
+    display:flex;
+    justify-content:center;
+    text-align:center;
+    gap:24px;
+  }
+  .brand {
+    font-weight:900;
+    font-size:22px;
+    letter-spacing:.05em;
+  }
+  .brand small {
+    display:block;
+    font-weight:300;
+    font-size:11px;
+    color:#7a8290;
+  }
+  nav { display:flex; gap:24px; font-weight:700; font-size:15px; }
+  nav a { color:#1a1d24; }
+  nav a:hover { color:#b78a00; text-decoration:underline; }
+  .menu-toggle { display:none; background:none; border:none; font-size:20px; cursor:pointer; color:#1a1d24; }
+
+  /* 배너(히어로) */
   .hero {
-    min-height:52vh; display:flex; flex-direction:column;
-    align-items:center; justify-content:center; text-align:center;
-    padding:60px 6vw; background:radial-gradient(circle at 50% 20%, #2a2340, #0e0f14 70%);
+    min-height:56vh;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:flex-end;
+    text-align:center;
+    padding:70px 6vw 120px 6vw;
+    background:#e9ebee url('w_ve.png') center/cover no-repeat fixed;
+    position:relative;
   }
-  .hero h1 { font-size:clamp(30px,6vw,54px); font-weight:900; margin-bottom:14px; }
-  .hero h1 span { color:#ffe14d; }
-  .hero p { font-weight:300; color:#ccd; line-height:1.8; }
-  main section { padding:64px 6vw; border-top:1px solid #1e2230; }
-  section h2 { font-size:26px; font-weight:900; margin-bottom:8px; }
-  section .desc { font-weight:300; color:#aab; margin-bottom:28px; line-height:1.7; }
-  .grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:16px; }
-  .card {
-    background:#161a26; border:1px solid #2a2f3d; border-radius:10px;
-    padding:22px; line-height:1.7;
+  .hero > * { position:relative; z-index:1; color:#fff; text-shadow:1px 1px 2px rgba(0,0,0,0.7); }
+  .hero h1 {
+    font-size:clamp(20px,2.5vw,26px);
+    font-weight:900;
+    margin-bottom:8px;
+    line-height:1.2;
   }
-  .card h3 { font-size:17px; font-weight:900; margin-bottom:8px; }
-  .card p { font-size:14px; font-weight:300; color:#bbc; }
-  .tag { display:inline-block; font-size:12px; font-weight:700; color:#111; background:#ffe14d; border-radius:999px; padding:3px 10px; margin-bottom:10px; }
-  /* 채용공고 게임 요소 */
-  #hire-box { text-align:center; padding:30px; }
-  #hire-box .seal { font-size:15px; color:#aab; margin-bottom:16px; }
-  #hire-btn {
-    font-family:inherit; font-weight:900; font-size:17px; cursor:pointer;
-    background:#ffe14d; border:0; border-radius:8px; padding:15px 40px;
+  .hero h1 span { color:#fff; }
+  .hero p {
+    font-weight:300;
+    font-size:clamp(14px,1.4vw,17px);
+    color:#fff;
+    max-width:720px;
+    margin:0 auto;
   }
-  #hire-btn:hover { filter:brightness(1.1); }
-  #hire-next { display:none; margin-top:20px; }
-  #hire-next a {
-    display:inline-block; font-weight:900; color:#111; background:#fff;
-    border-radius:8px; padding:14px 34px;
+
+  /* 배너 아래 스토리 섹션 (이미지 왼쪽, 텍스트 오른쪽) */
+  .story-section {
+    padding: 70px 6vw;
+    background: #f5f6f8;
   }
-  /* FAQ */
-  details { background:#161a26; border:1px solid #2a2f3d; border-radius:8px; margin-bottom:10px; padding:16px 18px; }
-  summary { cursor:pointer; font-weight:700; }
-  details p { margin-top:10px; font-weight:300; font-size:14px; color:#bbc; line-height:1.7; }
-  footer { padding:28px 6vw; color:#778; font-size:13px; border-top:1px solid #1e2230; }
-  @media (max-width:640px){ nav { gap:12px; font-size:13px; } }
+  /* 학사 일정 섹션 */
+  .academic-section {
+    padding: 100px 6vw;
+    background: #e5e7eb;
+  }
+  .academic-container {
+    max-width: 1120px;
+    margin: 0 auto;
+  }
+  .academic-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 40px;
+    align-items: stretch;
+  }
+  .calendar-left {
+    background: #eef3ff;
+    border: 1px solid #e5e7eb;
+    border-radius: 16px;
+    padding: 32px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+  .calendar-badge {
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 900;
+    letter-spacing: .08em;
+    color: #b78a00;
+    margin-bottom: 16px;
+  }
+  .calendar-title {
+    font-size: clamp(24px, 4vw, 40px);
+    font-weight: 900;
+    color: #111827;
+    line-height: 1.3;
+    margin-bottom: 24px;
+  }
+  .calendar-right {
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 16px;
+    padding: 32px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+  .calendar-month-nav {
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:12px;
+    margin: 4px 0 18px;
+  }
+  .calendar-month-label {
+    color:#111827;
+    font-size:18px;
+    font-weight:900;
+    letter-spacing:-.02em;
+  }
+  .calendar-month-arrow {
+    width:34px;
+    height:34px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    border:1px solid #dbe3f5;
+    border-radius:50%;
+    background:#eef3ff;
+    color:#b78a00;
+    font-size:23px;
+    line-height:1;
+    cursor:pointer;
+    transition:background .2s, transform .2s;
+  }
+  .calendar-month-arrow:hover {
+    background:#dce6ff;
+    transform:scale(1.05);
+  }
+  .calendar-month-arrow:focus-visible { outline:2px solid #b78a00; outline-offset:2px; }
+  .calendar-grid-wrap { margin-top: 12px; }
+  .cal-header {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    text-align: center;
+    font-weight: 700;
+    font-size: 12px;
+    color: #6b7280;
+    margin-bottom: 8px;
+  }
+  .cal-days {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 4px;
+  }
+
+  /* 식단표 팝업 */
+  .cal-day { position:relative; min-height:48px; padding:4px 0; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px; background:transparent; border:0; font:inherit; color:#1a1d24; }
+  .cal-day.meal-day { cursor:pointer; }
+  .cal-day.meal-day:hover .day-number { background:#dce6ff; }
+  .cal-day .day-number { width:32px; height:32px; display:flex; align-items:center; justify-content:center; border-radius:50%; font-size:13px; }
+  .cal-day .meal-dot { position:absolute; top:1px; left:50%; transform:translateX(-50%); width:5px; height:5px; border-radius:50%; background:#b78a00; }
+  .cal-day.today { width:auto; height:auto; margin:0; border-radius:0; background:transparent; color:inherit; }
+  .cal-day.today .day-number { background:#b78a00; color:#fff; font-weight:900; }
+  .cal-day.weekend { color:#9ca3af; cursor:default; }
+  .cal-day.empty { visibility:hidden; }
+  .meal-modal { position:fixed; inset:0; z-index:1000; display:none; align-items:center; justify-content:center; padding:20px; background:rgba(17,24,39,.55); }
+  .meal-modal.open { display:flex; }
+  .meal-modal-card { width:min(100%,380px); background:#fff; border:1px solid #e5e7eb; border-radius:16px; padding:28px; box-shadow:0 18px 55px rgba(0,0,0,.2); position:relative; text-align:center; }
+  .meal-modal-kicker { color:#b78a00; font-size:11px; font-weight:900; letter-spacing:.08em; margin-bottom:8px; }
+  .meal-modal-card h3 { color:#111827; font-size:22px; margin-bottom:20px; }
+  .meal-menu { background:#eef3ff; border-radius:12px; padding:18px 14px; color:#1a1d24; line-height:2; }
+  .meal-close { position:absolute; right:14px; top:10px; border:0; background:transparent; color:#6b7280; font-size:26px; cursor:pointer; }
+
+  /* 공지사항 상세 보기 팝업 스타일 (이미지 디자인 반영) */
+  .notice-detail-modal { position:fixed; inset:0; z-index:2000; display:none; align-items:center; justify-content:center; padding:20px; background:rgba(17,24,39,.55); }
+  .notice-detail-modal.open { display:flex; }
+  .notice-detail-card { width:min(100%, 640px); max-height:85vh; background:#fff; border-radius:16px; padding:36px; box-shadow:0 20px 25px -5px rgba(0,0,0,0.1); position:relative; text-align:left; overflow-y:auto; }
+  .notice-detail-close { position:absolute; right:24px; top:24px; border:0; background:transparent; color:#6b7280; font-size:24px; cursor:pointer; }
+  .notice-detail-title { font-size:20px; font-weight:900; color:#111827; line-height:1.4; margin-bottom:12px; padding-right:30px; }
+  .notice-detail-meta { font-size:13px; color:#6b7280; margin-bottom:24px; }
+  .notice-detail-body-box { background:#f8fafc; border:1px solid #e2e8f0; border-radius:12px; padding:24px; font-size:14px; line-height:1.8; color:#334155; }
+
+  .calendar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+  }
+  .calendar-header h3 {
+    font-size: 20px;
+    font-weight: 900;
+    color: #111827;
+    margin: 0;
+  }
+  .calendar-tabs {
+    display: flex;
+    gap: 10px;
+  }
+  .calendar-tabs .tab {
+    font-size: 12px;
+    color: #9ca3af;
+    cursor: pointer;
+    padding: 6px 14px;
+    border: 1px solid #e5e7eb;
+    border-radius: 20px;
+    background: #fff;
+    transition: all 0.2s;
+  }
+  .calendar-tabs .tab.active {
+    color: #111827;
+    background: #f3f4f6;
+    border-color: #d1d5db;
+    font-weight: 700;
+  }
+  .calendar-more a {
+    font-size: 13px;
+    color: #0066cc;
+    text-decoration: none;
+  }
+  .calendar-more a:hover {
+    text-decoration: underline;
+  }
+  .notice-list {
+    list-style: none;
+    padding: 0;
+  }
+  .notice-list li {
+    border-bottom: 1px solid #f3f4f6;
+    padding: 16px 0;
+    cursor: pointer;
+  }
+  .notice-list li:last-child {
+    border-bottom: none;
+  }
+  .notice-list li:hover .notice-title {
+    color: #b78a00;
+  }
+  .notice-title {
+    font-weight: 900;
+    color: #111827;
+    font-size: 15px;
+    margin-bottom: 6px;
+    transition: color 0.2s;
+  }
+  .notice-meta {
+    font-size: 13px;
+    color: #6b7280;
+  }
+  @media (max-width: 768px) {
+    .academic-grid {
+      flex-direction: column;
+    }
+  }
+
+  .story-container {
+    max-width: 1120px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    gap: 48px;
+  }
+  .story-img {
+    flex: 1;
+    min-width: 0;
+  }
+  .story-img img {
+    width: 100%;
+    height: auto;
+    border-radius: 12px;
+    display: block;
+  }
+  .story-content {
+    flex: 1;
+    min-width: 300px;
+    text-align: left;
+  }
+  .story-badge {
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 900;
+    letter-spacing: .08em;
+    color: #b78a00;
+    margin-bottom: 16px;
+  }
+  .story-title {
+    font-size: clamp(20px, 3vw, 30px);
+    font-weight: 900;
+    line-height: 1.35;
+    color: #1a1d24;
+    margin-bottom: 16px;
+  }
+  .story-desc {
+    font-size: clamp(13px, 1.4vw, 15px);
+    color: #5a6270;
+    line-height: 1.7;
+    margin-bottom: 24px;
+  }
+  .story-btn {
+    display: inline-block;
+    background: #1a1d24;
+    color: #fff;
+    border: 1px solid #1a1d24;
+    border-radius: 10px;
+    padding: 14px 36px;
+    font-weight: 900;
+    font-size: 15px;
+    cursor: pointer;
+    text-decoration: none;
+  }
+  .story-btn:hover {
+    background: #fff;
+    color: #1a1d24;
+  }
+
+  /* 공통 섹션 및 가로 넓이 확장 */
+  main { max-width:1120px; margin:0 auto; padding:0 6vw; }
+  section { padding:80px 0; }
+  section h2 {
+    font-size:clamp(26px,5vw,34px);
+    font-weight:900;
+    margin-bottom:10px;
+    text-align:center;
+    letter-spacing:-.02em;
+  }
+  section .desc {
+    font-weight:300;
+    font-size:clamp(15px,2vw,18px);
+    color:#5a6270;
+    text-align:center;
+    margin-bottom:48px;
+    max-width:680px;
+    margin-left:auto;
+    margin-right:auto;
+  }
+
+  /* FAQ 섹션 전용 왼쪽 정렬 및 컨테이너 제한 해제 스타일 */
+  section.faq-section {
+    text-align: left;
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 80px 6vw;
+  }
+  section.faq-section h2,
+  section.faq-section .desc {
+    text-align: left;
+    margin-left: 0;
+    margin-right: 0;
+    max-width: 100%;
+  }
+
+  /* 채용공고 미리보기 */
+  .hire-preview{max-width:1120px;margin:0 auto;background:var(--surface);border:1px solid var(--border-color);border-radius:16px;overflow:hidden}
+  .hire-preview-header{display:flex;justify-content:space-between;align-items:center;gap:20px;padding:25px 30px;border-bottom:1px solid var(--line-color)}
+  .hire-preview-header strong{font-size:17px;color:var(--text-heading)}
+  .hire-preview-header small{display:block;color:var(--text-muted);font-size:12px;font-weight:400;margin-top:4px}
+  .hire-more{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:11px 19px;background:#1a1d24;color:#fff;border-radius:9px;font-size:13px;font-weight:900;white-space:nowrap;transition:background .2s}
+  .hire-more:hover{background:#434955}
+  .hire-preview-list{display:grid;grid-template-columns:1fr 1fr;gap:0}
+  .hire-item{padding:26px 30px;border-bottom:1px solid var(--line-color);min-width:0}
+  .hire-item:nth-child(odd){border-right:1px solid var(--line-color)}
+  .hire-item:nth-last-child(-n+2){border-bottom:0}
+  .hire-item-top{display:flex;align-items:center;gap:9px;flex-wrap:wrap;margin-bottom:11px}
+  .hire-status{font-size:11px;font-weight:900;padding:4px 9px;border-radius:5px;background:#fff0c8;color:#765500}
+  .hire-status.closed{background:#eceef1;color:#687181}
+  .hire-dept{font-size:12px;color:var(--text-muted)}
+  .hire-item h3{font-size:17px;font-weight:900;color:var(--text-heading);line-height:1.45;margin-bottom:9px}
+  .hire-item p{font-size:13px;color:var(--text-muted);line-height:1.7;margin-bottom:14px}
+  .hire-meta{font-size:12px;color:var(--text-muted)}
+  body[data-theme="dark"] .hire-preview{background:var(--surface);border-color:var(--border-color)}
+  body[data-theme="dark"] .hire-status{background:#2b141a;color:#d48a96}
+  body[data-theme="dark"] .hire-status.closed{background:#343b47;color:#b4bbc6}
+  body[data-theme="dark"] .hire-more{background:#651522;color:#fff}
+  body[data-theme="dark"] .hire-more:hover{background:#7c2534}
+  @media(max-width:700px){.hire-preview-header{padding:22px;align-items:flex-start;flex-direction:column}.hire-preview-list{grid-template-columns:1fr}.hire-item{padding:22px;border-right:0!important;border-bottom:1px solid var(--line-color)!important}.hire-item:last-child{border-bottom:0!important}}
+
+  /* 질문 게시판 레이아웃 스타일 */
+  .board-container {
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 16px;
+    padding: 36px 48px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+    text-align: left;
+    position: relative;
+    max-width: 100%;
+    margin: 0;
+    width: 100%;
+  }
+  .board-header-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+    width: 100%;
+  }
+  .board-title {
+    font-size: 24px;
+    font-weight: 900;
+    color: #111827;
+    margin: 0;
+  }
+  .board-register-btn {
+    background: transparent;
+    color: #3b5998;
+    border: 1px solid #3b5998;
+    border-radius: 8px;
+    padding: 10px 20px;
+    font-weight: 700;
+    font-size: 14px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.2s ease;
+  }
+  .board-register-btn:hover {
+    background: #3b5998;
+    color: #ffffff;
+  }
+  .board-list {
+    list-style: none;
+    padding: 0;
+  }
+  .board-item {
+    border-bottom: 1px solid #f3f4f6;
+    padding: 20px 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+  }
+  .board-item:last-child {
+    border-bottom: none;
+  }
+  .board-item-content {
+    flex: 1;
+  }
+  .board-item-title {
+    font-weight: 900;
+    color: #111827;
+    font-size: 16px;
+    margin-bottom: 8px;
+    cursor: pointer;
+  }
+  .board-item-title:hover {
+    color: #3b5998;
+  }
+  .board-item-meta {
+    font-size: 13px;
+    color: #6b7280;
+  }
+  .board-delete-btn {
+    background: transparent;
+    border: 1px solid #d3d6dc;
+    border-radius: 6px;
+    padding: 6px 14px;
+    font-size: 13px;
+    color: #6b7280;
+    cursor: pointer;
+    white-space: nowrap;
+  }
+  .board-delete-btn:hover {
+    background: #f3f4f6;
+    color: #1a1d24;
+  }
+  .board-answer {
+    font-size: 14px;
+    color: #4a5260;
+    padding-top: 10px;
+    line-height: 1.7;
+    display: none;
+  }
+  .board-item.open .board-answer {
+    display: block;
+  }
+
+  /* 팝업 모달 공통 스타일 */
+  .post-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 2000;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    background: rgba(17, 24, 39, 0.55);
+  }
+  .post-modal.open {
+    display: flex;
+  }
+  .post-modal-card {
+    width: min(100%, 640px);
+    background: #fff;
+    border-radius: 12px;
+    padding: 40px;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+    position: relative;
+    text-align: left;
+  }
+  .post-modal-close {
+    position: absolute;
+    right: 24px;
+    top: 24px;
+    border: 0;
+    background: transparent;
+    color: #6b7280;
+    font-size: 24px;
+    cursor: pointer;
+  }
+  .post-modal-card h3 {
+    font-size: 22px;
+    font-weight: 900;
+    color: #111827;
+    margin-bottom: 24px;
+  }
+  .post-notice-box {
+    background: #f0f4f8;
+    border-left: 4px solid #3b5998;
+    border-radius: 4px;
+    padding: 14px 18px;
+    margin-bottom: 24px;
+    font-size: 13px;
+    line-height: 1.5;
+    color: #4a5260;
+  }
+  .post-notice-box strong {
+    color: #3b5998;
+    display: inline-block;
+    margin-bottom: 4px;
+  }
+  .post-form-group {
+    margin-bottom: 16px;
+  }
+  .post-input, .post-textarea {
+    width: 100%;
+    padding: 14px 16px;
+    border: 1px solid #d3d6dc;
+    border-radius: 8px;
+    font-family: inherit;
+    font-size: 14px;
+    color: #1a1d24;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .post-input:focus, .post-textarea:focus {
+    border-color: #3b5998;
+  }
+  .post-textarea {
+    resize: vertical;
+    min-height: 160px;
+  }
+  .post-modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 24px;
+  }
+  .post-btn-cancel, .post-btn-submit {
+    padding: 10px 24px;
+    border-radius: 8px;
+    font-weight: 700;
+    font-size: 14px;
+    cursor: pointer;
+    font-family: inherit;
+  }
+  .post-btn-cancel {
+    background: #fff;
+    border: 1px solid #d3d6dc;
+    color: #4a5260;
+  }
+  .post-btn-cancel:hover {
+    background: #f3f4f6;
+  }
+  .post-btn-submit {
+    background: #3b5998;
+    border: 1px solid #3b5998;
+    color: #fff;
+  }
+  .post-btn-submit:hover {
+    background: #324b82;
+  }
+
+  /* SNS 섹션 및 푸터 */
+  .sns-section {
+    padding: 80px 4vw;
+    background: #f5f6f8;
+    text-align: center;
+  }
+  .sns-container {
+    max-width: 1120px;
+    margin: 0 auto;
+  }
+  .sns-section h2 {
+    font-size: clamp(26px, 5vw, 40px);
+    font-weight: 900;
+    color: #1a1d24;
+    margin-bottom: 12px;
+  }
+  .sns-section .desc {
+    font-weight: 300;
+    font-size: clamp(15px, 2vw, 18px);
+    color: #6b7280;
+    margin-bottom: 48px;
+  }
+  .sns-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 24px;
+    justify-content: center;
+  }
+  .sns-card {
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    padding: 32px 24px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    height: 220px;
+    width: 100%;
+  }
+  .sns-icon {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    background: #eef2ff;
+    margin: 0 auto 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .sns-name {
+    font-weight: 700;
+    font-size: 16px;
+    color: #111827;
+    margin-bottom: 8px;
+  }
+  .sns-link {
+    display: inline-block;
+    font-size: 13px;
+    color: #6b7280;
+    text-decoration: none;
+  }
+  .sns-link:hover {
+    color: #b78a00;
+    text-decoration: underline;
+  }
+  .sns-footer-space {
+    padding: 60px 6vw;
+    background-color: #2d3139;
+    text-align: center;
+  }
+  .footer-disclaimer {
+    color: #ffffff;
+    font-size: 11px;
+    font-weight: 300;
+    line-height: 1.6;
+    max-width: 800px;
+    margin: 0 auto;
+    opacity: 0.85;
+  }
+
+  @media (max-width:640px){
+    nav { display:none; }
+    .menu-toggle { display:block; }
+    .hero { min-height:42vh; padding:50px 6vw 40px; }
+    section { padding:56px 0; }
+  }
+
+  /* 라이트/다크 모드 전환 버튼 */
+  .theme-toggle {
+    position:absolute;
+    right:6vw;
+    top:50%;
+    transform:translateY(-50%);
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    gap:7px;
+    padding:9px 13px;
+    border:1px solid #d3d6dc;
+    border-radius:999px;
+    background:#f5f6f8;
+    color:#1a1d24;
+    font:700 13px 'Noto Sans KR', sans-serif;
+    cursor:pointer;
+    transition:background .2s, color .2s, border-color .2s;
+    white-space:nowrap;
+  }
+  .theme-toggle:hover { background:#e9ebee; }
+  .theme-toggle:focus-visible { outline:3px solid #b78a00; outline-offset:3px; }
+  @media (max-width:900px) {
+    header { justify-content:flex-start; padding-right:6vw; }
+    nav { margin-left:180px; margin-right:120px; gap:12px; font-size:13px; }
+    .theme-toggle { right:3vw; padding:8px 10px; }
+  }
+  @media (max-width:640px) {
+    header { min-height:70px; justify-content:flex-end; padding:12px 5vw; }
+    .logo { left:5vw; }
+    .brand { font-size:18px; }
+    .brand small { font-size:9px; }
+    .menu-toggle { margin-right:116px; }
+    .theme-toggle { right:5vw; font-size:12px; padding:8px 10px; }
+  }
+
+  /* 색상 변수를 통해 추후 추가되는 텍스트와 콘텐츠도 테마에 맞게 표시 */
+  body {
+    --page-bg:#f5f6f8;
+    --surface:#ffffff;
+    --surface-muted:#f8fafc;
+    --section-bg:#e5e7eb;
+    --text-main:#1a1d24;
+    --text-heading:#111827;
+    --text-body:#4a5260;
+    --text-muted:#6b7280;
+    --border-color:#d3d6dc;
+    --line-color:#e5e7eb;
+    --input-bg:#ffffff;
+    --accent-soft:#eef3ff;
+    background:var(--page-bg);
+    color:var(--text-main);
+    transition:background-color .25s, color .25s;
+  }
+  body[data-theme="dark"] {
+    color-scheme:dark;
+    --page-bg:#111318;
+    --surface:#1b1f27;
+    --surface-muted:#242a34;
+    --section-bg:#171a21;
+    --text-main:#e7eaf0;
+    --text-heading:#f3f4f6;
+    --text-body:#c2c8d2;
+    --text-muted:#a0a8b6;
+    --border-color:#3a414d;
+    --line-color:#343b47;
+    --input-bg:#202630;
+    --accent-soft:#252e40;
+  }
+  body[data-theme="dark"] header,
+  body[data-theme="dark"] .calendar-right,
+  body[data-theme="dark"] .meal-modal-card,
+  body[data-theme="dark"] .notice-detail-card,
+  body[data-theme="dark"] .post-modal-card,
+  body[data-theme="dark"] #hire-box,
+  body[data-theme="dark"] .board-container,
+  body[data-theme="dark"] .sns-card {
+    background:var(--surface);
+    color:var(--text-main);
+    border-color:var(--border-color);
+  }
+  body[data-theme="dark"] header { border-bottom-color:var(--border-color); }
+  body[data-theme="dark"] .story-section,
+  body[data-theme="dark"] .sns-section { background:var(--page-bg); }
+  body[data-theme="dark"] .academic-section { background:var(--section-bg); }
+  body[data-theme="dark"] .calendar-left { background:#202a3a; border-color:var(--border-color); }
+  body[data-theme="dark"] .calendar-title,
+  body[data-theme="dark"] .calendar-month-label,
+  body[data-theme="dark"] .calendar-header h3,
+  body[data-theme="dark"] .notice-title,
+  body[data-theme="dark"] .board-title,
+  body[data-theme="dark"] .board-item-title,
+  body[data-theme="dark"] .sns-name,
+  body[data-theme="dark"] .story-title,
+  body[data-theme="dark"] .sns-section h2,
+  body[data-theme="dark"] .notice-detail-title,
+  body[data-theme="dark"] .post-modal-card h3,
+  body[data-theme="dark"] .meal-modal-card h3 {
+    color:var(--text-heading);
+  }
+  body[data-theme="dark"] nav a,
+  body[data-theme="dark"] .menu-toggle { color:var(--text-main); }
+  body[data-theme="dark"] .brand small,
+  body[data-theme="dark"] .story-desc,
+  body[data-theme="dark"] section .desc,
+  body[data-theme="dark"] .sns-section .desc,
+  body[data-theme="dark"] .notice-meta,
+  body[data-theme="dark"] .board-item-meta,
+  body[data-theme="dark"] .board-answer,
+  body[data-theme="dark"] .calendar-tabs .tab,
+  body[data-theme="dark"] .cal-header,
+  body[data-theme="dark"] .calendar-more a,
+  body[data-theme="dark"] #hire-box .seal,
+  body[data-theme="dark"] .sns-link,
+  body[data-theme="dark"] .notice-detail-meta,
+  body[data-theme="dark"] .notice-detail-body-box,
+  body[data-theme="dark"] .post-notice-box {
+    color:var(--text-muted);
+  }
+  body[data-theme="dark"] .calendar-month-arrow {
+    background:#252e40;
+    border-color:#3b4659;
+    color:#f3c64e;
+  }
+  body[data-theme="dark"] .calendar-month-arrow:hover,
+  body[data-theme="dark"] .cal-day.meal-day:hover .day-number { background:#354158; }
+  body[data-theme="dark"] .cal-day { color:var(--text-main); }
+  body[data-theme="dark"] .cal-day.weekend { color:#707988; }
+  body[data-theme="dark"] .meal-menu,
+  body[data-theme="dark"] .calendar-tabs .tab,
+  body[data-theme="dark"] .sns-icon {
+    background:var(--surface-muted);
+    color:var(--text-main);
+    border-color:var(--border-color);
+  }
+  body[data-theme="dark"] .calendar-tabs .tab.active {
+    background:#343b47;
+    border-color:#4b5563;
+    color:#ffffff;
+  }
+  body[data-theme="dark"] .notice-list li,
+  body[data-theme="dark"] .board-item { border-bottom-color:var(--line-color); }
+  body[data-theme="dark"] .notice-detail-body-box {
+    background:var(--surface-muted);
+    border-color:var(--border-color);
+    color:var(--text-body);
+  }
+  body[data-theme="dark"] .post-notice-box {
+    background:#222b38;
+    border-left-color:#7897d4;
+    color:var(--text-body);
+  }
+  body[data-theme="dark"] .post-notice-box strong { color:#a9c3ff; }
+  body[data-theme="dark"] .post-input,
+  body[data-theme="dark"] .post-textarea {
+    background:var(--input-bg);
+    color:var(--text-main);
+    border-color:var(--border-color);
+  }
+  body[data-theme="dark"] .post-input::placeholder,
+  body[data-theme="dark"] .post-textarea::placeholder { color:#9aa3b2; }
+  body[data-theme="dark"] .post-btn-cancel {
+    background:var(--surface-muted);
+    color:var(--text-main);
+    border-color:var(--border-color);
+  }
+  body[data-theme="dark"] .post-btn-cancel:hover,
+  body[data-theme="dark"] .board-delete-btn:hover { background:#343b47; color:#fff; }
+  body[data-theme="dark"] .board-delete-btn {
+    border-color:var(--border-color);
+    color:var(--text-muted);
+  }
+  body[data-theme="dark"] .theme-toggle {
+    background:#292f3a;
+    color:#f5d778;
+    border-color:#485160;
+  }
+  body[data-theme="dark"] .theme-toggle:hover { background:#353d4a; }
+  body[data-theme="dark"] .story-btn {
+    background:#f3f4f6;
+    color:#171a21;
+    border-color:#f3f4f6;
+  }
+  body[data-theme="dark"] .story-btn:hover { background:#292f3a; color:#fff; }
+  body[data-theme="dark"] .sns-footer-space { background:#090b0f; }
+  body[data-theme="dark"] .footer-disclaimer { color:#d4d8e0; }
+  body[data-theme="dark"] .story-content,
+  body[data-theme="dark"] .calendar-right,
+  body[data-theme="dark"] .board-container,
+  body[data-theme="dark"] .sns-container { color:var(--text-main); }
+  body[data-theme="dark"] .calendar-left .calendar-title { color:#f3f4f6; }
+  body[data-theme="dark"] .calendar-left .calendar-badge { color:#f3c64e; }
+  body[data-theme="dark"] .meal-close,
+  body[data-theme="dark"] .notice-detail-close,
+  body[data-theme="dark"] .post-modal-close { color:#c2c8d2; }
+  body[data-theme="dark"] .meal-close:hover,
+  body[data-theme="dark"] .notice-detail-close:hover,
+  body[data-theme="dark"] .post-modal-close:hover { color:#ffffff; }
+  body[data-theme="dark"] .calendar-month-label { color:var(--text-heading); }
+  body[data-theme="dark"] .sns-link:hover { color:#f3c64e; }
+  body[data-theme="dark"] .board-register-btn { color:#a9c3ff; border-color:#7897d4; }
+  body[data-theme="dark"] .board-register-btn:hover { background:#3b5998; color:#fff; }
+
+
+  /* 다크 모드 전용 와인 레드 포인트 컬러 (라이트 모드는 기존 골드 유지) */
+  body[data-theme="dark"] {
+    --accent-wine:#651522;
+    --accent-wine-light:#b85b69;
+    --accent-wine-soft:#2b141a;
+  }
+  body[data-theme="dark"] .calendar-badge,
+  body[data-theme="dark"] .story-badge,
+  body[data-theme="dark"] .meal-modal-kicker,
+  body[data-theme="dark"] .calendar-left .calendar-badge,
+  body[data-theme="dark"] .sns-link:hover,
+  body[data-theme="dark"] nav a:hover,
+  body[data-theme="dark"] .notice-list li:hover .notice-title,
+  body[data-theme="dark"] .notice-title:hover,
+  body[data-theme="dark"] .calendar-month-arrow {
+    color:var(--accent-wine-light);
+  }
+  body[data-theme="dark"] .cal-day .meal-dot,
+  body[data-theme="dark"] .cal-day.today .day-number {
+    background:var(--accent-wine);
+  }
+  body[data-theme="dark"] .calendar-month-arrow,
+  body[data-theme="dark"] .calendar-left,
+  body[data-theme="dark"] .meal-menu {
+    background-color:var(--accent-wine-soft);
+  }
+  body[data-theme="dark"] .theme-toggle {
+    color:var(--accent-wine-light);
+    border-color:var(--accent-wine);
+  }
+  body[data-theme="dark"] .theme-toggle:focus-visible,
+  body[data-theme="dark"] .calendar-month-arrow:focus-visible {
+    outline-color:var(--accent-wine-light);
+  }
+  body[data-theme="dark"] .cal-day.meal-day:hover .day-number,
+  body[data-theme="dark"] .calendar-month-arrow:hover {
+    background:#47202a;
+  }
+  body[data-theme="dark"] .story-btn:hover {
+    background:var(--accent-wine-soft);
+    border-color:var(--accent-wine);
+  }
+
 </style>
 </head>
 <body>
 
 <header>
-  <a class="brand" href="#top">鬼市巫談<small>GWISIMUDAM COMPANY</small></a>
+  <div class="logo">
+    <a class="brand" href="#top">鬼市巫談<small>GWISIMUDAM COMPANY</small></a>
+  </div>
+  <button class="menu-toggle" aria-label="메뉴">≡</button>
   <nav>
-    <a href="#about">회사 소개</a>
-    <a href="#exec">임원 소개</a>
-    <a href="#news">NEWS</a>
-    <a href="#hire">채용공고</a>
+    <a href="brochure.html">회사 소개</a>
+    <a href="char.html">임원 소개</a>
+    <a href="news.html">NEWS</a>
+    <a href="job-postings.html">채용공고</a>
     <a href="#faq">FAQ</a>
   </nav>
+  <button type="button" class="theme-toggle" id="theme-toggle" aria-label="다크 모드로 전환" aria-pressed="false">
+    <span class="theme-toggle-icon" aria-hidden="true">☾</span>
+    <span class="theme-toggle-label">다크 모드</span>
+  </button>
 </header>
 
 <div class="hero" id="top">
-  <h1>악귀를 잡아, <span>물건으로 빚는다</span></h1>
-  <p>열정 넘치는 무당들과 함께하는 자율적인 성장의 장.<br>귀시(鬼市)의 상단, 귀시무담 컴퍼니는 가족 같은 분위기 속에서 여러분의 가능성을 활짝 열어드립니다.</p>
+  <h1>귀시무담 컴퍼니</h1>
+  <p>더 많이 더 빠르게 생산하고 납품합니다.</p>
+</div>
+
+<section class="story-section">
+  <div class="story-container">
+    <div class="story-img">
+      <img src="w_v1.png" alt="Campus building" />
+    </div>
+    <div class="story-content">
+      <span class="story-badge">COMPANY · SINCE 2026</span>
+      <h2 class="story-title">밤이 깊어져도 시장은 멈추지 않습니다.<br>우리는 그 흐름을 책임집니다.</h2>
+      <p class="story-desc">귀시무담 컴퍼니는 은밀하고 거대한 밤의 거래 속에서 끊임없는 물류와 생산을 이어갑니다. 멈추지 않는 어둠의 흐름 속에서 가장 신속하고 정확한 가치를 전달하며 진정한 심야 시장의 중심을 만들어갑니다.</p>
+      <a href="brochure.html" class="story-btn">회사 브로슈어 →</a>
+    </div>
+  </div>
+</section>
+
+<section class="academic-section">
+  <div class="academic-container">
+    <h2>공지사항</h2>
+
+    <div class="academic-grid">
+      <!-- 식단표 파트 -->
+      <div class="calendar-left">
+        <div>
+          <div class="calendar-badge">식단표</div>
+          <h3 class="calendar-title">식단표</h3>
+          <div class="calendar-month-nav" aria-label="달력 월 선택">
+            <button type="button" class="calendar-month-arrow" id="prev-month" aria-label="이전 달">‹</button>
+            <div class="calendar-month-label" id="calendar-month-label" aria-live="polite"></div>
+            <button type="button" class="calendar-month-arrow" id="next-month" aria-label="다음 달">›</button>
+          </div>
+          <div class="calendar-grid-wrap">
+            <div class="cal-header">
+              <div class="cal-week">일</div>
+              <div class="cal-week">월</div>
+              <div class="cal-week">화</div>
+              <div class="cal-week">수</div>
+              <div class="cal-week">목</div>
+              <div class="cal-week">금</div>
+              <div class="cal-week">토</div>
+            </div>
+            <div class="cal-days" id="cal-days"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 식단표 팝업 -->
+      <div class="meal-modal" id="meal-modal" role="dialog" aria-modal="true" aria-labelledby="meal-modal-title">
+        <div class="meal-modal-card">
+          <button class="meal-close" id="meal-close" aria-label="팝업 닫기">×</button>
+          <div class="meal-modal-kicker">TODAY'S DINNER</div>
+          <h3 id="meal-modal-title">저녁 식단</h3>
+          <div class="meal-menu" id="meal-menu"></div>
+        </div>
+      </div>
+
+      <!-- 공지사항 파트 -->
+      <div class="calendar-right">
+        <div>
+          <div class="calendar-header">
+            <h3>공지사항</h3>
+            <div class="calendar-tabs" id="notice-tabs">
+              <span class="tab active" data-filter="전체">전체</span>
+              <span class="tab" data-filter="공지">공지</span>
+              <span class="tab" data-filter="모집">모집</span>
+            </div>
+            <div class="calendar-more"><a href="news.html">View More +</a></div>
+          </div>
+          <ul class="notice-list" id="notice-list">
+            <li class="notice-item" data-category="공지" data-title="[공지] 귀시무담 컴퍼니 상반기 생산 목표 초과 달성 안내" data-date="2026.08.20" data-content="안녕하세요, 귀시무담 컴퍼니 경영지원팀입니다.<br><br>임직원 여러분의 밤낮없는 헌신과 빠른 납품 덕분에 금년도 상반기 생산 목표를 150% 초과 달성하였습니다. 이에 따라 전 사원 특별 야식 쿠폰 및 부적 보너스가 지급될 예정입니다.<br><br>앞으로도 '더 많이 더 빠르게'라는 사훈에 걸맞은 생산 역량을 보여주시길 바랍니다.">
+              <div class="notice-title">[공지] 귀시무담 컴퍼니 상반기 생산 목표 초과 달성 안내</div>
+              <div class="notice-meta">2026.08.20 | 공지</div>
+            </li>
+            <li class="notice-item" data-category="모집" data-title="[모집] 야간 작업 및 혼령 관리 특별 인력 공개 채용 안내" data-date="2026.06.05" data-content="안녕하세요, 귀시무담 컴퍼니 인사관리부입니다.<br><br>당사와 함께 야간 물류 및 혼령 분류 작업을 수행할 신규 인재를 모집합니다. 밤눈이 밝고 심신이 강건하신 분들의 많은 지원 바랍니다.<br><br>[모집 안내]<br>- 담당 업무: 야간 영혼 분류 및 고속 납품 포장<br>- 근무 시간: 해질녘부터 동틀 녘까지 (자율 연장 가능)<br>- 지원 방법: 채용공고 페이지에서 상세 내용 확인">
+              <div class="notice-title">[모집] 야간 작업 및 혼령 관리 특별 인력 공개 채용 안내</div>
+              <div class="notice-meta">2026.06.05 | 모집</div>
+            </li>
+            <li class="notice-item" data-category="공지" data-title="[안내] 사내 보안 및 야간 보안등 점검 시간 안내" data-date="2026.05.22" data-content="안녕하세요, 귀시무담 컴퍼니 보안관리실입니다.<br><br>원활한 야간 작업 환경 조성과 악귀 침입 방지를 위해 사내 보안 시스템 및 보안등 정기 점검을 실시합니다.<br><br>점검 시간 동안 사내 이동 시 반드시 개인용 부적을 패용해 주시기 바랍니다. 협조해 주셔서 감사합니다.">
+              <div class="notice-title">[안내] 사내 보안 및 야간 보안등 점검 시간 안내</div>
+              <div class="notice-meta">2026.05.22 | 공지</div>
+            </li>
+            <li class="notice-item" data-category="모집" data-title="2026학년도 사내 동호회 및 부적 제작 봉사단 모집" data-date="2026.05.17" data-content="귀시무담 컴퍼니 임직원 여러분의 취미 생활과 영혼 정화를 위한 사내 동호회 및 부적 제작 봉사단을 공개 모집합니다.<br><br>활동 우수자에게는 특별 포상 휴가가 주어지니 많은 참여 바랍니다.">
+              <div class="notice-title">2026학년도 사내 동호회 및 부적 제작 봉사단 모집</div>
+              <div class="notice-meta">2026.05.17 | 모집</div>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 공지사항 상세 보기 팝업 모달 -->
+<div class="notice-detail-modal" id="notice-detail-modal" role="dialog" aria-modal="true">
+  <div class="notice-detail-card">
+    <button class="notice-detail-close" id="notice-detail-close" aria-label="팝업 닫기" type="button">×</button>
+    <div class="notice-detail-title" id="modal-notice-title">공지 제목</div>
+    <div class="notice-detail-meta" id="modal-notice-meta">2026.06.05 · 공지</div>
+    <div class="notice-detail-body-box" id="modal-notice-content">
+      공지 내용이 들어갑니다.
+    </div>
+  </div>
 </div>
 
 <main>
-  <!-- 회사 소개 -->
-  <section id="about">
-    <h2>회사 소개</h2>
-    <p class="desc">귀시무담 컴퍼니는 귀시 시장의 유통을 총괄하는 상단입니다. 구성원 한 분 한 분이 주인이 되는 주인 의식으로, 포획부터 납품까지 전 과정을 함께합니다. 퇴근 시간은 자율적으로 정하시면 됩니다.</p>
-    <div class="grid">
-      <div class="card"><h3>포획팀</h3><p>밤의 현장을 누비는 외근 부서입니다. 야행성 인재를 우대하며, 달이 뜨면 자연스럽게 출근하게 됩니다.</p></div>
-      <div class="card"><h3>사육팀</h3><p>잡아온 악귀를 정성껏 돌보는 보육 부서입니다. 애정과 책임감으로 24시간 함께합니다.</p></div>
-      <div class="card"><h3>가공 · 납품팀</h3><p>잔재를 고부가가치 상품으로 빚어내는 핵심 부서입니다. 납품 기한은 협의가 아닌 약속입니다.</p></div>
-    </div>
-  </section>
-
-  <!-- 임원 소개 = 게임 캐릭터 소개 -->
-  <section id="exec">
-    <h2>임원 소개</h2>
-    <p class="desc">언제나 웃는 얼굴로 구성원을 맞이하는 든든한 리더들입니다. 면담 신청은 수시로 가능하며, 거절은 어렵습니다.</p>
-    <div class="grid">
-      <div class="card"><span class="tag">대표 무당</span><h3>상단주</h3><p>포획과 사육을 총괄합니다. "우리 모두 가족"이라는 말씀을 자주 하시며, 가족의 일은 끝이 없다고 덧붙이십니다.</p></div>
-      <div class="card"><span class="tag">가공 장인</span><h3>대장장이</h3><p>잔재 가공의 달인입니다. "못할 게 뭐 있어"를 입버릇처럼 달고 살며, 실제로 못하게 두지 않으십니다.</p></div>
-      <div class="card"><span class="tag">납품 책사</span><h3>장부지기</h3><p>납품처를 관리합니다. 미소를 지으며 기한을 앞당기는 재주가 있어, 모두가 날짜 감각을 잃었다고 합니다.</p></div>
-      <div class="card"><span class="tag">신입 환영</span><h3>빈 자리</h3><p>바로 당신의 자리입니다. 전임자는 성장하여 더 큰 곳으로 떠났다고 전해집니다. 자세한 행방은 확인 중입니다.</p></div>
-    </div>
-  </section>
-
-  <!-- NEWS = 게임 스토리 / 정보 -->
-  <section id="news">
-    <h2>NEWS</h2>
-    <p class="desc">상단의 기쁜 소식들을 가장 먼저 전해드립니다. 나쁜 소식은 없습니다.</p>
-    <div class="grid">
-      <div class="card"><span class="tag">STORY</span><h3>프롤로그: 귀시가 열리다</h3><p>악귀가 거래되는 시장 귀시, 새로운 일꾼(무당)이 들어서며 이야기가 시작됩니다. 도망칠 수 없는 구조는 아니지만, 나가는 문은 잘 보이지 않습니다.</p></div>
-      <div class="card"><span class="tag">INFO</span><h3>순환 시스템 안내</h3><p>포획 → 사육 → 가공 → 납품으로 이어지는 아름다운 순환. 멈추는 구간이 없도록 설계되어 있어, 구성원은 쉴 틈 없이 성장합니다.</p></div>
-      <div class="card"><span class="tag">NOTICE</span><h3>납품처 확대 소식</h3><p>거래처가 늘어남에 따라 업무량이 풍성해질 예정입니다. 여러분의 열정이 곧 상단의 미래입니다.</p></div>
-    </div>
-  </section>
-
-  <!-- 채용공고 = 게임적 요소 (행동 시 다음 게임으로) -->
+  <!-- 채용공고 미리보기: 전체 공고는 job-postings.html에서 확인 -->
   <section id="hire">
     <h2>채용공고</h2>
-    <p class="desc">열정 넘치는 새 가족을 모십니다. 경력·나이 무관, 밤눈 밝으신 분 우대. 급여는 최고의 성장으로 보답드리며, 상세 조건은 입사 후 안내됩니다. 아래 입사 서약(부적)에 3번 서명하시면 채용 절차가 시작됩니다.</p>
-    <div class="card" id="hire-box">
-      <p class="seal" id="hire-count">서약서에 서명하세요 (0/3) — 언제든 그만두실 수 있습니다. 그만둘 수만 있다면요.</p>
-      <button id="hire-btn">陰 입사 서약하기 👆</button>
-      <div id="hire-next">
-        <p style="margin-bottom:12px;">서약 접수되었습니다. 환영합니다, 이제 출근입니다.</p>
-        <a href="index.html">첫 출근하기 ▶</a>
+    <p class="desc">귀시무담 컴퍼니의 채용 현황을 확인해 보세요. 현재 1개 직무에서 새로운 동료를 모집하고 있습니다.</p>
+    <div class="hire-preview">
+      <div class="hire-preview-header">
+        <div><strong>진행 중인 채용 및 지난 공고</strong><small>모집 중 1건 · 모집 종료 3건</small></div>
+        <a class="hire-more" href="job-postings.html">채용공고 더보기 →</a>
+      </div>
+      <div class="hire-preview-list">
+        <article class="hire-item">
+          <div class="hire-item-top"><span class="hire-status">모집 중</span><span class="hire-dept">야간운영부 · 정규직</span></div>
+          <h3>야간 작업 및 혼령 관리 특별 인력</h3>
+          <p>야간 현장 운영과 혼령 분류 업무를 담당할 인력을 모집합니다.</p>
+          <div class="hire-meta">야간 교대 근무 · 현장 근무 · 상시 접수</div>
+        </article>
+        <article class="hire-item">
+          <div class="hire-item-top"><span class="hire-status closed">모집 종료</span><span class="hire-dept">혼령관리부 · 계약직</span></div>
+          <h3>혼령 기록 및 문서 관리 담당자</h3>
+          <p>인계 기록과 분류 문서 정리 및 부서별 자료 요청 대응 업무입니다.</p>
+          <div class="hire-meta">주간 근무 · 본사 사무실</div>
+        </article>
+        <article class="hire-item">
+          <div class="hire-item-top"><span class="hire-status closed">모집 종료</span><span class="hire-dept">물류관리부 · 정규직</span></div>
+          <h3>특수 물류 및 납품 운영 담당자</h3>
+          <p>물품 포장과 재고 확인, 정해진 시간에 맞춘 납품 운영 업무입니다.</p>
+          <div class="hire-meta">교대 근무 가능 · 물류 거점</div>
+        </article>
+        <article class="hire-item">
+          <div class="hire-item-top"><span class="hire-status closed">모집 종료</span><span class="hire-dept">안전관리부 · 기간제</span></div>
+          <h3>야간 시설 안전 점검 담당자</h3>
+          <p>사업장 시설 및 안전 장비 점검과 이상 상황 보고 업무입니다.</p>
+          <div class="hire-meta">야간 순찰 · 사업장 순회</div>
+        </article>
       </div>
     </div>
   </section>
-
-  <!-- FAQ = 플레이 방법 / 출시 정보 -->
-  <section id="faq">
-    <h2>FAQ</h2>
-    <p class="desc">자주 접수되는 문의를 모아 답변드립니다. 접수된 불만은 없습니다.</p>
-    <details>
-      <summary>게임 플레이 방법은 어떻게 되나요?</summary>
-      <p>악귀를 잡고 → 키우고 → 잔재로 물건을 만들어 납품하시면 됩니다. 업무 매뉴얼은 현장에서 몸으로 익히시게 되며, 별도의 설명 시간은 마련되어 있지 않습니다.</p>
-    </details>
-    <details>
-      <summary>근무 시간과 휴일은 어떻게 되나요?</summary>
-      <p>당사는 유연한 자율 근무제를 시행합니다. 일이 끝나는 시간에 퇴근하시면 되며, 악귀는 밤에 활동하므로 자연스럽게 밤 중심의 유연한 생활이 가능합니다.</p>
-    </details>
-    <details>
-      <summary>급여와 복지는 어떻게 되나요?</summary>
-      <p>급여는 성장과 경험이라는 최고의 보상으로 지급되며, 식사(야식)·숙소(작업장)·동료(악귀)의 따뜻한 동행이 제공됩니다. 자세한 금액은 열정이 증명된 이후 안내됩니다.</p>
-    </details>
-    <details>
-      <summary>출시는 언제인가요?</summary>
-      <p>여러분의 입사가 곧 출시입니다. 서약서에 서명하시는 순간 게임은 시작됩니다.</p>
-    </details>
-  </section>
 </main>
 
-<footer>© GWISIMUDAM COMPANY — 鬼市巫談. 본 페이지는 게임 세계관 연출용이며, 실존하는 채용과 무관합니다.</footer>
+<!-- FAQ 섹션 -->
+<section id="faq" class="faq-section">
+  <h2>FAQ</h2>
+  <p class="desc">자주 접수되는 문의를 모아 답변드립니다.</p>
+  
+  <div class="board-container">
+    <div class="board-header-row">
+      <div class="board-title">질문 게시판</div>
+      <button class="board-register-btn" id="open-post-modal">질문 등록하기</button>
+    </div>
+    
+    <ul class="board-list" id="board-list">
+      <li class="board-item" data-password="1234">
+        <div class="board-item-content">
+          <div class="board-item-title">근무 시간과 휴일은 어떻게 되나요?</div>
+          <div class="board-item-meta">2026.06.05 20:07 &nbsp;|&nbsp; 익명</div>
+          <div class="board-answer">당사는 유연한 자율 근무제를 시행합니다. 일이 끝나는 시간에 퇴근하시면 되며, 악귀는 밤에 활동하므로 자연스럽게 밤 중심의 유연한 생활이 가능합니다.</div>
+        </div>
+        <button class="board-delete-btn" type="button">삭제</button>
+      </li>
+      <li class="board-item" data-password="1234">
+        <div class="board-item-content">
+          <div class="board-item-title">급여와 복지는 어떻게 되나요?</div>
+          <div class="board-item-meta">2026.05.22 14:15 &nbsp;|&nbsp; 익명</div>
+          <div class="board-answer">급여는 성장과 경험이라는 최고의 보상으로 지급되며, 식사(야식)·숙소(작업장)·동료(악귀)의 따뜻한 동행이 제공됩니다.</div>
+        </div>
+        <button class="board-delete-btn" type="button">삭제</button>
+      </li>
+    </ul>
+  </div>
+</section>
+
+<!-- 질문 등록 팝업 모달 HTML -->
+<div class="post-modal" id="post-modal" role="dialog" aria-modal="true" aria-labelledby="post-modal-title">
+  <div class="post-modal-card">
+    <button class="post-modal-close" id="post-modal-close" aria-label="팝업 닫기" type="button">×</button>
+    <h3 id="post-modal-title">게시글 등록</h3>
+    
+    <div class="post-notice-box">
+      <strong>건전한 게시판 이용을 부탁드립니다.</strong><br>
+      욕설·비방·음란물·광고·도배·인신공격·개인정보 노출 등 부적절한 내용은 사전 안내 없이 삭제될 수 있으며, 반복 시 IP가 차단될 수 있습니다.
+    </div>
+
+    <div class="post-form-group">
+      <input type="text" class="post-input" id="post-nickname" placeholder="닉네임 (최대 20자)" maxlength="20">
+    </div>
+    <div class="post-form-group">
+      <input type="password" class="post-input" id="post-password" placeholder="비밀번호 (4~30자, 본인 글 삭제 시 사용)" maxlength="30">
+    </div>
+    <div class="post-form-group">
+      <input type="text" class="post-input" id="post-title" placeholder="제목 (최대 60자)" maxlength="60">
+    </div>
+    <div class="post-form-group">
+      <textarea class="post-textarea" id="post-content" placeholder="내용을 입력해주세요. 욕설·음란·광고 등 부적절한 글은 삭제됩니다. (최대 2,000자)" maxlength="2000"></textarea>
+    </div>
+
+    <div class="post-modal-footer">
+      <button type="button" class="post-btn-cancel" id="post-btn-cancel">취소</button>
+      <button type="button" class="post-btn-submit" id="post-btn-submit">등록</button>
+    </div>
+  </div>
+</div>
+
+<!-- 삭제 비밀번호 입력 팝업 모달 HTML -->
+<div class="post-modal" id="delete-modal" role="dialog" aria-modal="true" aria-labelledby="delete-modal-title">
+  <div class="post-modal-card" style="max-width: 420px;">
+    <button class="post-modal-close" id="delete-modal-close" aria-label="팝업 닫기" type="button">×</button>
+    <h3 id="delete-modal-title" style="font-size: 18px; margin-bottom: 16px;">비밀번호를 입력하세요</h3>
+    
+    <div class="post-form-group" style="margin-bottom: 0;">
+      <input type="password" class="post-input" id="delete-password-input" placeholder="비밀번호를 입력해주세요">
+    </div>
+
+    <div class="post-modal-footer">
+      <button type="button" class="post-btn-cancel" id="delete-btn-cancel">취소</button>
+      <button type="button" class="post-btn-submit" id="delete-btn-confirm">확인</button>
+    </div>
+  </div>
+</div>
+
+<!-- SNS 섹션 -->
+<section class="sns-section">
+  <div class="sns-container">
+    <h2>SNS</h2>
+    <p class="desc">귀시무담 컴퍼니의 다양한 소식을 빠르게 전합니다.</p>
+    <div class="sns-grid">
+      <div class="sns-card">
+        <div class="sns-icon">X</div>
+        <div class="sns-name">X (Twitter)</div>
+        <a href="https://twitter.com" target="_blank" rel="noopener noreferrer" class="sns-link">외부링크 이동 →</a>
+      </div>
+      <div class="sns-card">
+        <div class="sns-icon">▶</div>
+        <div class="sns-name">YouTube</div>
+        <a href="https://www.youtube.com" target="_blank" rel="noopener noreferrer" class="sns-link">외부링크 이동 →</a>
+      </div>
+      <div class="sns-card">
+        <div class="sns-icon">📷</div>
+        <div class="sns-name">Instagram</div>
+        <a href="https://www.instagram.com" target="_blank" rel="noopener noreferrer" class="sns-link">외부링크 이동 →</a>
+      </div>
+      <div class="sns-card">
+        <div class="sns-icon">♪</div>
+        <div class="sns-name">TikTok</div>
+        <a href="https://www.tiktok.com" target="_blank" rel="noopener noreferrer" class="sns-link">외부링크 이동 →</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SNS 하단 여백 및 진한 회색 푸터 영역 -->
+<div class="sns-footer-space">
+  <p class="footer-disclaimer">본 페이지는 게임 &lt;鬼市巫談&gt;의 사전 프로모션을 위해 제작된 가상 페이지입니다. 등장하는 회사, 인물, 워딩 등 모든 정보는 허구이며 실제 회사와 무관합니다.</p>
+</div>
 
 <script>
-  // 채용공고 미니 게임: 부적 3번 누르면 다음 게임 링크 공개
-  let seals = 0;
-  const btn = document.getElementById('hire-btn');
-  const count = document.getElementById('hire-count');
-  const next = document.getElementById('hire-next');
-  btn.addEventListener('click', ()=>{
-    seals++;
-    if(seals < 3){
-      count.textContent = '서약서에 서명하세요 (' + seals + '/3) — 언제든 그만두실 수 있습니다. 그만둘 수만 있다면요.';
-    } else {
-      count.textContent = '서약 완료 (' + seals + '/3) — 환영합니다, 가족님.';
-      btn.style.display = 'none';
-      next.style.display = 'block';
+
+  // 라이트/다크 모드 전환: 선택 상태를 저장하고, 새로고침 후에도 유지
+  const themeToggle = document.getElementById('theme-toggle');
+  const themeIcon = themeToggle ? themeToggle.querySelector('.theme-toggle-icon') : null;
+  const themeLabel = themeToggle ? themeToggle.querySelector('.theme-toggle-label') : null;
+
+  function applyTheme(theme) {
+    const isDark = theme === 'dark';
+    document.body.setAttribute('data-theme', isDark ? 'dark' : 'light');
+    if (themeIcon) themeIcon.textContent = isDark ? '☀' : '☾';
+    if (themeLabel) themeLabel.textContent = isDark ? '라이트 모드' : '다크 모드';
+    if (themeToggle) {
+      themeToggle.setAttribute('aria-pressed', String(isDark));
+      themeToggle.setAttribute('aria-label', isDark ? '라이트 모드로 전환' : '다크 모드로 전환');
+    }
+  }
+
+  let savedTheme = 'light';
+  try {
+    savedTheme = localStorage.getItem('gwisimudam-theme') || 'light';
+  } catch (error) {
+    // 브라우저에서 저장 기능이 제한된 경우에도 테마 전환은 동작합니다.
+  }
+  applyTheme(savedTheme);
+
+  if (themeToggle) {
+    themeToggle.addEventListener('click', () => {
+      const nextTheme = document.body.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+      applyTheme(nextTheme);
+      try {
+        localStorage.setItem('gwisimudam-theme', nextTheme);
+      } catch (error) {
+        // 저장이 불가능해도 현재 페이지의 테마는 전환됩니다.
+      }
+    });
+  }
+
+
+  // 햄버거 메뉴 (모바일)
+  const menuToggle = document.querySelector('.menu-toggle');
+  const nav = document.querySelector('nav');
+  if(menuToggle){
+    menuToggle.addEventListener('click', ()=>{
+      nav.style.display = nav.style.display === 'flex' ? 'none' : 'flex';
+    });
+  }
+
+  // 로고 클릭 시 페이지 상단으로 이동
+  const logoLink = document.querySelector('.brand');
+  if(logoLink){
+    logoLink.addEventListener('click', (e)=>{
+      e.preventDefault();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+  }
+
+  // 공지사항 탭 필터 기능 및 상세 팝업 모달 제어
+  const noticeTabs = document.querySelectorAll('#notice-tabs .tab');
+  const noticeItems = document.querySelectorAll('.notice-item');
+  const noticeDetailModal = document.getElementById('notice-detail-modal');
+  const noticeDetailClose = document.getElementById('notice-detail-close');
+  const modalNoticeTitle = document.getElementById('modal-notice-title');
+  const modalNoticeMeta = document.getElementById('modal-notice-meta');
+  const modalNoticeContent = document.getElementById('modal-notice-content');
+
+  noticeTabs.forEach(tab => {
+    tab.addEventListener('click', () => {
+      noticeTabs.forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+      const filter = tab.getAttribute('data-filter');
+
+      noticeItems.forEach(item => {
+        if (filter === '전체' || item.getAttribute('data-category') === filter) {
+          item.style.display = 'block';
+        } else {
+          item.style.display = 'none';
+        }
+      });
+    });
+  });
+
+  noticeItems.forEach(item => {
+    item.addEventListener('click', () => {
+      modalNoticeTitle.textContent = item.getAttribute('data-title');
+      modalNoticeMeta.textContent = `${item.getAttribute('data-date')} · ${item.getAttribute('data-category')}`;
+      modalNoticeContent.innerHTML = item.getAttribute('data-content');
+      noticeDetailModal.classList.add('open');
+    });
+  });
+
+  function closeNoticeDetailModal() {
+    if (noticeDetailModal) noticeDetailModal.classList.remove('open');
+  }
+  if (noticeDetailClose) noticeDetailClose.addEventListener('click', closeNoticeDetailModal);
+  if (noticeDetailModal) {
+    noticeDetailModal.addEventListener('click', (e) => {
+      if (e.target === noticeDetailModal) closeNoticeDetailModal();
+    });
+  }
+
+  // 게시판 관련 요소 제어
+  const boardList = document.getElementById('board-list');
+  let targetItemToDelete = null;
+
+  // 삭제 팝업 관련 요소
+  const deleteModal = document.getElementById('delete-modal');
+  const deleteModalClose = document.getElementById('delete-modal-close');
+  const deleteBtnCancel = document.getElementById('delete-btn-cancel');
+  const deleteBtnConfirm = document.getElementById('delete-btn-confirm');
+  const deletePasswordInput = document.getElementById('delete-password-input');
+
+  function openDeleteModal() {
+    if (deleteModal) {
+      deletePasswordInput.value = '';
+      deleteModal.classList.add('open');
+      deletePasswordInput.focus();
+    }
+  }
+  function closeDeleteModal() {
+    if (deleteModal) {
+      deleteModal.classList.remove('open');
+      targetItemToDelete = null;
+    }
+  }
+
+  if (deleteModalClose) deleteModalClose.addEventListener('click', closeDeleteModal);
+  if (deleteBtnCancel) deleteBtnCancel.addEventListener('click', closeDeleteModal);
+  if (deleteModal) {
+    deleteModal.addEventListener('click', (event) => {
+      if (event.target === deleteModal) closeDeleteModal();
+    });
+  }
+
+  if (deleteBtnConfirm) {
+    deleteBtnConfirm.addEventListener('click', () => {
+      if (!targetItemToDelete) return;
+      const correctPassword = targetItemToDelete.getAttribute('data-password');
+      const enteredPassword = deletePasswordInput.value;
+
+      if (enteredPassword === correctPassword) {
+        targetItemToDelete.remove();
+        closeDeleteModal();
+      } else {
+        alert('비밀번호가 일치하지 않습니다.');
+        deletePasswordInput.focus();
+      }
+    });
+  }
+
+  if (deletePasswordInput) {
+    deletePasswordInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        deleteBtnConfirm.click();
+      }
+    });
+  }
+
+  if (boardList) {
+    boardList.addEventListener('click', (e) => {
+      if (e.target.classList.contains('board-delete-btn')) {
+        targetItemToDelete = e.target.closest('.board-item');
+        if (targetItemToDelete) {
+          openDeleteModal();
+        }
+        return;
+      }
+      const titleEl = e.target.closest('.board-item-title');
+      if (titleEl) {
+        const item = titleEl.closest('.board-item');
+        if (item) item.classList.toggle('open');
+      }
+    });
+  }
+
+  // 게시글 등록 팝업(모달) 제어 로직
+  const openPostModalBtn = document.getElementById('open-post-modal');
+  const postModal = document.getElementById('post-modal');
+  const postModalClose = document.getElementById('post-modal-close');
+  const postBtnCancel = document.getElementById('post-btn-cancel');
+  const postBtnSubmit = document.getElementById('post-btn-submit');
+
+  const postNickname = document.getElementById('post-nickname');
+  const postPassword = document.getElementById('post-password');
+  const postTitle = document.getElementById('post-title');
+  const postContent = document.getElementById('post-content');
+
+  function openPostModal() {
+    if (postModal) postModal.classList.add('open');
+  }
+  function closePostModal() {
+    if (postModal) postModal.classList.remove('open');
+  }
+
+  if (openPostModalBtn) openPostModalBtn.addEventListener('click', openPostModal);
+  if (postModalClose) postModalClose.addEventListener('click', closePostModal);
+  if (postBtnCancel) postBtnCancel.addEventListener('click', closePostModal);
+  if (postModal) {
+    postModal.addEventListener('click', (event) => {
+      if (event.target === postModal) closePostModal();
+    });
+  }
+  document.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape') {
+      closePostModal();
+      closeDeleteModal();
+      closeNoticeDetailModal();
     }
   });
+
+  if (postBtnSubmit) {
+    postBtnSubmit.addEventListener('click', () => {
+      const nicknameVal = postNickname.value.trim() || '익명';
+      const passwordVal = postPassword.value.trim();
+      const titleVal = postTitle.value.trim();
+      const contentVal = postContent.value.trim();
+
+      if (!passwordVal) {
+        alert('비밀번호를 입력해주세요.');
+        postPassword.focus();
+        return;
+      }
+      if (!titleVal) {
+        alert('제목을 입력해주세요.');
+        postTitle.focus();
+        return;
+      }
+      if (!contentVal) {
+        alert('내용을 입력해주세요.');
+        postContent.focus();
+        return;
+      }
+
+      const now = new Date();
+      const year = now.getFullYear();
+      const month = String(now.getMonth() + 1).padStart(2, '0');
+      const day = String(now.getDate()).padStart(2, '0');
+      const hours = String(now.getHours()).padStart(2, '0');
+      const minutes = String(now.getMinutes()).padStart(2, '0');
+      const dateStr = `${year}.${month}.${day} ${hours}:${minutes}`;
+
+      const newLi = document.createElement('li');
+      newLi.className = 'board-item';
+      newLi.setAttribute('data-password', passwordVal);
+      newLi.innerHTML = `
+        <div class="board-item-content">
+          <div class="board-item-title">${escapeHtml(titleVal)}</div>
+          <div class="board-item-meta">${dateStr} &nbsp;|&nbsp; ${escapeHtml(nicknameVal)}</div>
+          <div class="board-answer">${escapeHtml(contentVal)}</div>
+        </div>
+        <button class="board-delete-btn" type="button">삭제</button>
+      `;
+
+      boardList.prepend(newLi);
+
+      postNickname.value = '';
+      postPassword.value = '';
+      postTitle.value = '';
+      postContent.value = '';
+      closePostModal();
+    });
+  }
+
+  function escapeHtml(str) {
+    return str
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#039;");
+  }
+
+  // 달력 월 이동 및 평일 저녁 식단 팝업
+  const calDays = document.getElementById('cal-days');
+  const mealModal = document.getElementById('meal-modal');
+  const mealModalTitle = document.getElementById('meal-modal-title');
+  const mealMenu = document.getElementById('meal-menu');
+  const mealClose = document.getElementById('meal-close');
+  const monthLabel = document.getElementById('calendar-month-label');
+  const prevMonthButton = document.getElementById('prev-month');
+  const nextMonthButton = document.getElementById('next-month');
+  const today = new Date();
+  let calendarYear = today.getFullYear();
+  let calendarMonth = today.getMonth();
+
+  const dinnerMenus = [
+    ['제육볶음', '된장찌개', '쌀밥', '배추김치'],
+    ['돈까스', '양송이수프', '샐러드', '깍두기'],
+    ['닭갈비', '콩나물국', '쌀밥', '오이무침'],
+    ['불고기덮밥', '미소된장국', '계란말이', '배추김치'],
+    ['김치볶음밥', '맑은 어묵국', '군만두', '단무지'],
+    ['소불고기', '순두부찌개', '쌀밥', '시금치나물'],
+    ['카레라이스', '우동국물', '새우튀김', '깍두기'],
+    ['비빔밥', '미역국', '계란프라이', '배추김치'],
+    ['함박스테이크', '크림수프', '구운 채소', '피클'],
+    ['잔치국수', '김치전', '주먹밥', '단무지'],
+    ['오징어볶음', '콩나물국', '쌀밥', '무생채'],
+    ['간장찜닭', '시래기국', '쌀밥', '배추김치'],
+    ['마파두부덮밥', '계란국', '춘권', '짜사이'],
+    ['떡갈비', '육개장', '쌀밥', '브로콜리무침'],
+    ['참치마요덮밥', '유부장국', '고구마맛탕', '깍두기']
+  ];
+
+  function renderCalendar() {
+    if (!calDays) return;
+    const year = calendarYear;
+    const month = calendarMonth;
+    const startDay = new Date(year, month, 1).getDay();
+    const totalDays = new Date(year, month + 1, 0).getDate();
+    if (monthLabel) monthLabel.textContent = `${year}년 ${month + 1}월`;
+    calDays.innerHTML = '';
+
+    for (let i = 0; i < startDay; i++) {
+      const empty = document.createElement('div');
+      empty.className = 'cal-day empty';
+      empty.setAttribute('aria-hidden', 'true');
+      calDays.appendChild(empty);
+    }
+
+    for (let i = 1; i <= totalDays; i++) {
+      const weekday = new Date(year, month, i).getDay();
+      const day = document.createElement('button');
+      day.type = 'button';
+      day.className = 'cal-day';
+      day.setAttribute('aria-label', `${year}년 ${month + 1}월 ${i}일`);
+
+      const number = document.createElement('span');
+      number.className = 'day-number';
+      number.textContent = i;
+      day.appendChild(number);
+
+      if (year === today.getFullYear() && month === today.getMonth() && i === today.getDate()) {
+        day.classList.add('today');
+      }
+
+      if (weekday >= 1 && weekday <= 5) {
+        day.classList.add('meal-day');
+        const dot = document.createElement('span');
+        dot.className = 'meal-dot';
+        dot.setAttribute('aria-hidden', 'true');
+        day.appendChild(dot);
+
+        const menuIndex = (i * 7 + month * 3 + year) % dinnerMenus.length;
+        day.addEventListener('click', () => {
+          mealModalTitle.textContent = `${year}년 ${month + 1}월 ${i}일 저녁 식단`;
+          mealMenu.innerHTML = '';
+          dinnerMenus[menuIndex].forEach(item => {
+            const line = document.createElement('div');
+            line.textContent = item;
+            mealMenu.appendChild(line);
+          });
+          mealModal.classList.add('open');
+          mealClose.focus();
+        });
+      } else {
+        day.classList.add('weekend');
+        day.disabled = true;
+        day.setAttribute('aria-label', `${year}년 ${month + 1}월 ${i}일, 식단 없음`);
+      }
+      calDays.appendChild(day);
+    }
+  }
+
+  if (prevMonthButton) prevMonthButton.addEventListener('click', () => {
+    calendarMonth--;
+    if (calendarMonth < 0) { calendarMonth = 11; calendarYear--; }
+    renderCalendar();
+  });
+  if (nextMonthButton) nextMonthButton.addEventListener('click', () => {
+    calendarMonth++;
+    if (calendarMonth > 11) { calendarMonth = 0; calendarYear++; }
+    renderCalendar();
+  });
+  renderCalendar();
+
+  function closeMealModal() {
+    if (mealModal) mealModal.classList.remove('open');
+  }
+  if (mealClose) mealClose.addEventListener('click', closeMealModal);
+  if (mealModal) {
+    mealModal.addEventListener('click', (event) => {
+      if (event.target === mealModal) closeMealModal();
+    });
+  }
+  document.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape') closeMealModal();
+  });
+
 </script>
 </body>
 </html>

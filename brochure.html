@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>회사 소개 | GWISIMUDAM COMPANY</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink:#1a1d24;
+    --muted:#626b79;
+    --line:#dfe2e7;
+    --paper:#fff;
+    --canvas:#f4f5f7;
+    --gold:#b78a00;
+    --gold-light:#f3c64e;
+    --night:#202632;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  html { scroll-behavior:smooth; scroll-padding-top:90px; }
+  body {
+    font-family:'Noto Sans KR',sans-serif;
+    background:var(--canvas);
+    color:var(--ink);
+    line-height:1.7;
+    -webkit-font-smoothing:antialiased;
+  }
+  a { color:inherit; text-decoration:none; }
+  button { font:inherit; }
+
+  /* 공통 상단 메뉴 */
+  .site-header {
+    position:sticky; top:0; z-index:100;
+    min-height:76px;
+    display:flex; align-items:center; justify-content:center;
+    padding:14px 6vw;
+    background:rgba(255,255,255,.96);
+    border-bottom:1px solid var(--line);
+    backdrop-filter:blur(12px);
+  }
+  .logo { position:absolute; left:6vw; top:50%; transform:translateY(-50%); }
+  .brand { display:block; font-size:21px; line-height:1.2; font-weight:900; letter-spacing:.04em; }
+  .brand small { display:block; margin-top:4px; color:#7a8290; font-size:10px; font-weight:400; letter-spacing:.12em; }
+  nav { display:flex; align-items:center; justify-content:center; gap:clamp(14px,2.2vw,28px); font-size:14px; font-weight:700; }
+  nav a { color:#353b46; transition:color .2s ease; white-space:nowrap; }
+  nav a:hover, nav a.active { color:var(--gold); }
+  nav a.active { text-decoration:underline; text-underline-offset:7px; }
+  .menu-toggle { display:none; border:1px solid var(--line); background:#fff; color:var(--ink); border-radius:8px; padding:5px 11px; font-size:22px; cursor:pointer; }
+
+  /* NEWS/채용 페이지와 통일된 상단 배너 */
+  .page-hero {
+    position:relative; overflow:hidden;
+    padding:76px 6vw 70px;
+    background:linear-gradient(125deg,#202632 0%,#343a46 52%,#55504a 100%);
+    color:#fff;
+  }
+  .page-hero::after {
+    content:'ABOUT';
+    position:absolute; right:5vw; bottom:-55px;
+    font-size:clamp(110px,20vw,250px); font-weight:900;
+    line-height:1; letter-spacing:-.07em;
+    color:rgba(255,255,255,.045); pointer-events:none;
+  }
+  .page-hero-inner { max-width:1120px; margin:0 auto; position:relative; z-index:1; }
+  .eyebrow { color:var(--gold-light); font-size:11px; font-weight:900; letter-spacing:.18em; margin-bottom:13px; }
+  .page-hero h1 { font-size:clamp(32px,5vw,52px); font-weight:900; letter-spacing:-.045em; line-height:1.25; margin-bottom:15px; }
+  .page-hero p { max-width:660px; color:#e2e5ea; font-size:15px; font-weight:300; }
+
+  main { display:block; }
+  .content-wrap { max-width:1120px; width:88%; margin:0 auto; }
+  .section { padding:76px 0; }
+  .section-heading { margin-bottom:30px; }
+  .section-kicker { color:var(--gold); font-size:11px; font-weight:900; letter-spacing:.16em; margin-bottom:9px; }
+  .section-title { font-size:clamp(25px,3.2vw,36px); font-weight:900; letter-spacing:-.035em; line-height:1.35; }
+  .section-desc { color:var(--muted); font-size:14px; margin-top:10px; max-width:720px; }
+
+  /* 회사 개요 */
+  .intro-section { padding-top:68px; }
+  .intro-grid { display:grid; grid-template-columns:1.05fr .95fr; gap:28px; align-items:stretch; }
+  .intro-copy { padding:10px 8px 10px 0; }
+  .intro-copy .lead { font-size:clamp(18px,2.1vw,23px); line-height:1.8; font-weight:700; margin-bottom:18px; }
+  .intro-copy p:not(.lead) { color:var(--muted); font-size:14px; line-height:1.95; }
+  .intro-panel {
+    position:relative; overflow:hidden; min-height:270px;
+    padding:32px; border-radius:16px;
+    background:linear-gradient(145deg,#272d37,#11151c);
+    color:#fff; display:flex; flex-direction:column; justify-content:space-between;
+  }
+  .intro-panel::after { content:'鬼'; position:absolute; right:10px; bottom:-70px; font-size:230px; line-height:1; color:rgba(255,255,255,.045); font-weight:900; }
+  .intro-panel .panel-label { position:relative; z-index:1; color:var(--gold-light); font-size:11px; font-weight:900; letter-spacing:.16em; }
+  .intro-panel blockquote { position:relative; z-index:1; font-size:clamp(21px,2.5vw,29px); font-weight:900; line-height:1.55; letter-spacing:-.03em; }
+  .intro-panel .panel-foot { position:relative; z-index:1; color:#c5cad2; font-size:12px; }
+
+  /* 회장의 한마디 */
+  .chairman-section { padding:0 0 76px; }
+  .chairman-card {
+    display:grid; grid-template-columns:190px 1fr; gap:34px; align-items:center;
+    padding:38px 42px; background:#fff; border:1px solid var(--line); border-radius:16px;
+    box-shadow:0 8px 28px rgba(25,31,42,.04);
+  }
+  .chairman-mark {
+    min-height:170px; border-radius:12px; background:#eceef1;
+    display:flex; align-items:center; justify-content:center; flex-direction:column; text-align:center;
+  }
+  .chairman-mark .seal { width:58px; height:58px; border:1px solid #b78a00; color:#9b7400; display:flex; align-items:center; justify-content:center; font-size:25px; font-weight:900; margin-bottom:12px; }
+  .chairman-mark span:last-child { font-size:11px; color:#626b79; letter-spacing:.12em; font-weight:700; }
+  .chairman-copy .quote-label { color:var(--gold); font-size:11px; letter-spacing:.15em; font-weight:900; margin-bottom:10px; }
+  .chairman-copy h2 { font-size:clamp(21px,2.4vw,29px); line-height:1.5; font-weight:900; margin-bottom:15px; letter-spacing:-.03em; }
+  .chairman-copy p { color:var(--muted); font-size:14px; line-height:1.95; }
+  .chairman-sign { margin-top:20px; font-size:13px; font-weight:700; }
+  .chairman-sign strong { font-size:16px; margin-left:8px; }
+
+  /* 회사 핵심 정보 */
+  .overview-section { background:#fff; border-top:1px solid var(--line); border-bottom:1px solid var(--line); }
+  .overview-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:16px; margin-top:28px; }
+  .overview-card { padding:27px 25px; border:1px solid var(--line); border-radius:12px; background:#fff; }
+  .overview-card .number { color:var(--gold); font-size:11px; font-weight:900; letter-spacing:.14em; margin-bottom:15px; }
+  .overview-card h3 { font-size:17px; font-weight:900; margin-bottom:9px; }
+  .overview-card p { color:var(--muted); font-size:13px; line-height:1.85; }
+
+  .principles-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:16px; }
+  .principle { padding:25px; border-top:2px solid var(--gold); background:#fff; border-radius:0 0 12px 12px; }
+  .principle h3 { font-size:16px; font-weight:900; margin-bottom:8px; }
+  .principle p { color:var(--muted); font-size:13px; line-height:1.85; }
+
+  /* 연혁은 회사 소개 이후 배치 */
+  .history-section { background:#e9ebee; padding:78px 0 90px; border-top:1px solid #d9dce2; }
+  .history-section .section-heading { text-align:center; margin-bottom:55px; }
+  .history-section .section-desc { margin-left:auto; margin-right:auto; }
+  .timeline { position:relative; max-width:820px; margin:0 auto; }
+  .timeline::before { content:''; position:absolute; left:19px; top:10px; bottom:10px; width:2px; background:#c9cdd4; }
+  .timeline-item { position:relative; padding-left:62px; margin-bottom:22px; }
+  .timeline-item:last-child { margin-bottom:0; }
+  .timeline-marker { position:absolute; left:10px; top:27px; width:20px; height:20px; border-radius:50%; background:var(--gold); border:5px solid #e9ebee; box-shadow:0 0 0 1px var(--gold); }
+  .timeline-card { background:#fff; border:1px solid #dce0e5; border-radius:13px; padding:25px 28px; display:grid; grid-template-columns:90px 1fr; gap:20px; align-items:start; }
+  .timeline-year { color:var(--gold); font-size:14px; font-weight:900; padding-top:2px; }
+  .timeline-title { font-size:17px; font-weight:900; margin-bottom:6px; }
+  .timeline-desc { color:var(--muted); font-size:13px; line-height:1.85; }
+
+  footer { background:#252a33; color:#d9dde4; padding:28px 6vw; text-align:center; font-size:11px; line-height:1.8; }
+  footer .footer-brand { color:#fff; font-weight:900; letter-spacing:.1em; margin-bottom:5px; }
+
+  @media (max-width:900px) {
+    .site-header { justify-content:flex-end; }
+    .logo { left:6vw; }
+    nav { gap:13px; font-size:12px; }
+    .intro-grid { grid-template-columns:1fr; }
+    .intro-panel { min-height:230px; }
+    .chairman-card { grid-template-columns:145px 1fr; padding:28px; gap:24px; }
+    .overview-grid, .principles-grid { grid-template-columns:1fr; }
+  }
+  @media (max-width:640px) {
+    .site-header { min-height:68px; justify-content:flex-end; padding:12px 5vw; }
+    .brand { font-size:18px; }
+    .brand small { font-size:9px; }
+    .menu-toggle { display:block; }
+    nav {
+      display:none; position:absolute; left:0; right:0; top:100%;
+      padding:16px 5vw 20px; background:#fff; border-bottom:1px solid var(--line);
+      flex-direction:column; align-items:stretch; gap:0;
+    }
+    nav.open { display:flex; }
+    nav a { padding:12px 0; border-bottom:1px solid #f0f1f3; font-size:14px; }
+    nav a:last-child { border-bottom:0; }
+    .page-hero { padding:58px 6vw 54px; }
+    .page-hero::after { right:2vw; bottom:-24px; font-size:100px; }
+    .content-wrap { width:88%; }
+    .section { padding:54px 0; }
+    .intro-section { padding-top:48px; }
+    .chairman-section { padding-bottom:54px; }
+    .chairman-card { grid-template-columns:1fr; padding:22px; gap:20px; }
+    .chairman-mark { min-height:125px; }
+    .chairman-mark .seal { width:46px; height:46px; font-size:20px; margin-bottom:7px; }
+    .intro-panel { padding:25px; }
+    .overview-card, .principle { padding:22px; }
+    .history-section { padding:55px 0 65px; }
+    .history-section .section-heading { margin-bottom:35px; }
+    .timeline-item { padding-left:42px; }
+    .timeline::before { left:12px; }
+    .timeline-marker { left:3px; width:19px; height:19px; }
+    .timeline-card { grid-template-columns:1fr; gap:7px; padding:21px; }
+  }
+  @media (prefers-reduced-motion:reduce) { html { scroll-behavior:auto; } * { transition:none !important; } }
+</style>
+</head>
+<body>
+<header class="site-header">
+  <div class="logo">
+    <a class="brand" href="web.html">鬼市巫談<small>GWISIMUDAM COMPANY</small></a>
+  </div>
+  <button class="menu-toggle" id="menu-toggle" type="button" aria-label="메뉴 열기" aria-expanded="false">≡</button>
+  <nav id="site-nav" aria-label="주 메뉴">
+    <a href="brochure.html" class="active">회사 소개</a>
+    <a href="web.html#executives">임원 소개</a>
+    <a href="news.html">NEWS</a>
+    <a href="job-postings.html">채용공고</a>
+    <a href="web.html#faq">FAQ</a>
+  </nav>
+</header>
+
+<section class="page-hero">
+  <div class="page-hero-inner">
+    <div class="eyebrow">ABOUT US · GWISIMUDAM COMPANY</div>
+    <h1>보이지 않는 질서를,<br>흔들림 없이 운영하다.</h1>
+    <p>귀시무담 컴퍼니는 귀시의 유통과 야간 물류, 혼령 관리 시스템을 총괄하는 상단 기업입니다. 오래된 질서와 새로운 기술을 연결하며, 밤의 시장이 멈추지 않도록 움직입니다.</p>
+  </div>
+</section>
+
+<main>
+  <!-- 회사 소개가 먼저 충분히 나온 뒤 연혁으로 이어지도록 구성 -->
+  <section class="section intro-section" id="about">
+    <div class="content-wrap">
+      <div class="section-heading">
+        <div class="section-kicker">WHO WE ARE</div>
+        <h2 class="section-title">귀시무담 컴퍼니 소개</h2>
+        <p class="section-desc">귀시의 밤을 연결하는 운영 기업. 보이지 않는 흐름을 관리하고, 시장과 사람 사이의 약속을 지킵니다.</p>
+      </div>
+      <div class="intro-grid">
+        <div class="intro-copy">
+          <p class="lead">밤이 깊어져도 시장은 멈추지 않습니다.<br>우리는 그 흐름을 책임집니다.</p>
+          <p>귀시무담 컴퍼니는 귀시 시장의 유통을 총괄하고, 야간 납품과 혼령 분류, 현장 운영을 체계적으로 관리하기 위해 설립되었습니다. 전통적인 주술 지식과 현대적인 물류 제어 기술을 결합해 예측하기 어려운 밤의 환경에서도 안정적인 운영을 이어갑니다.</p>
+          <p style="margin-top:13px;">당사의 모든 업무는 정확한 분류, 신속한 전달, 철저한 보안이라는 원칙 아래 이루어집니다. 우리는 단순히 물건을 옮기는 회사를 넘어 귀시의 질서가 유지되도록 뒤에서 움직이는 기반이 되고자 합니다.</p>
+        </div>
+        <aside class="intro-panel">
+          <div class="panel-label">OUR PURPOSE</div>
+          <blockquote>“밤의 질서를 지키는 일.<br>그것이 우리의 업무입니다.”</blockquote>
+          <div class="panel-foot">GWISIMUDAM COMPANY · Since 2026</div>
+        </aside>
+      </div>
+    </div>
+  </section>
+
+  <section class="chairman-section" id="chairman">
+    <div class="content-wrap">
+      <div class="chairman-card">
+        <div class="chairman-mark">
+          <div class="seal">鬼</div>
+          <span>CHAIRMAN'S MESSAGE</span>
+        </div>
+        <div class="chairman-copy">
+          <div class="quote-label">회장의 한마디</div>
+          <h2>“보이지 않는 곳일수록<br>더욱 정확해야 합니다.”</h2>
+          <p>귀시무담 컴퍼니가 지키는 것은 단순한 납품 일정이나 숫자로 기록되는 실적만이 아닙니다. 우리가 지켜야 할 것은 시장의 신뢰와 밤의 균형입니다. 작은 실수 하나가 큰 혼란으로 이어질 수 있기에, 우리는 기본을 반복하고 약속을 지키는 일을 가장 중요하게 생각합니다.</p>
+          <p style="margin-top:10px;">앞으로도 원칙을 잃지 않으면서 더 안전하고 효율적인 운영 방식을 찾아가겠습니다. 귀시의 밤이 흔들림 없이 이어지도록, 각자의 자리에서 맡은 일을 다해 주시기 바랍니다.</p>
+          <div class="chairman-sign">귀시무담 컴퍼니 <strong>회장</strong></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section overview-section">
+    <div class="content-wrap">
+      <div class="section-heading">
+        <div class="section-kicker">COMPANY OVERVIEW</div>
+        <h2 class="section-title">우리가 하는 일</h2>
+        <p class="section-desc">귀시의 안정적인 운영을 위해 세 가지 핵심 분야를 중심으로 업무를 수행합니다.</p>
+      </div>
+      <div class="overview-grid">
+        <article class="overview-card">
+          <div class="number">01 / LOGISTICS</div>
+          <h3>야간 물류 운영</h3>
+          <p>귀시 내 상점과 거점을 연결하는 야간 배송 체계를 운영하고, 시간과 상황에 맞춘 물류 흐름을 관리합니다.</p>
+        </article>
+        <article class="overview-card">
+          <div class="number">02 / CLASSIFICATION</div>
+          <h3>혼령 분류 및 관리</h3>
+          <p>혼령 이동 경로와 특성을 분류하고, 전용 필터링 시스템을 통해 안전하고 효율적인 처리를 지원합니다.</p>
+        </article>
+        <article class="overview-card">
+          <div class="number">03 / SECURITY</div>
+          <h3>현장 보안과 지원</h3>
+          <p>야간 작업자의 안전과 운영 시설의 보안을 확보하며, 현장 매뉴얼과 대응 체계를 지속적으로 개선합니다.</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="content-wrap">
+      <div class="section-heading">
+        <div class="section-kicker">OUR PRINCIPLES</div>
+        <h2 class="section-title">귀시무담이 지키는 원칙</h2>
+        <p class="section-desc">빠른 처리보다 중요한 것은 정확한 처리입니다. 모든 업무는 아래 원칙을 기준으로 운영됩니다.</p>
+      </div>
+      <div class="principles-grid">
+        <article class="principle">
+          <h3>정확성</h3>
+          <p>분류와 전달 과정에서 발생할 수 있는 오류를 줄이고, 정해진 절차를 빠짐없이 준수합니다.</p>
+        </article>
+        <article class="principle">
+          <h3>신속성</h3>
+          <p>야간 시장의 특수한 흐름에 맞춰 상황을 빠르게 파악하고 필요한 조치를 실행합니다.</p>
+        </article>
+        <article class="principle">
+          <h3>보안성</h3>
+          <p>임직원과 거래처, 귀시의 질서를 보호하기 위해 보안 규정과 현장 대응 체계를 유지합니다.</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- 회사 소개 이후에 연혁 배치 -->
+  <section class="history-section" id="history">
+    <div class="content-wrap">
+      <div class="section-heading">
+        <div class="section-kicker">OUR HISTORY</div>
+        <h2 class="section-title">History</h2>
+        <p class="section-desc">귀시무담 컴퍼니가 설립되고 운영 체계를 갖추기까지의 기록입니다.</p>
+      </div>
+      <div class="timeline">
+        <article class="timeline-item">
+          <div class="timeline-marker"></div>
+          <div class="timeline-card">
+            <div class="timeline-year">2026</div>
+            <div><h3 class="timeline-title">귀시무담 컴퍼니 설립</h3><p class="timeline-desc">귀시 시장의 유통을 총괄하는 상단 기업으로 공식 출범했습니다.</p></div>
+          </div>
+        </article>
+        <article class="timeline-item">
+          <div class="timeline-marker"></div>
+          <div class="timeline-card">
+            <div class="timeline-year">2026</div>
+            <div><h3 class="timeline-title">첫 손님 입점</h3><p class="timeline-desc">첫 번째 손님이 편의점에 입점하며 본격적인 운영을 시작했습니다.</p></div>
+          </div>
+        </article>
+        <article class="timeline-item">
+          <div class="timeline-marker"></div>
+          <div class="timeline-card">
+            <div class="timeline-year">2026</div>
+            <div><h3 class="timeline-title">출근 시스템 완성</h3><p class="timeline-desc">직원 출근 시스템과 손님 대응 매뉴얼을 정비해 기본 운영 체계를 완성했습니다.</p></div>
+          </div>
+        </article>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="footer-brand">鬼市巫談 · GWISIMUDAM COMPANY</div>
+  © GWISIMUDAM COMPANY. 본 페이지는 게임 세계관 연출용 가상 페이지이며, 등장하는 회사와 인물은 실제와 무관합니다.
+</footer>
+
+<script>
+  const menuToggle = document.getElementById('menu-toggle');
+  const siteNav = document.getElementById('site-nav');
+
+  if (menuToggle && siteNav) {
+    menuToggle.addEventListener('click', () => {
+      const isOpen = siteNav.classList.toggle('open');
+      menuToggle.setAttribute('aria-expanded', String(isOpen));
+      menuToggle.setAttribute('aria-label', isOpen ? '메뉴 닫기' : '메뉴 열기');
+      menuToggle.textContent = isOpen ? '×' : '≡';
+    });
+
+    siteNav.querySelectorAll('a').forEach(link => {
+      link.addEventListener('click', () => {
+        siteNav.classList.remove('open');
+        menuToggle.setAttribute('aria-expanded', 'false');
+        menuToggle.setAttribute('aria-label', '메뉴 열기');
+        menuToggle.textContent = '≡';
+      });
+    });
+  }
+</script>
+</body>
+</html>

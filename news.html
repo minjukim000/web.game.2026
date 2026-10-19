@@ -1,0 +1,666 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>NEWS & 공지사항 | GWISIMUDAM COMPANY</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;700;900&display=swap" rel="stylesheet">
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  html { scroll-behavior:smooth; height: 100%; }
+  body {
+    font-family:'Noto Sans KR', sans-serif;
+    background:#f5f6f8;
+    color:#1a1d24;
+    line-height:1.6;
+    min-height: 100%;
+    display: flex;
+    flex-direction: column;
+  }
+  a { color:inherit; text-decoration:none; }
+
+  /* 상단 헤더 */
+  header {
+    position:sticky; top:0; z-index:100;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:16px 6vw;
+    background:#ffffff;
+    border-bottom:1px solid #d3d6dc;
+  }
+  .logo {
+    position:absolute;
+    left:6vw;
+    top:50%;
+    transform:translateY(-50%);
+  }
+  .brand {
+    font-weight:900;
+    font-size:22px;
+    letter-spacing:.05em;
+  }
+  .brand small {
+    display:block;
+    font-weight:300;
+    font-size:11px;
+    color:#7a8290;
+  }
+  nav { display:flex; gap:24px; font-weight:700; font-size:15px; }
+  nav a { color:#1a1d24; }
+  nav a:hover, nav a.active { color:#b78a00; text-decoration:underline; }
+  .menu-toggle { display:none; background:none; border:none; font-size:20px; cursor:pointer; color:#1a1d24; }
+
+  /* 채용공고 페이지와 통일한 상단 히어로 배너 */
+  .page-hero {
+    position:relative;
+    overflow:hidden;
+    padding:78px 6vw 70px;
+    background:linear-gradient(125deg,#202632 0%,#343a46 52%,#55504a 100%);
+    color:#fff;
+    text-align:left;
+  }
+  .page-hero::after {
+    content:'NEWS';
+    position:absolute;
+    right:7vw;
+    bottom:-55px;
+    font-size:clamp(130px,22vw,270px);
+    font-weight:900;
+    line-height:1;
+    letter-spacing:-.06em;
+    color:rgba(255,255,255,.045);
+    pointer-events:none;
+  }
+  .page-hero-inner {
+    max-width:1120px;
+    margin:0 auto;
+    position:relative;
+    z-index:1;
+  }
+  .page-hero .eyebrow {
+    font-size:11px;
+    letter-spacing:.18em;
+    font-weight:900;
+    color:#f3c64e;
+    margin-bottom:14px;
+  }
+  .page-hero h1 {
+    font-size:clamp(32px,5vw,52px);
+    font-weight:900;
+    letter-spacing:-.04em;
+    line-height:1.25;
+    margin-bottom:15px;
+  }
+  .page-hero p {
+    max-width:650px;
+    color:#e2e5ea;
+    font-size:15px;
+    font-weight:300;
+  }
+
+  /* 메인 콘텐츠 영역 (광폭 컨테이너) */
+  .news-main-container {
+    max-width: 1400px;
+    margin: 60px auto;
+    padding: 0 6vw;
+    width: 100%;
+    flex: 1;
+  }
+
+  /* 뉴스 보도 섹션 스타일 */
+  .featured-news-section {
+    margin-bottom: 60px;
+  }
+  .news-article-block {
+    background: transparent;
+    border: none;
+    border-radius: 0;
+    padding: 40px 0;
+    display: grid;
+    grid-template-columns: 1.2fr 1fr;
+    gap: 40px;
+    align-items: center;
+    opacity: 0;
+    transform: translateY(40px);
+    transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+  }
+  .news-article-block.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  .news-article-block.reverse {
+    grid-template-columns: 1fr 1.2fr;
+  }
+  .news-article-block.reverse .news-article-left {
+    order: 2;
+  }
+  .news-article-block.reverse .news-article-right {
+    order: 1;
+  }
+
+  .news-divider {
+    border: 0;
+    height: 1px;
+    background: #d3d6dc;
+    margin: 20px 0;
+  }
+  .news-article-left .news-tag-kicker {
+    font-size: 11px;
+    font-weight: 900;
+    letter-spacing: .08em;
+    color: #b78a00;
+    margin-bottom: 12px;
+  }
+  .news-article-left h2 {
+    font-size: clamp(20px, 2.2vw, 26px);
+    font-weight: 900;
+    color: #111827;
+    line-height: 1.35;
+    margin-bottom: 12px;
+  }
+  .news-article-left .news-author {
+    font-size: 13px;
+    color: #6b7280;
+    margin-bottom: 24px;
+  }
+  .news-article-left .news-desc {
+    font-size: 14px;
+    color: #4a5260;
+    line-height: 1.8;
+  }
+  .news-article-right .black-image-box {
+    width: 100%;
+    height: 280px;
+    background: #111827;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #9ca3af;
+    font-size: 13px;
+    font-weight: 300;
+  }
+
+  /* 전체 공지사항 및 보도 목록 박스 */
+  .news-content-box {
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 16px;
+    padding: 50px 60px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+    width: 100%;
+  }
+
+  .news-header-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+    flex-wrap: wrap;
+    gap: 16px;
+  }
+  .news-section-title {
+    font-size: 24px;
+    font-weight: 900;
+    color: #111827;
+  }
+
+  /* 탭 버튼 */
+  .news-tabs {
+    display: flex;
+    gap: 10px;
+  }
+  .news-tabs .tab {
+    font-size: 13px;
+    color: #6b7280;
+    cursor: pointer;
+    padding: 8px 16px;
+    border: 1px solid #e5e7eb;
+    border-radius: 20px;
+    background: #fff;
+    transition: all 0.2s;
+  }
+  .news-tabs .tab.active {
+    color: #111827;
+    background: #f3f4f6;
+    border-color: #d1d5db;
+    font-weight: 700;
+  }
+
+  /* 게시글 리스트 스타일 */
+  .full-notice-list {
+    list-style: none;
+    padding: 0;
+  }
+  .full-notice-item {
+    border-bottom: 1px solid #f3f4f6;
+    padding: 22px 0;
+    cursor: pointer;
+  }
+  .full-notice-item:last-child {
+    border-bottom: none;
+  }
+  .full-notice-item:hover .full-notice-title {
+    color: #b78a00;
+  }
+  .full-notice-title {
+    font-weight: 900;
+    color: #111827;
+    font-size: 17px;
+    margin-bottom: 8px;
+    transition: color 0.2s;
+  }
+  .full-notice-meta {
+    font-size: 13px;
+    color: #6b7280;
+  }
+
+  /* 페이지네이션 스타일 */
+  .pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 16px;
+    margin-top: 32px;
+  }
+  .page-btn {
+    padding: 6px 14px;
+    border: 1px solid #d3d6dc;
+    border-radius: 8px;
+    background: #fff;
+    font-size: 13px;
+    font-weight: 700;
+    color: #4a5260;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .page-btn:hover:not(:disabled) {
+    background: #f3f4f6;
+    color: #111827;
+  }
+  .page-btn:disabled {
+    opacity: 0.4;
+    cursor: default;
+  }
+  .page-indicator {
+    font-size: 14px;
+    font-weight: 700;
+    color: #111827;
+  }
+
+  /* 상세 보기 팝업 모달 스타일 */
+  .notice-detail-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 2000;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    background: rgba(17, 24, 39, 0.55);
+  }
+  .notice-detail-modal.open {
+    display: flex;
+  }
+  .notice-detail-card {
+    width: min(100%, 640px);
+    max-height: 85vh;
+    background: #fff;
+    border-radius: 16px;
+    padding: 36px;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+    position: relative;
+    text-align: left;
+    overflow-y: auto;
+  }
+  .notice-detail-close {
+    position: absolute;
+    right: 24px;
+    top: 24px;
+    border: 0;
+    background: transparent;
+    color: #6b7280;
+    font-size: 24px;
+    cursor: pointer;
+  }
+  .notice-detail-title {
+    font-size: 20px;
+    font-weight: 900;
+    color: #111827;
+    line-height: 1.4;
+    margin-bottom: 12px;
+    padding-right: 30px;
+  }
+  .notice-detail-meta {
+    font-size: 13px;
+    color: #6b7280;
+    margin-bottom: 24px;
+  }
+  .notice-detail-body-box {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 24px;
+    font-size: 14px;
+    line-height: 1.8;
+    color: #334155;
+  }
+
+  /* 푸터 영역 */
+  .sns-footer-space {
+    padding: 60px 6vw;
+    background-color: #2d3139;
+    text-align: center;
+    margin-top: auto;
+    width: 100%;
+  }
+  .footer-disclaimer {
+    color: #ffffff;
+    font-size: 11px;
+    font-weight: 300;
+    line-height: 1.6;
+    max-width: 800px;
+    margin: 0 auto;
+    opacity: 0.85;
+  }
+
+  @media (max-width: 900px) {
+    .news-article-block,
+    .news-article-block.reverse {
+      grid-template-columns: 1fr;
+      padding: 20px 0;
+    }
+    .news-article-block.reverse .news-article-left {
+      order: 1;
+    }
+    .news-article-block.reverse .news-article-right {
+      order: 2;
+    }
+    .news-content-box {
+      padding: 30px 20px;
+    }
+  }
+  @media (max-width: 640px) {
+    nav { display:none; }
+    .menu-toggle { display:block; }
+    .page-hero { padding:58px 6vw 54px; }
+    .page-hero::after { right:3vw; bottom:-25px; font-size:clamp(100px,28vw,170px); }
+  }
+</style>
+</head>
+<body>
+
+<!-- 상단 헤더 -->
+<header>
+  <div class="logo">
+    <a class="brand" href="web.html">鬼市巫談<small>GWISIMUDAM COMPANY</small></a>
+  </div>
+  <button class="menu-toggle" aria-label="메뉴">≡</button>
+  <nav>
+    <a href="brochure.html">회사 소개</a>
+    <a href="char.html">임원 소개</a>
+    <a href="news.html" class="active">NEWS</a>
+    <a href="job-postings.html">채용공고</a>
+    <a href="web.html#faq">FAQ</a>
+  </nav>
+</header>
+
+<!-- 채용공고 페이지와 통일한 상단 배너 -->
+<section class="page-hero">
+  <div class="page-hero-inner">
+    <div class="eyebrow">NEWS · GWISIMUDAM</div>
+    <h1>사내 NEWS 및 보도자료</h1>
+    <p>귀시무담 컴퍼니의 주요 소식과 공지사항을 확인하세요.</p>
+  </div>
+</section>
+
+<!-- 메인 리스트 컨테이너 -->
+<main class="news-main-container">
+
+  <!-- 상단 뉴스 보도 블록 섹션 -->
+  <section class="featured-news-section">
+    
+    <!-- 뉴스 블록 1 -->
+    <article class="news-article-block">
+      <div class="news-article-left">
+        <div class="news-tag-kicker">GWISIMUDAM NEWS - 01</div>
+        <h2>'초고속 영혼 분류' 인공 물류 제어 성공… 야간 납품 효율 극대화</h2>
+        <div class="news-author">경영전략실 랩실</div>
+        <p class="news-desc">
+          심야 시간대 물류 이동 수단인 영혼 포집망은 본사 운영의 근간이다. 특히 악귀의 이동 경로를 역이용한 신규 '부적 필터링 시스템'은 기존의 물리적 한계를 뛰어넘어 업계에 큰 충격을 주었다. 본사 연구팀은 일반적인 상식을 뛰어넘는 주술적·공학적 융합 설계를 통해 대규모 영혼 분류 공정을 성공적으로 가동했다고 발표했다.
+        </p>
+      </div>
+      <div class="news-article-right">
+        <div class="black-image-box">Image Placeholder (Black)</div>
+      </div>
+    </article>
+
+    <hr class="news-divider">
+
+    <!-- 뉴스 블록 2 -->
+    <article class="news-article-block reverse">
+      <div class="news-article-left">
+        <div class="news-tag-kicker">GWISIMUDAM NEWS - 02</div>
+        <h2>심야 작업 환경 개선 위한 '특수 보안등' 전사 도입 완료</h2>
+        <div class="news-author">보안관리실 기술팀</div>
+        <p class="news-desc">
+          당사는 임직원들의 안전하고 쾌적한 야간 근무 환경을 조성하기 위해 전 사옥에 걸쳐 고강도 특수 보안등 및 결계망 설치를 완료했다. 이번 개선을 통해 야간 작업 시 발생할 수 있는 원인 불명의 한기 및 악귀 침입 위험을 원천 차단하였으며, 직원들의 야간 피로도가 대폭 감소할 것으로 기대된다.
+        </p>
+      </div>
+      <div class="news-article-right">
+        <div class="black-image-box">Image Placeholder (Black)</div>
+      </div>
+    </article>
+
+    <hr class="news-divider">
+
+    <!-- 뉴스 블록 3 -->
+    <article class="news-article-block">
+      <div class="news-article-left">
+        <div class="news-tag-kicker">GWISIMUDAM NEWS - 03</div>
+        <h2>제1회 귀시무담 컴퍼니 '최우수 야간 납품러' 시상식 개최</h2>
+        <div class="news-author">인사관리부 커뮤니케이션</div>
+        <p class="news-desc">
+          지난 분기 동안 가장 신속하고 정확하게 혼령 물류를 소화한 우수 사원들을 격려하기 위한 제1회 사내 시상식이 대강당에서 개최되었다. 수상자들에게는 특별 유급 휴가와 함께 최고급 원기 회복 야식 세트 및 명예 부적이 수여되어 사내 분위기를 한층 뜨겁게 달구었다.
+        </p>
+      </div>
+      <div class="news-article-right">
+        <div class="black-image-box">Image Placeholder (Black)</div>
+      </div>
+    </article>
+
+  </section>
+
+  <!-- 하단 전체 공지사항 및 게시글 리스트 박스 -->
+  <div class="news-content-box">
+    <div class="news-header-row">
+      <div class="news-section-title">전체 공지사항 및 보도 목록</div>
+      <div class="news-tabs" id="news-tabs">
+        <span class="tab active" data-filter="전체">전체</span>
+        <span class="tab" data-filter="공지">공지</span>
+        <span class="tab" data-filter="모집">모집</span>
+        <span class="tab" data-filter="보도">사내보도</span>
+      </div>
+    </div>
+
+    <ul class="full-notice-list" id="full-notice-list">
+      <li class="full-notice-item" data-category="보도" data-title="[보도] '귀시무담 컴퍼니', 야간 고속 영혼 물류 시스템 업계 1위 달성" data-date="2026.09.01" data-content="귀시무담 컴퍼니가 독자 개발한 야간 고속 영혼 물류 및 분류 시스템이 업계 점유율 1위를 달성했습니다.<br><br>이번 성과는 밤낮을 가리지 않고 헌신하는 임직원 여러분의 노고 덕분이며, 하반기에는 해외 지사 확장을 본격적으로 추진할 예정입니다.">
+        <div class="full-notice-title">[보도] '귀시무담 컴퍼니', 야간 고속 영혼 물류 시스템 업계 1위 달성</div>
+        <div class="full-notice-meta">2026.09.01 | 사내보도</div>
+      </li>
+      <li class="full-notice-item" data-category="공지" data-title="[공지] 귀시무담 컴퍼니 상반기 생산 목표 초과 달성 안내" data-date="2026.08.20" data-content="안녕하세요, 귀시무담 컴퍼니 경영지원팀입니다.<br><br>임직원 여러분의 밤낮없는 헌신과 빠른 납품 덕분에 금년도 상반기 생산 목표를 150% 초과 달성하였습니다. 이에 따라 전 사원 특별 야식 쿠폰 및 부적 보너스가 지급될 예정입니다.<br><br>앞으로도 '더 많이 더 빠르게'라는 사훈에 걸맞은 생산 역량을 보여주시길 바랍니다.">
+        <div class="full-notice-title">[공지] 귀시무담 컴퍼니 상반기 생산 목표 초과 달성 안내</div>
+        <div class="full-notice-meta">2026.08.20 | 공지</div>
+      </li>
+      <li class="full-notice-item" data-category="모집" data-title="[모집] 야간 작업 및 혼령 관리 특별 인력 공개 채용 안내" data-date="2026.06.05" data-content="안녕하세요, 귀시무담 컴퍼니 인사관리부입니다.<br><br>당사와 함께 야간 물류 및 혼령 분류 작업을 수행할 신규 인재를 모집합니다. 밤눈이 밝고 심신이 강건하신 분들의 많은 지원 바랍니다.<br><br>[모집 안내]<br>- 담당 업무: 야간 영혼 분류 및 고속 납품 포장<br>- 근무 시간: 해질녘부터 동틀 녘까지 (자율 연장 가능)<br>- 지원 방법: 메인 페이지 '채용공고' 섹션 참고">
+        <div class="full-notice-title">[모집] 야간 작업 및 혼령 관리 특별 인력 공개 채용 안내</div>
+        <div class="full-notice-meta">2026.06.05 | 모집</div>
+      </li>
+      <li class="full-notice-item" data-category="공지" data-title="[안내] 사내 보안 및 야간 보안등 점검 시간 안내" data-date="2026.05.22" data-content="안녕하세요, 귀시무담 컴퍼니 보안관리실입니다.<br><br>원활한 야간 작업 환경 조성과 악귀 침입 방지를 위해 사내 보안 시스템 및 보안등 정기 점검을 실시합니다.<br><br>점검 시간 동안 사내 이동 시 반드시 개인용 부적을 패용해 주시기 바랍니다. 협조해 주셔서 감사합니다.">
+        <div class="full-notice-title">[안내] 사내 보안 및 야간 보안등 점검 시간 안내</div>
+        <div class="full-notice-meta">2026.05.22 | 공지</div>
+      </li>
+      <li class="full-notice-item" data-category="모집" data-title="2026학년도 사내 동호회 및 부적 제작 봉사단 모집" data-date="2026.05.17" data-content="귀시무담 컴퍼니 임직원 여러분의 취미 생활과 영혼 정화를 위한 사내 동호회 및 부적 제작 봉사단을 공개 모집합니다.<br><br>활동 우수자에게는 특별 포상 휴가가 주어지니 많은 참여 바랍니다.">
+        <div class="full-notice-title">2026학년도 사내 동호회 및 부적 제작 봉사단 모집</div>
+        <div class="full-notice-meta">2026.05.17 | 모집</div>
+      </li>
+    </ul>
+
+    <!-- 페이지네이션 컨트롤 -->
+    <div class="pagination" id="pagination">
+      <button class="page-btn" id="prev-page" type="button">이전</button>
+      <span class="page-indicator" id="page-indicator">1 / 2</span>
+      <button class="page-btn" id="next-page" type="button">다음</button>
+    </div>
+  </div>
+
+</main>
+
+<!-- 상세 보기 팝업 모달 -->
+<div class="notice-detail-modal" id="notice-detail-modal" role="dialog" aria-modal="true">
+  <div class="notice-detail-card">
+    <button class="notice-detail-close" id="notice-detail-close" aria-label="팝업 닫기" type="button">×</button>
+    <div class="notice-detail-title" id="modal-notice-title">공지 제목</div>
+    <div class="notice-detail-meta" id="modal-notice-meta">2026.06.05 · 공지</div>
+    <div class="notice-detail-body-box" id="modal-notice-content">
+      공지 내용이 들어갑니다.
+    </div>
+  </div>
+</div>
+
+<!-- 푸터 영역 -->
+<div class="sns-footer-space">
+  <p class="footer-disclaimer">본 페이지는 게임 &lt;鬼市巫談&gt;의 사전 프로모션을 위해 제작된 가상 페이지입니다. 등장하는 회사, 인물, 워딩 등 모든 정보는 허구이며 실제 회사와 무관합니다.</p>
+</div>
+
+<script>
+  // 모바일 메뉴 토글
+  const menuToggle = document.querySelector('.menu-toggle');
+  const nav = document.querySelector('nav');
+  if(menuToggle){
+    menuToggle.addEventListener('click', ()=>{
+      nav.style.display = nav.style.display === 'flex' ? 'none' : 'flex';
+    });
+  }
+
+  // 스크롤 시 기사 블록 단위로 나타나는 Intersection Observer 애니메이션
+  const observerOptions = {
+    root: null,
+    rootMargin: '0px',
+    threshold: 0.15
+  };
+
+  const observer = new IntersectionObserver((entries, observer) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+        observer.unobserve(entry.target);
+      }
+    });
+  }, observerOptions);
+
+  document.querySelectorAll('.news-article-block').forEach(block => {
+    observer.observe(block);
+  });
+
+  // 탭 필터링 및 페이지네이션 상태 관리
+  const newsTabs = document.querySelectorAll('#news-tabs .tab');
+  const allNoticeItems = Array.from(document.querySelectorAll('.full-notice-item'));
+  const prevPageBtn = document.getElementById('prev-page');
+  const nextPageBtn = document.getElementById('next-page');
+  const pageIndicator = document.getElementById('page-indicator');
+
+  let currentCategory = '전체';
+  let currentPage = 1;
+  const itemsPerPage = 3;
+
+  function renderList() {
+    const filteredItems = allNoticeItems.filter(item => {
+      const category = item.getAttribute('data-category');
+      return currentCategory === '전체' || category === currentCategory;
+    });
+
+    const totalPages = Math.ceil(filteredItems.length / itemsPerPage) || 1;
+    if (currentPage > totalPages) currentPage = totalPages;
+    if (currentPage < 1) currentPage = 1;
+
+    allNoticeItems.forEach(item => item.style.display = 'none');
+
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const endIndex = startIndex + itemsPerPage;
+    const currentItems = filteredItems.slice(startIndex, endIndex);
+
+    currentItems.forEach(item => {
+      item.style.display = 'block';
+    });
+
+    pageIndicator.textContent = `${currentPage} / ${totalPages}`;
+    prevPageBtn.disabled = currentPage === 1;
+    nextPageBtn.disabled = currentPage === totalPages;
+  }
+
+  newsTabs.forEach(tab => {
+    tab.addEventListener('click', () => {
+      newsTabs.forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+      currentCategory = tab.getAttribute('data-filter');
+      currentPage = 1;
+      renderList();
+    });
+  });
+
+  prevPageBtn.addEventListener('click', () => {
+    if (currentPage > 1) {
+      currentPage--;
+      renderList();
+    }
+  });
+
+  nextPageBtn.addEventListener('click', () => {
+    const filteredItems = allNoticeItems.filter(item => {
+      const category = item.getAttribute('data-category');
+      return currentCategory === '전체' || category === currentCategory;
+    });
+    const totalPages = Math.ceil(filteredItems.length / itemsPerPage) || 1;
+    if (currentPage < totalPages) {
+      currentPage++;
+      renderList();
+    }
+  });
+
+  renderList();
+
+  // 팝업 모달 제어 로직
+  const detailModal = document.getElementById('notice-detail-modal');
+  const detailClose = document.getElementById('notice-detail-close');
+  const modalTitle = document.getElementById('modal-notice-title');
+  const modalMeta = document.getElementById('modal-notice-meta');
+  const modalContent = document.getElementById('modal-notice-content');
+
+  allNoticeItems.forEach(item => {
+    item.addEventListener('click', () => {
+      modalTitle.textContent = item.getAttribute('data-title');
+      modalMeta.textContent = `${item.getAttribute('data-date')} · ${item.getAttribute('data-category')}`;
+      modalContent.innerHTML = item.getAttribute('data-content');
+      detailModal.classList.add('open');
+    });
+  });
+
+  function closeModal() {
+    if (detailModal) detailModal.classList.remove('open');
+  }
+  if (detailClose) detailClose.addEventListener('click', closeModal);
+  if (detailModal) {
+    detailModal.addEventListener('click', (e) => {
+      if (e.target === detailModal) closeModal();
+    });
+  }
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') closeModal();
+  });
+</script>
+</body>
+</html>
