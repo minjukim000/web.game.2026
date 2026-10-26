@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="ko"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>입사 지원 | 귀시무담 컴퍼니</title><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700;900&display=swap" rel="stylesheet">
+<style>
+:root{color-scheme:light;--bg:#f5f6f8;--surface:#fff;--muted-bg:#f0f1f3;--ink:#1a1d24;--muted:#6d7380;--border:#dce0e5;--accent:#b78a00;--accent-soft:#f6edce;--hero:#202632;--shadow:0 14px 40px rgba(19,24,32,.06)}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font-family:'Noto Sans KR',sans-serif;line-height:1.65}body[data-theme=dark]{color-scheme:dark;--bg:#111318;--surface:#1b1f27;--muted-bg:#232833;--ink:#ececf0;--muted:#aab0bd;--border:#363e4a;--accent:#b85a65;--accent-soft:#321920;--hero:#291a22;--shadow:0 14px 40px rgba(0,0,0,.22)}a{color:inherit;text-decoration:none}button,input,textarea,select{font:inherit}button{cursor:pointer}button:focus-visible,a:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+header{height:78px;position:sticky;top:0;z-index:10;background:var(--surface);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:18px;padding:0 max(5vw,20px)}.brand{font-weight:900;font-size:21px;line-height:1.15;white-space:nowrap}.brand small{display:block;color:var(--muted);font-size:10px;font-weight:400;letter-spacing:.08em;margin-top:4px}.header-right{display:flex;gap:14px;align-items:center}.back-link{font-size:13px;font-weight:700}.back-link:hover{color:var(--accent)}.theme-btn{border:1px solid var(--border);background:var(--muted-bg);color:var(--ink);border-radius:30px;padding:9px 13px;font-size:12px;font-weight:700;white-space:nowrap}
+.hero{background:linear-gradient(125deg,#202632,#343a46 52%,#55504a);color:#fff;padding:63px max(5vw,20px)}body[data-theme=dark] .hero{background:linear-gradient(125deg,#17161c,#291a22 52%,#481c2a)}.hero-inner{max-width:1060px;margin:auto}.kicker{font-size:11px;letter-spacing:.18em;font-weight:900;color:#e5bd61}.hero h1{font-size:clamp(32px,5vw,48px);margin:10px 0}.hero p{font-size:14px;color:#e0e3e8;margin:0}.wrap{max-width:1060px;margin:0 auto;padding:38px 20px 100px}.breadcrumb{font-size:12px;color:var(--muted);margin-bottom:25px}.breadcrumb a:hover{color:var(--accent)}.position{border:1px solid var(--border);border-radius:15px;background:var(--surface);padding:25px 28px;margin-bottom:25px;box-shadow:var(--shadow)}.position small{font-size:11px;color:var(--accent);font-weight:900;letter-spacing:.12em}.position h2{font-size:22px;margin:7px 0}.position p{font-size:13px;color:var(--muted);margin:0}.layout{display:grid;grid-template-columns:minmax(0,1fr) 265px;gap:23px;align-items:start}.form-card,.side-card{border:1px solid var(--border);border-radius:15px;background:var(--surface);box-shadow:var(--shadow)}.form-card{padding:34px}.side-card{padding:24px;position:sticky;top:102px}.side-card h3{margin:0 0 15px;font-size:16px}.side-card p,.side-card li{font-size:12px;color:var(--muted);line-height:1.85}.side-card ul{padding-left:18px}.side-card .note{margin-top:20px;padding:14px;border-radius:9px;background:var(--accent-soft)}.section{padding-bottom:30px;margin-bottom:30px;border-bottom:1px solid var(--border)}.section:last-of-type{border:0;margin-bottom:0;padding-bottom:0}.section-head{display:flex;align-items:center;gap:10px;margin-bottom:20px}.num{display:grid;place-items:center;border-radius:50%;background:var(--accent-soft);color:var(--accent);font-size:12px;font-weight:900;width:29px;height:29px}.section h3{font-size:18px;margin:0}.fields{display:grid;grid-template-columns:1fr 1fr;gap:18px}.field{display:flex;flex-direction:column;gap:8px}.field.full{grid-column:1/-1}.field label{font-size:13px;font-weight:700}.req{color:var(--accent)}.field input,.field select,.field textarea{width:100%;min-width:0;border:1px solid var(--border);border-radius:9px;background:var(--surface);color:var(--ink);padding:12px 13px;font-size:13px}.field textarea{resize:vertical;min-height:125px}.field input::placeholder,.field textarea::placeholder{color:var(--muted)}.hint{font-size:11px;color:var(--muted)}.upload{border:1px dashed var(--border);border-radius:10px;background:var(--muted-bg);padding:18px}.upload input{background:var(--surface);margin-top:9px}.file-name{font-size:11px;color:var(--accent);word-break:break-all;min-height:18px}.consent{display:flex;gap:10px;align-items:flex-start;font-size:13px;cursor:pointer}.consent input{accent-color:var(--accent);margin-top:5px}.actions{display:flex;justify-content:flex-end;gap:10px;margin-top:30px}.btn{border-radius:9px;padding:13px 22px;font-size:13px;font-weight:900;border:1px solid var(--border);background:var(--surface);color:var(--ink)}.btn.primary{background:var(--accent);border-color:var(--accent);color:white}body:not([data-theme=dark]) .btn.primary{color:#171717}.btn:hover{filter:brightness(.94)}.message{margin-top:20px;padding:15px;border:1px solid var(--border);border-radius:9px;background:var(--muted-bg);font-size:13px;display:none}.message.show{display:block}footer{background:#252a33;color:#cbd0d8;text-align:center;padding:30px;font-size:11px}
+@media(max-width:800px){.layout{grid-template-columns:1fr}.side-card{position:static;order:-1}.side-card ul{margin-bottom:0}}@media(max-width:600px){header{height:70px}.brand{font-size:17px}.back-link{display:none}.hero{padding:47px 20px}.form-card{padding:22px}.fields{grid-template-columns:1fr}.field.full{grid-column:auto}.position{padding:22px}.actions{flex-direction:column-reverse}.btn{width:100%}}
+
+/* 직접 서명 */
+.signature-block{margin-top:24px}.signature-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:10px}.signature-heading label{font-size:13px;font-weight:700}.signature-clear{border:1px solid var(--border);border-radius:7px;background:var(--surface);color:var(--ink);padding:6px 13px;font-size:12px;font-weight:700}.signature-clear:hover{border-color:var(--accent);color:var(--accent)}.signature-pad{display:block;width:100%;height:190px;border:1px dashed var(--border);border-radius:10px;background:var(--surface);touch-action:none;cursor:crosshair}.signature-pad:focus-visible{outline:2px solid var(--accent);outline-offset:3px}.signature-help{font-size:11px;color:var(--muted);margin-top:9px}
+
+.employee-overlay[hidden]{display:none!important}.employee-overlay{position:fixed;inset:0;z-index:100;display:flex;align-items:center;justify-content:center;padding:22px;background:rgba(0,0,0,.75);overflow:auto}
+.employee-dialog{background:var(--surface);color:var(--ink);border-radius:18px;padding:24px;width:min(100%,660px);box-shadow:0 25px 80px #0006}
+.employee-dialog h2{margin:0 0 5px;font-size:22px}.employee-dialog p{margin:0 0 16px;color:var(--muted);font-size:12px}.employee-preview{width:100%;height:auto;display:block;border-radius:12px;box-shadow:0 12px 30px #0003}
+.employee-actions{display:flex;justify-content:space-between;gap:10px;margin-top:20px;flex-wrap:wrap}
+@media(max-width:600px){.employee-dialog{padding:16px}.employee-actions .btn{width:auto;flex:1}}
+.employee-dialog{max-height:92vh;overflow-y:auto;width:min(100%,700px);padding:clamp(20px,4vw,36px)}.employee-dialog h2{text-align:center;font-size:clamp(25px,4vw,34px);letter-spacing:-.04em;margin:5px 0 8px}.employee-dialog .accept-subtitle{font-size:14px;margin-bottom:22px}.accept-kicker{font-size:11px;font-weight:900;letter-spacing:.17em;color:var(--accent)}.accept-letter{margin-top:25px;padding:clamp(20px,4vw,32px);background:var(--surface);border:1px solid var(--border);border-radius:12px;font-size:13px;line-height:1.9}.letter-head{display:flex;justify-content:space-between;gap:12px;border-bottom:2px solid var(--accent);padding-bottom:12px;margin-bottom:24px;font-size:12px;font-weight:900;letter-spacing:.04em}.accept-letter p{font-size:13px;color:var(--ink);margin:0 0 13px}.accept-letter .letter-to{font-size:16px;margin-bottom:17px}.letter-details{margin:20px 0;border-top:1px solid var(--border)}.letter-details div{display:grid;grid-template-columns:100px 1fr;gap:12px;border-bottom:1px solid var(--border);padding:10px 0}.letter-details dt{color:var(--muted);font-weight:700}.letter-details dd{margin:0;font-weight:700}.accept-letter .letter-warning{font-size:11px;color:var(--muted);margin-top:20px}.letter-signoff{text-align:right;margin-top:22px;font-size:12px}.letter-signoff strong{font-size:17px}body[data-theme=dark] .accept-letter{background:var(--muted-bg)}
+
+/* 다른 회사 페이지와 동일한 상단 메뉴 */
+.site-header{position:sticky;justify-content:center;min-height:78px;padding:12px 6vw}
+.site-header>.brand{position:absolute;left:6vw;top:50%;transform:translateY(-50%)}
+.main-nav{display:flex;align-items:center;justify-content:center;gap:26px}
+.main-nav a{font-size:14px;font-weight:700;white-space:nowrap}
+.main-nav a:hover,.main-nav a[aria-current="page"]{color:var(--accent)}
+.site-header .header-right{position:absolute;right:6vw;top:50%;transform:translateY(-50%)}
+.menu-toggle{display:none;background:transparent;border:0;color:var(--ink);font-size:24px}
+@media(max-width:1000px){.main-nav{gap:12px}.main-nav a{font-size:12px}}
+@media(max-width:760px){
+ .site-header{justify-content:flex-end;padding:12px 5vw;min-height:70px}
+ .site-header>.brand{left:5vw}
+ .site-header .header-right{right:5vw}
+ .menu-toggle{display:block;margin-right:120px}
+ .main-nav{display:none;position:absolute;left:0;right:0;top:69px;background:var(--surface);border-bottom:1px solid var(--border);padding:18px 5vw;flex-direction:column;align-items:stretch;gap:15px;z-index:12}
+ .main-nav.open{display:flex}.main-nav a{font-size:14px}
+}
+</style></head><body>
+<header class="site-header"><a class="brand" href="web.html">鬼市巫談<small>GWISIMUDAM COMPANY</small></a><button class="menu-toggle" id="menuToggle" type="button" aria-expanded="false" aria-controls="mainNav" aria-label="메뉴 열기">☰</button><nav class="main-nav" id="mainNav" aria-label="주 메뉴"><a href="brochure.html">회사 소개</a><a href="executives.html">임원 소개</a><a href="news.html">NEWS</a><a href="job-postings.html" aria-current="page">채용공고</a><a href="web.html#faq">FAQ</a></nav><div class="header-right"><button type="button" class="theme-btn" id="themeBtn">☾ 다크 모드</button></div></header>
+<section class="hero"><div class="hero-inner"><div class="kicker">CAREERS · APPLICATION</div><h1>입사 지원서 작성</h1><p>귀시무담 컴퍼니와 함께할 당신의 이야기를 들려주세요.</p></div></section>
+<main class="wrap"><div class="breadcrumb"><a href="web.html">홈</a> / <a href="job-postings.html">채용공고</a> / <strong>입사 지원</strong></div><div class="position"><small>NOW RECRUITING · 야간운영부</small><h2>야간 작업 및 혼령 관리 특별 인력</h2><p>정규직 · 신입·경력 · 야간 교대 근무 · 상시 접수</p></div>
+<div class="layout"><form id="applyForm" class="form-card"><section class="section"><div class="section-head"><span class="num">01</span><h3>기본 정보</h3></div><div class="fields"><div class="field full"><label for="name">이름 <span class="req">*</span></label><input id="name" name="name" type="text" autocomplete="name" maxlength="50" required placeholder="이름을 입력해 주세요"></div></div></section>
+<section class="section"><div class="section-head"><span class="num">02</span><h3>지원 정보</h3></div><div class="fields"><div class="field"><label for="experience">경력 구분 <span class="req">*</span></label><select id="experience" name="experience" required><option value="">선택해 주세요</option><option>신입</option><option>경력</option></select></div><div class="field"><label for="shift">야간 교대 근무 가능 여부 <span class="req">*</span></label><select id="shift" name="shift" required><option value="">선택해 주세요</option><option>가능</option><option>협의 필요</option></select></div><div class="field full"><label for="motivation">지원 동기</label><textarea id="motivation" name="motivation" maxlength="2000" placeholder="지원 동기와 본인의 강점을 자유롭게 작성해 주세요."></textarea></div></div></section>
+<section class="section"><div class="section-head"><span class="num">03</span><h3>지원 서류 첨부</h3></div><div class="fields"><div class="field full"><label for="photo">증명사진 <span class="hint">(선택)</span></label><div class="upload"><div class="hint">JPG, JPEG, PNG, WEBP 이미지 · 최대 10MB</div><input type="file" id="photo" name="photo" accept="image/jpeg,image/png,image/webp,.jpg,.jpeg,.png,.webp"><div class="file-name" id="photoName"></div></div></div></div></section>
+<section class="section"><div class="section-head"><span class="num">04</span><h3>개인정보 안내 및 동의</h3></div><p class="hint" style="margin:0 0 16px">본 페이지는 게임 세계관을 바탕으로 제작된 지원서 UI 시안입니다. 현재 입력한 정보와 첨부 파일은 서버로 전송되거나 저장되지 않습니다.</p><label class="consent"><input type="checkbox" id="consent" required><span>지원서 작성 안내를 확인했습니다. <span class="req">*</span></span></label><div class="signature-block"><div class="signature-heading"><label for="signaturePad">지원자 서명 <span class="req">*</span></label><button type="button" class="signature-clear" id="clearSignature">서명 지우기</button></div><canvas id="signaturePad" class="signature-pad" aria-label="마우스 또는 터치로 서명하는 영역" tabindex="0"></canvas><p class="signature-help">마우스나 손가락으로 직접 서명해 주세요. 서명은 사원증에 들어가며 서버로 전송되지 않습니다.</p></div></section><div class="actions"><a class="btn" href="job-postings.html" style="text-align:center">취소</a><button class="btn primary" type="submit">지원서 제출하기 →</button></div><div id="message" class="message" role="status" aria-live="polite"></div></form>
+<aside class="side-card"><h3>지원 안내</h3><ul><li>지원 분야: 야간 작업 및 혼령 관리 특별 인력</li><li>증명사진: 선택 사항 (미첨부 시 공란)</li><li>지원 전 파일 형식과 용량을 확인해 주세요.</li></ul><div class="note"><strong>시안 페이지 안내</strong><p>현재는 실제 접수 시스템과 연결되지 않았습니다. 제출 버튼을 누르면 입력값을 검사한 뒤 사원증을 생성합니다. 실제 지원 접수는 이루어지지 않습니다.</p></div></aside></div></main><footer>© GWISIMUDAM COMPANY · 鬼市巫談<br>본 페이지는 게임 세계관 연출용이며 실제 채용 접수 서비스가 아닙니다.</footer>
+<div class="employee-overlay" id="employeeOverlay" hidden role="dialog" aria-modal="true" aria-labelledby="employeeTitle"><div class="employee-dialog"><div class="accept-kicker">GWISIMUDAM · ACCEPTANCE NOTICE</div><h2 id="employeeTitle">합격을 축하드립니다.</h2><p class="accept-subtitle">귀시무담 컴퍼니의 새로운 구성원이 되신 것을 환영합니다.</p><canvas id="employeeCanvas" class="employee-preview" width="1000" height="630" aria-label="생성된 사원증 미리보기"></canvas><section class="accept-letter" aria-label="합격 안내서"><div class="letter-head"><span>鬼市巫談 COMPANY</span><span>합격 안내서</span></div><p class="letter-to"><strong id="acceptName"></strong> 님께</p><p>귀시무담 컴퍼니의 <strong>야간 작업 및 혼령 관리 특별 인력</strong> 채용에 최종 합격하신 것을 진심으로 축하드립니다.</p><p>귀하의 지원과 서약을 확인하였으며, 아래와 같이 배치 예정 사항을 안내드립니다.</p><dl class="letter-details"><div><dt>배치 부서</dt><dd>야간운영부</dd></div><div><dt>담당 업무</dt><dd>야간 현장 운영 및 혼령 관리</dd></div><div><dt>근무 형태</dt><dd>야간 교대 근무</dd></div><div><dt>첫 출근</dt><dd>별도 안내 예정</dd></div></dl><p class="letter-warning">※ 본 합격 안내서와 사원증은 게임 세계관 연출용이며, 실제 채용·고용 또는 신분을 증명하지 않습니다.</p><div class="letter-signoff">귀시무담 컴퍼니<br><strong>인사관리팀</strong></div></section><div class="employee-actions"><button type="button" class="btn primary" id="closeEmployee">확인</button><button type="button" class="btn" id="downloadEmployee">사원증 PNG 저장 ↓</button></div></div></div><script>
+const menuToggle=document.getElementById('menuToggle');const mainNav=document.getElementById('mainNav');menuToggle.addEventListener('click',()=>{const open=mainNav.classList.toggle('open');menuToggle.setAttribute('aria-expanded',String(open));menuToggle.setAttribute('aria-label',open?'메뉴 닫기':'메뉴 열기')});
+const themeBtn=document.getElementById('themeBtn');function setTheme(theme){const dark=theme==='dark';document.body.dataset.theme=dark?'dark':'light';themeBtn.textContent=dark?'☀ 라이트 모드':'☾ 다크 모드';themeBtn.setAttribute('aria-pressed',String(dark))}let theme='light';try{theme=localStorage.getItem('gwisimudam-theme')||'light'}catch(e){}setTheme(theme);themeBtn.addEventListener('click',()=>{const next=document.body.dataset.theme==='dark'?'light':'dark';setTheme(next);try{localStorage.setItem('gwisimudam-theme',next)}catch(e){}});
+const allowed=['jpg','jpeg','png','webp'];for(const id of ['photo']){const input=document.getElementById(id),label=document.getElementById(id+'Name');input.addEventListener('change',()=>{const f=input.files[0];label.textContent=f?f.name+' · '+(f.size/1024/1024).toFixed(2)+'MB':''})}
+document.getElementById('applyForm').addEventListener('submit',async e=>{
+ e.preventDefault();
+ const message=document.getElementById('message');
+ if(!hasSignature){message.classList.add('show');message.textContent='지원자 서명을 작성해 주세요.';signaturePad.focus();return;}
+ const f=document.getElementById('photo').files[0];
+ if(f){const ext=f.name.split('.').pop().toLowerCase();if(!allowed.includes(ext)||!['image/jpeg','image/png','image/webp'].includes(f.type)||f.size>10*1024*1024){message.classList.add('show');message.textContent='증명사진은 JPG, JPEG, PNG, WEBP 형식의 10MB 이하 이미지만 선택해 주세요.';return;}}
+ try{await makeEmployeeCard(f);message.classList.add('show');message.textContent='합격 안내서와 사원증이 생성되었습니다. 실제 지원 접수나 정보 전송은 이루어지지 않습니다.';}
+ catch(err){message.classList.add('show');message.textContent='사원증 생성에 실패했습니다. 이미지를 확인하고 다시 시도해 주세요.';}
+});
+// 포인터 이벤트를 이용한 마우스/터치 서명 패드
+const signaturePad=document.getElementById('signaturePad');
+const signatureCtx=signaturePad.getContext('2d');
+let isSigning=false,hasSignature=false,lastPoint=null;
+function resizeSignaturePad(){
+ const rect=signaturePad.getBoundingClientRect();
+ const old=hasSignature?signaturePad.toDataURL('image/png'):null;
+ const scale=window.devicePixelRatio||1;
+ signaturePad.width=Math.max(1,Math.round(rect.width*scale));
+ signaturePad.height=Math.max(1,Math.round(rect.height*scale));
+ signatureCtx.setTransform(scale,0,0,scale,0,0);
+ signatureCtx.lineCap='round';signatureCtx.lineJoin='round';signatureCtx.lineWidth=2.5;
+ if(old){const img=new Image();img.onload=()=>signatureCtx.drawImage(img,0,0,rect.width,rect.height);img.src=old;}
+}
+function signaturePoint(e){const r=signaturePad.getBoundingClientRect();return {x:e.clientX-r.left,y:e.clientY-r.top};}
+function beginSignature(e){if(e.pointerType==='mouse'&&e.button!==0)return;e.preventDefault();isSigning=true;signaturePad.setPointerCapture(e.pointerId);lastPoint=signaturePoint(e);signatureCtx.strokeStyle=getComputedStyle(document.body).getPropertyValue('--ink').trim()||'#222';signatureCtx.beginPath();signatureCtx.arc(lastPoint.x,lastPoint.y,1.3,0,Math.PI*2);signatureCtx.fillStyle=signatureCtx.strokeStyle;signatureCtx.fill();hasSignature=true;}
+function moveSignature(e){if(!isSigning)return;e.preventDefault();const next=signaturePoint(e);signatureCtx.beginPath();signatureCtx.moveTo(lastPoint.x,lastPoint.y);signatureCtx.lineTo(next.x,next.y);signatureCtx.stroke();lastPoint=next;}
+function endSignature(){isSigning=false;lastPoint=null;}
+signaturePad.addEventListener('pointerdown',beginSignature);
+signaturePad.addEventListener('pointermove',moveSignature);
+signaturePad.addEventListener('pointerup',endSignature);
+signaturePad.addEventListener('pointercancel',endSignature);
+signaturePad.addEventListener('lostpointercapture',endSignature);
+document.getElementById('clearSignature').addEventListener('click',()=>{signatureCtx.clearRect(0,0,signaturePad.width,signaturePad.height);hasSignature=false;});
+resizeSignaturePad();
+window.addEventListener('resize',()=>{if(!isSigning)resizeSignaturePad();});
+
+const employeeOverlay=document.getElementById('employeeOverlay');
+const employeeCanvas=document.getElementById('employeeCanvas');
+const employeeCtx=employeeCanvas.getContext('2d');
+function rounded(ctx,x,y,w,h,r){ctx.beginPath();ctx.roundRect(x,y,w,h,r);}
+function loadPhoto(file){return new Promise((resolve,reject)=>{const url=URL.createObjectURL(file);const img=new Image();img.onload=()=>{URL.revokeObjectURL(url);resolve(img)};img.onerror=()=>{URL.revokeObjectURL(url);reject(new Error('image'))};img.src=url;});}
+async function makeEmployeeCard(file){
+ const photo=file?await loadPhoto(file):null;
+ const c=employeeCtx,W=1000,H=630;
+ c.clearRect(0,0,W,H);
+ c.fillStyle='#181d27';rounded(c,0,0,W,H,28);c.fill();
+ c.fillStyle='#b78a00';c.fillRect(0,0,16,H);c.fillRect(0,0,W,9);
+ c.fillStyle='#ffffff';c.font='900 46px "Noto Sans KR",sans-serif';c.fillText('鬼市巫談',64,91);
+ c.fillStyle='#c4c8d2';c.font='600 20px "Noto Sans KR",sans-serif';c.fillText('GWISIMUDAM COMPANY',66,125);
+ c.textAlign='right';c.fillStyle='#d5b568';c.font='700 23px "Noto Sans KR",sans-serif';c.fillText('EMPLOYEE ID CARD',932,91);c.textAlign='left';
+ c.fillStyle='#292f3b';rounded(c,64,172,285,342,12);c.fill();
+ if(photo){c.save();rounded(c,64,172,285,342,12);c.clip();const ratio=Math.max(285/photo.width,342/photo.height);const w=photo.width*ratio,h=photo.height*ratio;c.drawImage(photo,64+(285-w)/2,172+(342-h)/2,w,h);c.restore();}
+ c.fillStyle='#8b929e';c.font='500 17px "Noto Sans KR",sans-serif';c.fillText('NAME / 성명',404,218);
+ c.fillStyle='#fff';c.font='900 52px "Noto Sans KR",sans-serif';let name=document.getElementById('name').value.trim();if(name.length>14)name=name.slice(0,14)+'…';c.fillText(name,402,285);
+ c.fillStyle='#8b929e';c.font='500 17px "Noto Sans KR",sans-serif';c.fillText('DEPARTMENT / 소속',404,340);
+ c.fillStyle='#f4f4f6';c.font='700 26px "Noto Sans KR",sans-serif';c.fillText('야간운영부',402,384);
+ c.fillStyle='#8b929e';c.font='500 17px "Noto Sans KR",sans-serif';c.fillText('SIGNATURE / 서명',404,435);
+ c.fillStyle='#fff';rounded(c,400,453,526,92,8);c.fill();
+ const signCopy=document.createElement('canvas');signCopy.width=signaturePad.width;signCopy.height=signaturePad.height;const sc=signCopy.getContext('2d');sc.drawImage(signaturePad,0,0);sc.globalCompositeOperation='source-in';sc.fillStyle='#202632';sc.fillRect(0,0,signCopy.width,signCopy.height);c.drawImage(signCopy,405,457,516,84);
+ c.fillStyle='#d5b568';c.font='600 18px "Noto Sans KR",sans-serif';c.fillText('AUTHORIZED PERSONNEL · 鬼市巫談',65,585);
+ c.textAlign='right';c.fillStyle='#9ca3af';c.font='500 16px "Noto Sans KR",sans-serif';c.fillText('FICTIONAL ID / DESIGN PREVIEW',933,585);c.textAlign='left';
+ document.getElementById('acceptName').textContent=document.getElementById('name').value.trim();employeeOverlay.hidden=false;employeeOverlay.querySelector('.employee-dialog').scrollTop=0;document.getElementById('closeEmployee').focus();
+}
+document.getElementById('closeEmployee').addEventListener('click',()=>{window.location.assign('https://store.steampowered.com/');});
+employeeOverlay.addEventListener('click',e=>{if(e.target===employeeOverlay)employeeOverlay.hidden=true});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!employeeOverlay.hidden)employeeOverlay.hidden=true});
+document.getElementById('downloadEmployee').addEventListener('click',()=>{
+ const a=document.createElement('a');a.href=employeeCanvas.toDataURL('image/png');a.download='귀시무담_사원증.png';a.click();
+});
+</script></body></html>
