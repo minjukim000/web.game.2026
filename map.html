@@ -1,0 +1,386 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>밤의 광장 | MAP 01</title>
+<style>
+:root{color-scheme:dark}*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#0d0e16;font-family:system-ui,-apple-system,'Malgun Gothic',sans-serif}canvas{display:block;width:100%;height:100%;image-rendering:auto;touch-action:none}.hud{position:fixed;top:18px;left:18px;padding:12px 15px;border:1px solid #ffffff30;border-radius:12px;background:#0d1020bc;color:#f2e8d8;backdrop-filter:blur(9px);font-size:13px;line-height:1.7;pointer-events:none}.hud strong{font-size:15px}.hud small{color:#bdb9b7}.help{position:fixed;right:18px;top:18px;display:flex;gap:8px}button{border:1px solid #ffffff4a;background:#101524d9;color:#fff;padding:9px 12px;border-radius:9px;cursor:pointer;font:inherit}button:hover{background:#263149}button:focus-visible{outline:2px solid #f5c47a;outline-offset:2px}.notice{position:fixed;left:50%;bottom:25px;transform:translateX(-50%);padding:9px 14px;background:#0e1220e0;border:1px solid #ffffff35;color:#f4e8d7;border-radius:10px;font-size:12px;white-space:nowrap;pointer-events:none}.touch{position:fixed;left:20px;bottom:25px;display:none;grid-template-columns:repeat(3,50px);grid-template-rows:repeat(3,50px);gap:3px;user-select:none}.touch button{padding:0;font-size:20px;touch-action:none}.touch .up{grid-column:2;grid-row:1}.touch .left{grid-column:1;grid-row:2}.touch .down{grid-column:2;grid-row:2}.touch .right{grid-column:3;grid-row:2}@media(pointer:coarse){.touch{display:grid}.notice{bottom:12px;left:auto;right:14px;transform:none;font-size:10px}.hud{font-size:11px;padding:8px 10px}.help{right:10px;top:10px}.help button{font-size:11px;padding:7px}}
+</style>
+</head>
+<body>
+<canvas id="game" aria-label="키보드 또는 클릭으로 캐릭터를 이동하는 게임 지도"></canvas>
+<div class="hud"><strong>밤의 오피스 광장</strong><div>MAP 01 · 야외 광장</div><small>이동: 클릭 / 방향키 / WASD · 달리기: Shift · 문 열기: E</small><br><small>충돌 영역 확인: F3</small></div>
+<div class="help"><button id="zoomOut" type="button" aria-label="축소">−</button><button id="zoomIn" type="button" aria-label="확대">＋</button><button id="debugBtn" type="button" aria-pressed="false">충돌 표시</button></div>
+<div class="notice" id="notice">출입문 앞에서 E 또는 문 클릭 · 다른 곳은 클릭 이동</div>
+<div class="touch" aria-label="화면 이동 버튼"><button class="up" data-dir="up" aria-label="위로">▲</button><button class="left" data-dir="left" aria-label="왼쪽">◀</button><button class="down" data-dir="down" aria-label="아래">▼</button><button class="right" data-dir="right" aria-label="오른쪽">▶</button></div>
+<script>
+'use strict';
+const canvas=document.getElementById('game'),ctx=canvas.getContext('2d');
+const image=new Image(); image.src='./map_1.png';
+let MAP_W=1774,MAP_H=887;
+let scene=1;
+/* 좌표는 map_1.png 원본 픽셀 기준입니다.
+   walkable: 캐릭터 발 위치가 들어갈 수 있는 다각형
+   blocked: 화단·나무·벤치·시설물 등의 충돌 사각형
+   F3 또는 '충돌 표시' 버튼으로 실제 구역을 확인하며 편집하세요. */
+const walkable=[
+  [[24,412],[1750,412],[1750,787],[24,787]], // 광장과 인도
+  [[787,348],[1090,348],[1090,440],[787,440]], // 중앙 계단
+  [[816,300],[1065,300],[1065,352],[816,352]], // 건물 입구 앞: 문 쪽 상단 경계 36px 축소
+  [[30,332],[135,332],[135,472],[30,472]], // 좌측 연결 보행로
+  [[1630,332],[1744,332],[1744,472],[1630,472]] // 우측 연결 보행로
+];
+// [x,y,width,height] : 대략적인 장애물. 이미지와 맞추어 수정 가능
+const blocked=[
+  [0,407,515,111], // 왼쪽 상단 화단
+  [525,330,245,75], // 왼쪽 계단 옆 화단·벤치
+  [1110,330,248,75], // 오른쪽 계단 옆 화단·벤치
+  [1350,300,330,100], // 우측 상단 화단
+  [0,592,565,124], // 왼쪽 하단 수목·화단
+  [1360,588,414,125], // 오른쪽 하단 수목·화단
+  [564,459,87,151], // 왼쪽 중간 나무
+  [1218,456,87,151], // 오른쪽 중간 나무
+  [1372,462,107,149], // 오른쪽 나무
+  [676,659,212,58], // 중앙 하단 왼쪽 화단
+  [997,659,222,58], // 중앙 하단 오른쪽 화단
+  [205,622,81,158], // 왼쪽 가로수
+  [1455,620,82,160], // 오른쪽 가로수
+  [385,522,73,255], // 왼쪽 가로등
+  [1280,520,72,255], // 오른쪽 가로등
+  [145,454,67,132], // 왼쪽 표지판
+  [1512,452,65,130], // 오른쪽 표지판
+  [811,274,30,69], // 입구 왼쪽 장식
+  [1038,274,30,69] // 입구 오른쪽 장식
+];
+// MAP 02 (1472 × 1024 원본 기준): 바닥 이동 구역과 실내 가구 충돌
+// 좌표는 실제 이미지 크기에 맞게 비례 변환됩니다.
+const indoorBaseW=1472,indoorBaseH=1024;
+const indoorWalkable=[
+  [[65,224],[1404,224],[1404,934],[65,934]],
+  [[65,183],[680,183],[680,535],[65,535]],
+  [[1086,205],[1404,205],[1404,442],[1086,442]],
+  [[650,126],[1084,126],[1084,445],[650,445]],
+  // 하단 출입문은 상호작용 대상이므로 이동 가능 영역에서 제외
+];
+const indoorBlocked=[
+  [65,74,592,156], // 상단 수납장/선반/화분
+  [1085,33,328,227], // 우측 상단 화장실 벽/시설
+  [690,190,151,111], // 게시판 벽
+  [875,174,167,150], // 엘리베이터 문과 벽
+  [1005,244,83,110], // 엘리베이터 옆 화분
+  [647,238,50,103], // 게시판 옆 화분
+  [110,276,447,203], // 왼쪽 접수 데스크/컴퓨터
+  [62,535,351,418], // 왼쪽 아래 유리 회의실, 탁자, 벽
+  [413,631,66,319], // 회의실 우측 사무기기
+  [677,505,119,234], // 중앙 화분과 아래쪽 소파: 중앙 부분만 차단
+  [625,583,52,156], // 화분 왼쪽 소파 (위쪽 바닥은 통행 가능)
+  [796,583,53,156], // 화분 오른쪽 소파 (위쪽 바닥은 통행 가능)
+  [1082,441,322,201], // 오른쪽 위 소파/액자/화분
+  [1080,665,325,151], // 오른쪽 아래 소파와 테이블
+  [1034,514,38,130], // 오른쪽 파티션 위
+  [1034,688,38,126], // 오른쪽 파티션 아래
+  [1342,611,63,327], // 우측 벽면 선반과 식물
+  [568,872,75,91], // 아래 왼쪽 출입문 옆 화분
+  [847,871,71,91], // 아래 오른쪽 출입문 옆 화분
+  [650,925,270,83] // 하단 출입문: 통과 불가, E/클릭으로 야외 이동
+];
+// MAP 03 (1774 × 887): 1층과 같은 좌표계로, 실제 바닥 통로만 허용
+const thirdBaseW=1774,thirdBaseH=887;
+const thirdWalkable=[
+  [[38,298],[1732,298],[1732,435],[38,435]], // 상단 복도
+  [[454,401],[660,401],[660,597],[454,597]], // 계단 앞 연결 통로
+  [[838,410],[1392,410],[1392,745],[838,745]], // 중앙 휴게 공간
+  [[1378,435],[1710,435],[1710,749],[1378,749]], // 오른쪽 휴게실
+  [[36,290],[1005,290],[1005,421],[36,421]] // 왼쪽 복도
+];
+const thirdBlocked=[
+  [18,105,975,196], // 상단 왼쪽 벽과 사무실, 유리문
+  [995,151,391,159], // 게시판, 엘리베이터, 벽, 화분
+  [1382,111,329,196], // 화장실/세면대와 벽
+  [34,407,411,128], // 좌측 대기 소파와 난간
+  [635,407,211,125], // 중앙 대기 소파/난간
+  [448,417,38,180], // 계단 왼쪽 난간
+  [615,417,34,180], // 계단 오른쪽 난간
+  [485,545,132,53], // 계단 하단: 진입 제한
+  [820,505,65,240], // MAP 03 휴게 공간 왼쪽 벽과 좁은 틈: 통행 불가
+  [842,565,65,140], // 휴게 공간 왼쪽 장식장과 화분
+  [904,555,305,165], // 중앙 카펫 위 소파, 테이블, 화분
+  [1210,560,70,148], // 휴게 공간 오른쪽 장식장/화분
+  [1380,437,330,122], // 탕비실 상단 주방 가구
+  [1450,594,170,93], // 탕비실 식탁과 의자
+  [1381,451,41,290], // 탕비실 왼쪽 벽
+  [1655,554,58,184], // 탕비실 오른쪽 벽면 물품
+  [822,716,568,45], // 아래쪽 벽
+  [1380,721,329,45], // 탕비실 아래쪽 벽
+  [30,515,410,30] // 왼쪽 대기 구역 아래 벽
+];
+const player={x:932,y:558,dir:'up',walk:0,radius:10};
+// 건물 정문 이벤트: 이미지 원본 좌표 기준. 필요하면 범위를 조절하세요.
+const door={x1:854,y1:270,x2:1017,y2:330,approachX:936,approachY:352,range:85};
+const elevator={x1:875,y1:174,x2:1008,y2:324,approachX:937,approachY:352,range:110};
+const thirdMap=new Image();
+thirdMap.src='./map_3.png';
+const exitDoor={x1:650,y1:903,x2:920,y2:1008,approachX:745,approachY:870,range:105};
+// MAP 03 엘리베이터 문 (원본 이미지 좌표)
+const thirdElevator={x1:1191,y1:180,x2:1306,y2:309,approachX:1250,approachY:358,range:105};
+let doorTransitioning=false;
+const nextMap=new Image();
+nextMap.src='./map_2.png';
+function nearDoor(){
+  return scene===1 && Math.abs(player.x-door.approachX)<=105 && Math.hypot(player.x-door.approachX,player.y-door.approachY)<=door.range;
+}
+function enterDoor(){
+  if(doorTransitioning||!nearDoor())return false;
+  if(!nextMap.complete||!nextMap.naturalWidth){
+    document.getElementById('notice').textContent='map_2.png를 map.html과 같은 폴더에 넣어주세요';
+    return false;
+  }
+  doorTransitioning=true;
+  clickPath=[];keys.clear();
+  scene=2;
+  MAP_W=nextMap.naturalWidth;MAP_H=nextMap.naturalHeight;
+  image.src=nextMap.src;
+  // 출입문 안쪽에서 위쪽을 바라보며 시작
+  player.x=MAP_W*(745/indoorBaseW);
+  player.y=MAP_H*(857/indoorBaseH);
+  zoom=1.40; // 실내에서 더 넓은 공간을 볼 수 있도록 확대율 완화
+  player.dir='up';player.walk=0;spriteTime=0;
+  document.title='실내 지도 | MAP 02';
+  document.querySelector('.hud strong').textContent='실내 지도';
+  document.querySelector('.hud div').textContent='MAP 02 · 실내';
+  document.getElementById('notice').textContent='MAP 02 · 가구와 벽은 통과할 수 없습니다';
+  doorTransitioning=false;
+  return true;
+}
+
+function nearExitDoor(){
+  if(scene!==2)return false;
+  const bx=player.x*indoorBaseW/MAP_W,by=player.y*indoorBaseH/MAP_H;
+  return Math.abs(bx-exitDoor.approachX)<=125 && Math.hypot(bx-exitDoor.approachX,by-exitDoor.approachY)<=exitDoor.range;
+}
+function exitToOutdoor(){
+  if(doorTransitioning||!nearExitDoor())return false;
+  doorTransitioning=true;
+  clickPath=[];keys.clear();
+  scene=1;MAP_W=1774;MAP_H=887;
+  image.src='./map_1.png';
+  player.x=936;player.y=366;
+  zoom=1.85;player.dir='down';player.walk=0;spriteTime=0;
+  document.title='밤의 광장 | MAP 01';
+  document.querySelector('.hud strong').textContent='밤의 오피스 광장';
+  document.querySelector('.hud div').textContent='MAP 01 · 야외 광장';
+  document.getElementById('notice').textContent='MAP 01 · 건물 문 앞에서 E 또는 문 클릭';
+  doorTransitioning=false;
+  return true;
+}
+function nearElevator(){
+  if(scene!==2)return false;
+  const bx=player.x*indoorBaseW/MAP_W,by=player.y*indoorBaseH/MAP_H;
+  return Math.hypot(bx-elevator.approachX,by-elevator.approachY)<=elevator.range;
+}
+function enterElevator(){
+  if(doorTransitioning||!nearElevator())return false;
+  if(!thirdMap.complete||!thirdMap.naturalWidth){
+    document.getElementById('notice').textContent='map_3.png를 map.html과 같은 폴더에 넣어주세요';
+    return false;
+  }
+  doorTransitioning=true;clickPath=[];keys.clear();
+  scene=3;MAP_W=thirdMap.naturalWidth;MAP_H=thirdMap.naturalHeight;
+  image.src=thirdMap.src;
+  player.x=MAP_W*(1250/thirdBaseW);player.y=MAP_H*(361/thirdBaseH);
+  zoom=1.80;player.dir='up';player.walk=0;spriteTime=0;
+  document.title='MAP 03';
+  document.querySelector('.hud strong').textContent='MAP 03';
+  document.querySelector('.hud div').textContent='MAP 03 · 엘리베이터 이동';
+  document.getElementById('notice').textContent='MAP 03 · 벽과 가구는 통과할 수 없습니다';
+  doorTransitioning=false;return true;
+}
+function nearThirdElevator(){
+  if(scene!==3)return false;
+  const bx=player.x*thirdBaseW/MAP_W,by=player.y*thirdBaseH/MAP_H;
+  return Math.abs(bx-thirdElevator.approachX)<=85 && Math.hypot(bx-thirdElevator.approachX,by-thirdElevator.approachY)<=thirdElevator.range;
+}
+function returnToSecondFloor(){
+  if(doorTransitioning||!nearThirdElevator())return false;
+  if(!nextMap.complete||!nextMap.naturalWidth){
+    document.getElementById('notice').textContent='map_2.png를 map.html과 같은 폴더에 넣어주세요';
+    return false;
+  }
+  doorTransitioning=true;clickPath=[];keys.clear();
+  scene=2;MAP_W=nextMap.naturalWidth;MAP_H=nextMap.naturalHeight;
+  image.src=nextMap.src;
+  player.x=MAP_W*(937/indoorBaseW);player.y=MAP_H*(367/indoorBaseH);
+  zoom=1.40;player.dir='down';player.walk=0;spriteTime=0;
+  document.title='실내 지도 | MAP 02';
+  document.querySelector('.hud strong').textContent='실내 지도';
+  document.querySelector('.hud div').textContent='MAP 02 · 실내';
+  document.getElementById('notice').textContent='MAP 02 · 엘리베이터 앞에 도착했습니다';
+  doorTransitioning=false;return true;
+}
+function interactDoor(){
+  if(scene===1)return enterDoor();
+  if(scene===2)return nearElevator()?enterElevator():exitToOutdoor();
+  if(scene===3)return returnToSecondFloor();
+  return false;
+}
+
+// 방향별 개별 PNG 애니메이션 (파일은 map.html과 같은 폴더에 배치)
+const spriteFrames={down:[1,2,3,4],left:[5,6,7,8],right:[9,10,11],up:[12,13,14,15]};
+const sprites={};
+for(const [dir,ids] of Object.entries(spriteFrames)){
+  sprites[dir]=ids.map(id=>{const img=new Image();img.src=`./map_c_${id}.png`;return img});
+}
+// 캐릭터의 발 위치를 기준으로 그림을 그립니다. 필요하면 크기를 변경하세요.
+const SPRITE_HEIGHT=60,SPRITE_FPS=9; // 기본 캐릭터 높이 (MAP 01, MAP 03)
+const MAP2_SPRITE_HEIGHT=82; // MAP 02에서는 실내 배경 비율에 맞춰 크게 표시
+let spriteTime=0,wasMoving=false;
+
+const keys=new Set();let clickPath=[];let zoom=1.85,debug=false,last=0,viewW=0,viewH=0,dpr=1,camX=0,camY=0;
+const minZoom=1.15,maxZoom=3.0;
+function resize(){dpr=Math.min(devicePixelRatio||1,2);viewW=innerWidth;viewH=innerHeight;canvas.width=Math.round(viewW*dpr);canvas.height=Math.round(viewH*dpr);ctx.setTransform(dpr,0,0,dpr,0,0)}
+addEventListener('resize',resize);resize();
+function inPolygon(x,y,poly){let inside=false;for(let i=0,j=poly.length-1;i<poly.length;j=i++){const a=poly[i],b=poly[j];if(((a[1]>y)!==(b[1]>y))&&(x<(b[0]-a[0])*(y-a[1])/(b[1]-a[1])+a[0]))inside=!inside}return inside}
+function validPoint(x,y){if(scene===3){const bx=x*thirdBaseW/MAP_W,by=y*thirdBaseH/MAP_H;return thirdWalkable.some(poly=>inPolygon(bx,by,poly))&&!thirdBlocked.some(([rx,ry,rw,rh])=>bx>=rx&&bx<=rx+rw&&by>=ry&&by<=ry+rh);}if(scene===2){
+  const bx=x*indoorBaseW/MAP_W,by=y*indoorBaseH/MAP_H;
+  return indoorWalkable.some(poly=>inPolygon(bx,by,poly)) && !indoorBlocked.some(([rx,ry,rw,rh])=>bx>=rx&&bx<=rx+rw&&by>=ry&&by<=ry+rh);
+}if(!walkable.some(p=>inPolygon(x,y,p)))return false;return !blocked.some(([bx,by,bw,bh])=>x>=bx&&x<=bx+bw&&y>=by&&y<=by+bh)}
+function canStand(x,y){const r=player.radius;return [[0,0],[-r,0],[r,0],[0,-r*.55],[0,r*.55]].every(([dx,dy])=>validPoint(x+dx,y+dy))}
+function toggleDebug(){debug=!debug;document.getElementById('debugBtn').setAttribute('aria-pressed',String(debug));document.getElementById('debugBtn').textContent=debug?'충돌 숨기기':'충돌 표시'}
+const movement=new Set(['arrowup','arrowdown','arrowleft','arrowright','w','a','s','d','shift']);
+addEventListener('keydown',e=>{const k=e.key.toLowerCase();if(movement.has(k)){e.preventDefault();keys.add(k);if(k!=='shift')clickPath=[]}if(k==='e'){e.preventDefault();if(!e.repeat)interactDoor()}if(k==='f3'){e.preventDefault();if(!e.repeat)toggleDebug()}});
+addEventListener('keyup',e=>keys.delete(e.key.toLowerCase()));addEventListener('blur',()=>keys.clear());
+document.getElementById('debugBtn').onclick=toggleDebug;
+document.getElementById('zoomIn').onclick=()=>zoom=Math.min(maxZoom,+(zoom+.2).toFixed(2));
+document.getElementById('zoomOut').onclick=()=>zoom=Math.max(minZoom,+(zoom-.2).toFixed(2));
+for(const b of document.querySelectorAll('[data-dir]')){const dir=b.dataset.dir;const k='arrow'+dir;const stop=e=>{e.preventDefault();keys.delete(k);try{b.releasePointerCapture(e.pointerId)}catch{}};b.addEventListener('pointerdown',e=>{e.preventDefault();b.setPointerCapture(e.pointerId);keys.add(k)});b.addEventListener('pointerup',stop);b.addEventListener('pointercancel',stop);b.addEventListener('lostpointercapture',()=>keys.delete(k))}
+// 클릭 이동: 현재 위치에서 실제로 도달할 수 있는 격자를 탐색합니다.
+// 붉은 충돌 구역을 클릭하면, 도달 가능한 칸 중 클릭 지점에 가장 가까운 칸을 목적지로 삼습니다.
+const CELL=12;
+const gridSize=()=>[Math.ceil(MAP_W/CELL),Math.ceil(MAP_H/CELL)];
+function gridPoint(ix,iy){return {x:Math.min(MAP_W-1,ix*CELL+CELL/2),y:Math.min(MAP_H-1,iy*CELL+CELL/2)}}
+function nearestGrid(x,y){const [gw,gh]=gridSize();return [Math.max(0,Math.min(gw-1,Math.floor(x/CELL))),Math.max(0,Math.min(gh-1,Math.floor(y/CELL)))]}
+function planClickPath(tx,ty){
+  const [GRID_W,GRID_H]=gridSize();
+  const [sx,sy]=nearestGrid(player.x,player.y);
+  const start=sy*GRID_W+sx,total=GRID_W*GRID_H;
+  const seen=new Uint8Array(total),parent=new Int32Array(total);parent.fill(-1);
+  const queue=new Int32Array(total);let head=0,tail=0;
+  // 출발 칸은 캐릭터가 실제로 서 있는 지점이므로 탐색을 허용합니다.
+  seen[start]=1;queue[tail++]=start;
+  let best=start,bestDist=Infinity;
+  const dirs=[[1,0],[-1,0],[0,1],[0,-1],[1,1],[1,-1],[-1,1],[-1,-1]];
+  while(head<tail){
+    const id=queue[head++],gx=id%GRID_W,gy=Math.floor(id/GRID_W),pt=gridPoint(gx,gy);
+    const d=(pt.x-tx)**2+(pt.y-ty)**2;
+    if(d<bestDist){bestDist=d;best=id}
+    for(const [dx,dy] of dirs){
+      const nx=gx+dx,ny=gy+dy;
+      if(nx<0||ny<0||nx>=GRID_W||ny>=GRID_H)continue;
+      const next=ny*GRID_W+nx;if(seen[next])continue;
+      const np=gridPoint(nx,ny);if(!canStand(np.x,np.y))continue;
+      // 대각선으로 장애물 모서리를 통과하지 못하도록 제한
+      if(dx&&dy){const a=gridPoint(gx+dx,gy),b=gridPoint(gx,gy+dy);if(!canStand(a.x,a.y)||!canStand(b.x,b.y))continue}
+      seen[next]=1;parent[next]=id;queue[tail++]=next;
+    }
+  }
+  const reverse=[];for(let at=best;at!==start&&at!==-1;at=parent[at])reverse.push(gridPoint(at%GRID_W,Math.floor(at/GRID_W)));
+  reverse.reverse();
+  // 클릭한 실제 위치가 도달 가능하고 마지막 격자 칸에서 직선으로 접근 가능하면 정확한 클릭 위치까지 이동
+  const end=reverse.length?reverse[reverse.length-1]:{x:player.x,y:player.y};
+  if(canStand(tx,ty)&&Math.hypot(tx-end.x,ty-end.y)<CELL*1.8&&clearSegment(end.x,end.y,tx,ty))reverse.push({x:tx,y:ty});
+  clickPath=reverse;
+}
+function clearSegment(x1,y1,x2,y2){const n=Math.max(1,Math.ceil(Math.hypot(x2-x1,y2-y1)/4));for(let i=1;i<=n;i++){const t=i/n;if(!canStand(x1+(x2-x1)*t,y1+(y2-y1)*t))return false}return true}
+canvas.addEventListener('pointerdown',e=>{
+  if(e.button!==0)return;
+  const rect=canvas.getBoundingClientRect();
+  const x=camX+(e.clientX-rect.left)/rect.width*viewW/zoom;
+  const y=camY+(e.clientY-rect.top)/rect.height*viewH/zoom;
+  // 문 자체를 클릭한 경우: 캐릭터가 문 앞에 있을 때만 맵을 전환합니다.
+  if(scene===1&&x>=door.x1&&x<=door.x2&&y>=door.y1&&y<=door.y2){
+    if(nearDoor())enterDoor();
+    else document.getElementById('notice').textContent='문 앞까지 이동한 뒤 E키를 누르거나 문을 클릭하세요';
+    return;
+  }
+  if(scene===2){
+    const bx=x*indoorBaseW/MAP_W,by=y*indoorBaseH/MAP_H;
+    if(bx>=elevator.x1&&bx<=elevator.x2&&by>=elevator.y1&&by<=elevator.y2){
+      if(nearElevator())enterElevator();
+      else document.getElementById('notice').textContent='엘리베이터 앞까지 이동한 뒤 E키를 누르거나 문을 클릭하세요';
+      return;
+    }
+    if(bx>=exitDoor.x1&&bx<=exitDoor.x2&&by>=exitDoor.y1&&by<=exitDoor.y2){
+      if(nearExitDoor())exitToOutdoor();
+      else document.getElementById('notice').textContent='출입문 앞까지 이동한 뒤 E키를 누르거나 문을 클릭하세요';
+      return;
+    }
+  }
+  if(scene===3){
+    const bx=x*thirdBaseW/MAP_W,by=y*thirdBaseH/MAP_H;
+    if(bx>=thirdElevator.x1&&bx<=thirdElevator.x2&&by>=thirdElevator.y1&&by<=thirdElevator.y2){
+      if(nearThirdElevator())returnToSecondFloor();
+      else document.getElementById('notice').textContent='엘리베이터 앞까지 이동한 뒤 E키를 누르거나 문을 클릭하세요';
+      return;
+    }
+  }
+  planClickPath(Math.max(0,Math.min(MAP_W-1,x)),Math.max(0,Math.min(MAP_H-1,y)));
+});
+function moveClick(dt){
+  let remaining=135*dt;
+  while(remaining>0&&clickPath.length){
+    const target=clickPath[0],dx=target.x-player.x,dy=target.y-player.y,dist=Math.hypot(dx,dy);
+    if(dist<1){clickPath.shift();continue}
+    const step=Math.min(remaining,dist),nx=player.x+dx/dist*step,ny=player.y+dy/dist*step;
+    if(!clearSegment(player.x,player.y,nx,ny)){clickPath=[];break}
+    player.x=nx;player.y=ny;remaining-=step;
+    if(Math.abs(dx)>Math.abs(dy))player.dir=dx>0?'right':'left';else player.dir=dy>0?'down':'up';
+    player.walk+=step/135*11;
+    if(step>=dist-0.001)clickPath.shift();
+  }
+}
+function move(dt){const oldX=player.x,oldY=player.y;let dx=Number(keys.has('arrowright')||keys.has('d'))-Number(keys.has('arrowleft')||keys.has('a'));let dy=Number(keys.has('arrowdown')||keys.has('s'))-Number(keys.has('arrowup')||keys.has('w'));if(!dx&&!dy){moveClick(dt);wasMoving=Math.hypot(player.x-oldX,player.y-oldY)>0.01;return;}const len=Math.hypot(dx,dy);dx/=len;dy/=len;const dist=(keys.has('shift')?220:135)*dt;const nx=player.x+dx*dist,ny=player.y+dy*dist;if(canStand(nx,player.y))player.x=nx;if(canStand(player.x,ny))player.y=ny;if(Math.abs(dx)>Math.abs(dy))player.dir=dx>0?'right':'left';else player.dir=dy>0?'down':'up';player.walk+=dt*11;wasMoving=Math.hypot(player.x-oldX,player.y-oldY)>0.01}
+function drawPlayer(){
+  const frames=sprites[player.dir]||sprites.down;
+  const frameIndex=wasMoving?Math.floor(spriteTime*SPRITE_FPS)%frames.length:0;
+  const sprite=frames[frameIndex];
+  if(sprite.complete&&sprite.naturalWidth>0){
+    const h=scene===2?MAP2_SPRITE_HEIGHT:SPRITE_HEIGHT,w=h*sprite.naturalWidth/sprite.naturalHeight;
+    ctx.save();
+    ctx.fillStyle='#0008';ctx.beginPath();ctx.ellipse(player.x,player.y,Math.min(w*.28,13),4,0,0,Math.PI*2);ctx.fill();
+    ctx.imageSmoothingEnabled=false;
+    ctx.drawImage(sprite,Math.round(player.x-w/2),Math.round(player.y-h),w,h);
+    ctx.restore();return;
+  }
+  // PNG 파일이 아직 없거나 로드되지 않은 경우 기존 임시 캐릭터 표시
+  const x=player.x,y=player.y;ctx.save();ctx.translate(x,y);const bounce=Math.sin(player.walk*2)*1.4;ctx.fillStyle='#0009';ctx.beginPath();ctx.ellipse(0,1,12,5,0,0,Math.PI*2);ctx.fill();ctx.translate(0,-bounce);
+// 임시 SD 캐릭터: 추후 스프라이트 시트 이미지로 교체 가능
+const side=player.dir==='left'||player.dir==='right';const step=Math.sin(player.walk)*3;
+ctx.fillStyle='#10131d';ctx.fillRect(-7,-11+step*.35,6,12);ctx.fillRect(2,-11-step*.35,6,12);
+ctx.fillStyle='#252a35';ctx.fillRect(-10,-28,20,20);ctx.fillStyle='#f2f0e7';ctx.fillRect(-2,-26,4,13);
+ctx.fillStyle='#14151b';ctx.fillRect(-13,-26,4,14);ctx.fillRect(9,-26,4,14);
+ctx.fillStyle='#f2d0b4';ctx.fillRect(-9,-44,18,18);ctx.fillStyle='#211b21';ctx.fillRect(-10,-46,20,9);ctx.fillRect(-10,-42,4,9);
+if(player.dir!=='up'){ctx.fillStyle='#29252b';if(side){ctx.fillRect(player.dir==='right'?5:-7,-35,2,2)}else{ctx.fillRect(-5,-35,2,2);ctx.fillRect(4,-35,2,2)}}ctx.restore()}
+function drawDebug(){ctx.save();ctx.lineWidth=2/zoom;
+  if(scene===3){
+    ctx.save();ctx.scale(MAP_W/thirdBaseW,MAP_H/thirdBaseH);
+    for(const poly of thirdWalkable){ctx.beginPath();poly.forEach(([x,y],i)=>i?ctx.lineTo(x,y):ctx.moveTo(x,y));ctx.closePath();ctx.fillStyle='#31dd7433';ctx.fill();ctx.strokeStyle='#53f4a8';ctx.stroke()}
+    for(const [x,y,w,h] of thirdBlocked){ctx.fillStyle='#ff47664d';ctx.fillRect(x,y,w,h);ctx.strokeStyle='#ff6985';ctx.strokeRect(x,y,w,h)}
+    ctx.restore();ctx.beginPath();ctx.arc(player.x,player.y,player.radius,0,Math.PI*2);ctx.strokeStyle='#ffe66c';ctx.stroke();ctx.restore();return;
+  }
+  if(scene===2){
+    const sx=MAP_W/indoorBaseW,sy=MAP_H/indoorBaseH;
+    ctx.save();ctx.scale(sx,sy);ctx.lineWidth=2/zoom;
+    for(const poly of indoorWalkable){ctx.beginPath();poly.forEach(([x,y],i)=>i?ctx.lineTo(x,y):ctx.moveTo(x,y));ctx.closePath();ctx.fillStyle='#31dd7433';ctx.fill();ctx.strokeStyle='#53f4a8';ctx.stroke()}
+    for(const [x,y,w,h] of indoorBlocked){ctx.fillStyle='#ff47664d';ctx.fillRect(x,y,w,h);ctx.strokeStyle='#ff6985';ctx.strokeRect(x,y,w,h)}
+    ctx.restore();ctx.beginPath();ctx.arc(player.x,player.y,player.radius,0,Math.PI*2);ctx.strokeStyle='#ffe66c';ctx.stroke();ctx.restore();return;
+  }
+  for(const p of walkable){ctx.beginPath();p.forEach(([x,y],i)=>i?ctx.lineTo(x,y):ctx.moveTo(x,y));ctx.closePath();ctx.fillStyle='#31dd7433';ctx.fill();ctx.strokeStyle='#53f4a8';ctx.stroke()}for(const [x,y,w,h]of blocked){ctx.fillStyle='#ff47664d';ctx.fillRect(x,y,w,h);ctx.strokeStyle='#ff6985';ctx.strokeRect(x,y,w,h)}ctx.beginPath();ctx.arc(player.x,player.y,player.radius,0,Math.PI*2);ctx.strokeStyle='#ffe66c';ctx.stroke();ctx.restore()}
+function frame(t){const dt=Math.min((t-last)/1000||0,.05);last=t;move(dt);if(wasMoving)spriteTime+=dt;else spriteTime=0;ctx.setTransform(dpr,0,0,dpr,0,0);ctx.clearRect(0,0,viewW,viewH);
+// 맵이 화면보다 작은 축에서도 카메라가 배경 밖으로 나가지 않도록 제한
+const vw=viewW/zoom,vh=viewH/zoom;
+camX=vw>=MAP_W?(MAP_W-vw)/2:Math.max(0,Math.min(MAP_W-vw,player.x-vw/2));
+camY=vh>=MAP_H?(MAP_H-vh)/2:Math.max(0,Math.min(MAP_H-vh,player.y-vh/2));
+ctx.save();ctx.scale(zoom,zoom);ctx.translate(-camX,-camY);if(image.complete&&image.naturalWidth)ctx.drawImage(image,0,0,MAP_W,MAP_H);else{ctx.fillStyle='#11141f';ctx.fillRect(0,0,MAP_W,MAP_H)}if(debug)drawDebug();drawPlayer();ctx.restore();requestAnimationFrame(frame)}requestAnimationFrame(frame);
+image.onerror=()=>{document.getElementById('notice').textContent=`map_${scene}.png 파일을 map.html과 같은 폴더에 넣어주세요`};
+</script>
+</body></html>

@@ -110,7 +110,7 @@ async function makeEmployeeCard(file){
  c.textAlign='right';c.fillStyle='#9ca3af';c.font='500 16px "Noto Sans KR",sans-serif';c.fillText('FICTIONAL ID / DESIGN PREVIEW',933,585);c.textAlign='left';
  document.getElementById('acceptName').textContent=document.getElementById('name').value.trim();employeeOverlay.hidden=false;employeeOverlay.querySelector('.employee-dialog').scrollTop=0;document.getElementById('closeEmployee').focus();
 }
-document.getElementById('closeEmployee').addEventListener('click',()=>{window.location.assign('https://store.steampowered.com/');});
+document.getElementById('closeEmployee').addEventListener('click',()=>{window.location.assign('map.html');});
 employeeOverlay.addEventListener('click',e=>{if(e.target===employeeOverlay)employeeOverlay.hidden=true});
 document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!employeeOverlay.hidden)employeeOverlay.hidden=true});
 document.getElementById('downloadEmployee').addEventListener('click',()=>{
