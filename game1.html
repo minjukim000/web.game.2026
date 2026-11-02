@@ -1,0 +1,990 @@
+
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>귀시무담 - GAME</title>
+
+  <!-- 8비트 도트 폰트 -->
+  <link
+    rel="stylesheet"
+    href="https://cdn.jsdelivr.net/npm/galmuri@latest/dist/galmuri.css"
+  >
+
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+    }
+
+    body {
+      background: #000;
+      color: #f2f2f2;
+      font-family: 'Galmuri11', monospace;
+      cursor: pointer;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    /* 인트로 화면 */
+    #intro {
+      position: fixed;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #000;
+    }
+
+    /* 중앙 텍스트 영역 */
+    .text-container {
+      width: 90%;
+      max-width: 1000px;
+      text-align: center;
+    }
+
+    /* 메인 텍스트 */
+    #typingText {
+      font-family: 'Galmuri11', monospace;
+      font-size: clamp(15px, 2.2vw, 21px);
+      font-weight: 400;
+      line-height: 2;
+      letter-spacing: 0.02em;
+      color: #f2f2f2;
+      word-break: keep-all;
+    }
+
+    /* 타이핑 커서 */
+    #cursor {
+      display: inline-block;
+      width: 2px;
+      height: 1em;
+      margin-left: 5px;
+      background: #f2f2f2;
+      vertical-align: -0.12em;
+      animation: blink 0.7s steps(1) infinite;
+    }
+
+    @keyframes blink {
+      50% {
+        opacity: 0;
+      }
+    }
+
+    /* 클릭 안내 문구 */
+    #clickGuide {
+      margin-top: 24px;
+      font-family: 'Galmuri11', monospace;
+      font-size: clamp(11px, 1.5vw, 13px);
+      color: #858585;
+      opacity: 0;
+      transition: opacity 0.5s ease;
+      pointer-events: none;
+    }
+
+    #clickGuide.visible {
+      opacity: 1;
+    }
+
+    /* 다음 게임 화면 */
+    #gameScreen {
+      position: fixed;
+      inset: 0;
+      background: #000;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    /* 전체 맵을 유지하며 상단 중앙 캐릭터가 잘 보이도록 배치 */
+    #gameMap {
+      display: block;
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      object-position: center center;
+      image-rendering: auto;
+    }
+
+    #gameScreen.active {
+      display: flex;
+    }
+
+    /* 맵 원래 크기/비율 유지, 캐릭터 머리 위에 아이콘 표시 */
+    #mapStage {
+      position: relative;
+      width: min(100vw, 150vh);
+      aspect-ratio: 3 / 2;
+      flex: none;
+    }
+    #mapStage #gameMap { width: 100%; height: 100%; }
+    /* 두 번째 장면은 화면 전체를 채우되 원본 비율은 유지 */
+    #mapStage.scene-two {
+      width: 100vw;
+      height: 100vh;
+      aspect-ratio: auto;
+    }
+    #mapStage.scene-two #gameMap {
+      object-fit: cover;
+      object-position: center center;
+    }
+    /* game1_3, game1_4: 화면 가장자리에 약간의 여백을 두고 원본 비율 유지 */
+    #mapStage.scene-three,
+    #mapStage.scene-four {
+      width: 96vw;
+      height: 96vh;
+      aspect-ratio: auto;
+    }
+    #mapStage.scene-three #gameMap,
+    #mapStage.scene-four #gameMap {
+      object-fit: contain;
+      object-position: center center;
+    }
+    /* '제보인가?' 이후 화면이 중앙에서 확대되며 전환 */
+    #mapStage.scene-three.scene-zoom-in {
+      transform-origin: center center;
+      animation: messengerZoomIn 0.6s cubic-bezier(.2,.75,.2,1) both;
+    }
+    @keyframes messengerZoomIn {
+      from { opacity: 0.25; transform: scale(.86); }
+      to { opacity: 1; transform: scale(1); }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      #mapStage.scene-three.scene-zoom-in { animation-duration: .01s; }
+    }
+    #characterAlert {
+      position: absolute;
+      width: 7.2%;
+      left: 38.7%;
+      top: 6.5%;
+      height: auto;
+      display: none;
+      pointer-events: none;
+      image-rendering: pixelated;
+      filter: drop-shadow(0 2px 2px rgba(0,0,0,.55));
+      animation: alertAppear .28s steps(3,end) both;
+    }
+    #characterAlert.visible { display: block; }
+    @keyframes alertAppear {
+      from { opacity: 0; transform: translateY(7px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* 화면 왼쪽 위 8비트 사운드 컨트롤 */
+    #soundControl {
+      position: fixed; top: 20px; left: 20px; z-index: 100;
+      display: flex; align-items: center; gap: 10px;
+      padding: 9px 12px; background: transparent;
+      border: none; box-shadow: none;
+      font-family: 'Galmuri11', monospace; color: #e0dcd8;
+    }
+    #volumePanel { display: none; align-items: center; gap: 10px; }
+    #soundControl:hover #volumePanel,
+    #soundControl:focus-within #volumePanel,
+    #soundControl.open #volumePanel { display: flex; }
+    #muteButton {
+      width: 30px; height: 30px; display: grid; place-items: center;
+      border: 0; padding: 0; background: transparent; color: inherit; cursor: pointer;
+    }
+    #muteButton svg { width: 27px; height: 27px; shape-rendering: crispEdges; }
+    #muteButton:focus-visible, #volumeSlider:focus-visible { outline: 2px solid #fff; outline-offset: 3px; }
+    #volumeSlider { width: 100px; height: 8px; appearance: none; -webkit-appearance: none;
+      background: #565153; border: 2px solid #aaa3a0; border-radius: 0; cursor: pointer; }
+    #volumeSlider::-webkit-slider-thumb { appearance: none; width: 12px; height: 18px; border: 2px solid #282426; background: #eee9df; border-radius: 0; }
+    #volumeSlider::-moz-range-thumb { width: 9px; height: 15px; border: 2px solid #282426; background: #eee9df; border-radius: 0; }
+    #volumeValue { min-width: 35px; font-size: 11px; text-align: right; }
+    @media(max-width: 500px) { #soundControl { top: 12px; left: 12px; padding: 7px; gap: 7px; } #volumeSlider { width: 72px; } }
+
+
+    /* game1_2 배경 위 픽셀 대화창 */
+    #dialogueOverlay {
+      position: fixed;
+      left: 50%;
+      bottom: 0;
+      width: min(96vw, 1250px);
+      aspect-ratio: 2048 / 684;
+      transform: translate(-50%, 8%);
+      z-index: 20;
+      display: none;
+      pointer-events: none;
+      font-family: 'Galmuri11', monospace;
+      color: #f6f2eb;
+      text-shadow: 1px 2px 0 #111;
+    }
+    #dialogueOverlay.visible {
+      display: block;
+      animation: dialogueSlideUp 0.48s cubic-bezier(.22, 1, .36, 1) both;
+    }
+    @keyframes dialogueSlideUp {
+      from { opacity: 0; transform: translate(-50%, 45%); }
+      to { opacity: 1; transform: translate(-50%, 8%); }
+    }
+
+    #dialogueOverlay img {
+      display: block;
+      width: 100%;
+      height: 100%;
+      image-rendering: pixelated;
+    }
+    #dialogueName {
+      position: absolute;
+      left: 20%;
+      top: 25%;
+      width: 15%;
+      text-align: center;
+      font-size: clamp(11px, 1.35vw, 18px);
+      white-space: nowrap;
+    }
+    #dialogueText {
+      position: absolute;
+      left: 24%;
+      top: 43%;
+      font-size: clamp(13px, 1.65vw, 23px);
+      letter-spacing: .02em;
+      white-space: pre-line;
+    }
+    @media (max-width: 600px) {
+      #dialogueOverlay { width: 115vw; }
+      #dialogueName { font-size: 10px; }
+      #dialogueText { font-size: 12px; }
+    }
+
+    /* game1_5: 화면 위에 자동으로 나타나는 이동 가능한 메신저 팝업 */
+    #messagePopup {
+      position: fixed;
+      z-index: 35;
+      left: 50%; top: 50%;
+      width: min(46vw, 430px, 48vh);
+      aspect-ratio: 928 / 1647;
+      transform: translate(-50%, -50%);
+      display: none;
+      overflow: hidden;
+      box-shadow: 0 16px 48px rgba(0,0,0,.6);
+      background: #f5f5f5;
+      cursor: default;
+    }
+    #messagePopup.visible { display: block; }
+    #messagePopup img { display: block; width: 100%; height: 100%; object-fit: fill; image-rendering: auto; pointer-events: none; }
+    #popupDragHandle {
+      position: absolute; left: 0; top: 0; width: 100%; height: 14%;
+      z-index: 1; cursor: grab; touch-action: none;
+    }
+    #popupDragHandle:active { cursor: grabbing; }
+    /* 빈 두 번째 말풍선에 표시되는 가짜 링크 (실제 웹사이트로 이동하지 않음) */
+    #messageFakeLink {
+      position: absolute;
+      left: 22%; top: 28.8%;
+      width: 55%; height: 6.5%;
+      display: flex; align-items: center;
+      z-index: 2;
+      font-family: 'Galmuri11', 'Galmuri9', monospace;
+      font-size: clamp(10px, 1.3vw, 16px);
+      font-weight: 700;
+      letter-spacing: 0;
+      font-smooth: never;
+      -webkit-font-smoothing: none;
+      color: #3267ad;
+      text-decoration: underline;
+      background: transparent;
+      border: none;
+      padding: 0;
+      cursor: pointer;
+      text-align: left;
+      white-space: nowrap;
+      touch-action: manipulation;
+    }
+    #messageFakeLink:hover { color: #194780; }
+    #messageFakeLink:focus-visible { outline: 2px solid #3267ad; outline-offset: 2px; }
+    @media(max-width: 600px) { #messagePopup { width: min(88vw, 45vh); } }
+
+    /* 대화창 오른쪽 상단의 순수 HTML/CSS 8비트 선택 메뉴 */
+    #choiceMenu {
+      position: fixed; z-index: 45; right: calc((100vw - min(96vw, 1250px)) / 2 + 24px);
+      bottom: clamp(165px, 24vw, 320px);
+      width: clamp(148px, 17vw, 210px); padding: 10px 9px;
+      background: #292929; border: 4px solid #e9e9e9;
+      outline: 3px solid #171717;
+      box-shadow: inset 3px 3px 0 #777, inset -3px -3px 0 #101010, 5px 5px 0 #111;
+      font-family: 'Galmuri11', monospace; display: none;
+      image-rendering: pixelated;
+    }
+    #blackFade { position: fixed; inset: 0; z-index: 100; background: #000; opacity: 0; pointer-events: none; transition: opacity .42s ease-in; }
+    #blackFade.active { opacity: 1; pointer-events: auto; }
+    #endScreen { position:fixed; inset:0; z-index:101; display:none; pointer-events:none; color:#f1f1f1; font-family:'Galmuri11','Galmuri','Dotum',monospace; }
+    #endScreen.visible { display:block; }
+    #endText { position:absolute; right:clamp(28px,7vw,120px); bottom:clamp(35px,9vh,105px); text-align:right; white-space:pre-line; font-size:clamp(17px,2vw,28px); line-height:1.85; text-shadow:2px 2px #333; }
+    #choiceMenu.visible { display: block; animation: choiceAppear .16s steps(3,end) both; }
+    @keyframes choiceAppear { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+    .choice-option { width: 100%; display: flex; align-items: center; gap: 9px;
+      border: 0; border-radius: 0; background: transparent; color: #f5f5f5;
+      font: inherit; font-size: clamp(17px, 1.7vw, 24px); text-align: left;
+      padding: 6px 8px; cursor: pointer; }
+    .choice-option .choice-cursor { visibility: hidden; color: #242424; font-size: .9em; }
+    .choice-option.is-selected, .choice-option:hover, .choice-option:focus-visible { background: #e8e8e8; color: #202020; outline: none; }
+    .choice-option.is-selected .choice-cursor, .choice-option:hover .choice-cursor, .choice-option:focus-visible .choice-cursor { visibility: visible; }
+    @media (max-width: 600px) { #choiceMenu { right: calc((100vw - min(96vw, 1250px)) / 2 + 24px); bottom: 27vw; width: 150px; padding: 7px; } }
+  </style>
+</head>
+
+<body>
+
+  <!-- 모든 장면에 표시되는 음량 조절 UI -->
+  <div id="soundControl" aria-label="게임 소리 설정">
+    <button id="muteButton" type="button" aria-label="음량 조절 열기" aria-expanded="false" aria-controls="volumePanel" title="음량 조절">
+      <svg viewBox="0 0 24 24" aria-hidden="true" fill="currentColor">
+        <path d="M3 9h4V6h3V4h3v16h-3v-2H7v-3H3z"/>
+        <path class="soundWave" d="M15 8h2v8h-2z M19 5h2v14h-2z"/>
+        <path class="muteCross" d="M15 9h2v2h2V9h2v2h-2v2h2v2h-2v-2h-2v2h-2v-2h2v-2h-2z" style="display:none"/>
+      </svg>
+    </button>
+    <div id="volumePanel">
+      <input id="volumeSlider" type="range" min="0" max="100" step="1" value="60" aria-label="음량 조절">
+      <span id="volumeValue">60%</span>
+    </div>
+  </div>
+
+  <!-- 인트로 -->
+  <div id="intro">
+    <div class="text-container">
+      <div>
+        <span id="typingText"></span>
+        <span id="cursor"></span>
+      </div>
+
+      <p id="clickGuide">
+        화면을 클릭해주세요.
+      </p>
+    </div>
+  </div>
+
+  <!-- 이후 게임 화면 -->
+  <div id="gameScreen"><div id="mapStage"><img id="gameMap" src="game1_1.png" alt="기자 사무실 게임 맵"><img id="characterAlert" src="game_icon2.png" alt="캐릭터 알림 아이콘"></div></div>
+  <div id="dialogueOverlay" aria-live="polite"><img src="chat.png" alt=""><span id="dialogueName">-</span><span id="dialogueText">제보인가?</span></div>
+
+  <div id="messagePopup" role="dialog" aria-label="익명 메신저 팝업">
+    <img src="game1_5.png" alt="익명에게서 도착한 메시지">
+    <div id="popupDragHandle" aria-label="채팅창 이동 영역"></div>
+    <button id="messageFakeLink" type="button" aria-label="메시지 링크 열기">https://adfea..</button>
+  </div>
+
+  <div id="blackFade" aria-hidden="true"></div>
+  <div id="endScreen" aria-live="polite"><div id="endText"></div></div>
+  <div id="choiceMenu" role="group" aria-label="가볼까? 선택">
+    <button class="choice-option is-selected" type="button" data-choice="go"><span class="choice-cursor">▶</span><span>간다</span></button>
+    <button class="choice-option" type="button" data-choice="stay"><span class="choice-cursor">▶</span><span>안간다</span></button>
+  </div>
+  <script>
+    // ==============================
+    // 1. 인트로 대사
+    // ==============================
+
+    const scenes = [
+      "이 게임은 픽션입니다.",
+      "이 이야기는 내가 사건을 맡게 되면서 부터 시작되었다."
+    ];
+
+    const typingText =
+      document.getElementById("typingText");
+
+    const cursor =
+      document.getElementById("cursor");
+
+    const clickGuide =
+      document.getElementById("clickGuide");
+
+    const intro =
+      document.getElementById("intro");
+
+    const gameScreen =
+      document.getElementById("gameScreen");
+
+    let messengerSceneShown = false;
+    let messengerTransitioning = false;
+    let sceneThreeDialogueDismissed = false;
+    let sceneFourShown = false;
+    let popupShown = false;
+    let gxDialogueStep = 0;
+    let sceneIndex = 0;
+    let charIndex = 0;
+    let typingTimer = null;
+
+    let isTyping = false;
+    let isFinished = false;
+
+    // 타이핑 속도
+    const typingSpeed = 125;
+
+    // 문장 시작 전 대기 시간
+    const startDelay = 650;
+
+
+    // ==============================
+    // 2. 키보드 타이핑 효과음
+    // ==============================
+
+    let audioContext = null;
+    let audioEnabled = false;
+    let masterGain = null;
+    const volumeSlider = document.getElementById('volumeSlider');
+    const volumeValue = document.getElementById('volumeValue');
+    const muteButton = document.getElementById('muteButton');
+    const soundControl = document.getElementById('soundControl');
+    let volume = 0.6;
+    let lastNonZeroVolume = 0.6;
+
+    function setVolume(value) {
+      volume = Math.max(0, Math.min(1, value));
+      if (volume > 0) lastNonZeroVolume = volume;
+      volumeSlider.value = Math.round(volume * 100);
+      volumeValue.textContent = Math.round(volume * 100) + '%';
+      muteButton.setAttribute('title', volume === 0 ? '음소거 상태 · 음량 조절' : '음량 조절');
+      muteButton.querySelector('.soundWave').style.display = volume === 0 ? 'none' : '';
+      muteButton.querySelector('.muteCross').style.display = volume === 0 ? '' : 'none';
+      if (masterGain && audioContext) {
+        masterGain.gain.setTargetAtTime(volume, audioContext.currentTime, 0.01);
+      }
+    }
+    volumeSlider.addEventListener('input', e => setVolume(Number(e.target.value) / 100));
+    // 마우스를 스피커 위에 올리면 슬라이더가 나타나고, 벗어나면 사라짐.
+    // 컨트롤 조작 시 인트로 화면 클릭 이벤트가 실행되지 않도록 분리.
+    soundControl.addEventListener('click', event => event.stopPropagation());
+    soundControl.addEventListener('pointerenter', () => {
+      muteButton.setAttribute('aria-expanded', 'true');
+    });
+    soundControl.addEventListener('pointerleave', () => {
+      soundControl.classList.remove('open');
+      muteButton.setAttribute('aria-expanded', 'false');
+    });
+    // 터치 기기에서는 호버가 없으므로 탭으로 열고 닫기.
+    muteButton.addEventListener('click', event => {
+      if (event.detail === 0) return; // 키보드 포커스는 CSS로 표시
+      if (window.matchMedia('(hover: none)').matches) {
+        const opened = soundControl.classList.toggle('open');
+        muteButton.setAttribute('aria-expanded', String(opened));
+      }
+    });
+    document.addEventListener('click', event => {
+      if (!soundControl.contains(event.target)) {
+        soundControl.classList.remove('open');
+        muteButton.blur();
+      }
+    });
+    document.addEventListener('keydown', event => {
+      if (event.key === 'Escape') {
+        soundControl.classList.remove('open');
+        muteButton.blur();
+      }
+    });
+    setVolume(volume);
+
+    function initAudio() {
+      const AudioContextClass =
+        window.AudioContext ||
+        window.webkitAudioContext;
+
+      if (!AudioContextClass) return;
+
+      if (!audioContext) {
+        audioContext = new AudioContextClass();
+        masterGain = audioContext.createGain();
+        masterGain.gain.value = volume;
+        masterGain.connect(audioContext.destination);
+      }
+
+      if (audioContext.state === "suspended") {
+        audioContext.resume();
+      }
+
+      audioEnabled = true;
+    }
+
+    // 짧고 건조한 키보드 소리
+    function playTypingSound() {
+      if (!audioEnabled || !audioContext) return;
+
+      if (audioContext.state !== "running") return;
+
+      const now = audioContext.currentTime;
+      const duration = 0.025;
+
+      const buffer = audioContext.createBuffer(
+        1,
+        Math.ceil(
+          audioContext.sampleRate * duration
+        ),
+        audioContext.sampleRate
+      );
+
+      const data = buffer.getChannelData(0);
+
+      // 노이즈 생성
+      for (let i = 0; i < data.length; i++) {
+        const decay = Math.pow(
+          1 - i / data.length,
+          4
+        );
+
+        data[i] =
+          (Math.random() * 2 - 1) * decay;
+      }
+
+      const source =
+        audioContext.createBufferSource();
+
+      source.buffer = buffer;
+
+      const filter =
+        audioContext.createBiquadFilter();
+
+      filter.type = "bandpass";
+
+      filter.frequency.value =
+        1600 + Math.random() * 400;
+
+      filter.Q.value = 0.8;
+
+      const gain =
+        audioContext.createGain();
+
+      // 효과음 볼륨
+      gain.gain.setValueAtTime(
+        0.035,
+        now
+      );
+
+      gain.gain.exponentialRampToValueAtTime(
+        0.001,
+        now + duration
+      );
+
+      source.connect(filter);
+      filter.connect(gain);
+      gain.connect(masterGain);
+
+      source.start(now);
+      source.stop(now + duration);
+    }
+
+
+    // ==============================
+    // 3. 타이핑 애니메이션
+    // ==============================
+
+    function startTyping() {
+      clearTimeout(typingTimer);
+
+      typingText.textContent = "";
+
+      clickGuide.classList.remove(
+        "visible"
+      );
+
+      cursor.style.display =
+        "inline-block";
+
+      charIndex = 0;
+      isTyping = true;
+      isFinished = false;
+
+      typingTimer = setTimeout(
+        typeCharacter,
+        startDelay
+      );
+    }
+
+    // 한 글자씩 출력
+    function typeCharacter() {
+      const currentText =
+        Array.from(scenes[sceneIndex]);
+
+      if (charIndex < currentText.length) {
+        const character =
+          currentText[charIndex];
+
+        typingText.textContent += character;
+        charIndex++;
+
+        // 공백에는 효과음 재생하지 않음
+        if (character.trim() !== "") {
+          playTypingSound();
+        }
+
+        typingTimer = setTimeout(
+          typeCharacter,
+          typingSpeed
+        );
+
+      } else {
+        finishTyping();
+      }
+    }
+
+    // 타이핑 완료
+    function finishTyping() {
+      clearTimeout(typingTimer);
+
+      isTyping = false;
+      isFinished = true;
+
+      cursor.style.display = "none";
+
+      clickGuide.classList.add(
+        "visible"
+      );
+    }
+
+    // 타이핑 중 클릭하면 즉시 완성
+    function skipTyping() {
+      clearTimeout(typingTimer);
+
+      typingText.textContent =
+        scenes[sceneIndex];
+
+      charIndex = Array.from(
+        scenes[sceneIndex]
+      ).length;
+
+      finishTyping();
+    }
+
+
+    // ==============================
+    // 4. 장면 전환
+    // ==============================
+
+    function nextScene() {
+      if (sceneIndex < scenes.length - 1) {
+        sceneIndex++;
+        startTyping();
+      } else {
+        enterGame();
+      }
+    }
+
+    // 사무실 맵이 나타날 때 약 2초간 키보드 타이핑 소리 재생
+    function playOfficeTypingSound() {
+      const intervalMs = 230;
+      const totalMs = 2000;
+      const startTime = performance.now();
+
+      // 이미지가 표시되는 순간 첫 키 입력
+      playTypingSound();
+      const soundTimer = setInterval(() => {
+        if (performance.now() - startTime >= totalMs) {
+          clearInterval(soundTimer);
+          return;
+        }
+        playTypingSound();
+      }, intervalMs);
+
+      setTimeout(() => {
+        clearInterval(soundTimer);
+        showCharacterAlert();
+      }, totalMs);
+    }
+
+    // 사무실 타이핑이 끝난 뒤 알림 아이콘과 짧은 '띠링' 효과음
+    function showCharacterAlert() {
+      document.getElementById('characterAlert').classList.add('visible');
+      playNotificationSound();
+      // 아이콘을 1초간 보여준 후 다음 배경으로 전환
+      setTimeout(() => {
+        const gameMap = document.getElementById('gameMap');
+        document.getElementById('mapStage').classList.add('scene-two');
+        gameMap.src = 'game1_2.png';
+        document.getElementById('characterAlert').classList.remove('visible');
+        // 두 번째 배경이 나타난 후 1초 뒤 대화창 표시
+        setTimeout(() => {
+          document.getElementById('dialogueOverlay').classList.add('visible');
+        }, 1000);
+      }, 1000);
+    }
+
+    function playNotificationSound() {
+      if (!audioEnabled || !audioContext || audioContext.state !== 'running') return;
+      const start = audioContext.currentTime;
+      // 짧은 두 음을 겹쳐 맑은 8비트 알림음 생성
+      [
+        { time: 0, frequency: 880, duration: .16 },
+        { time: .13, frequency: 1320, duration: .34 }
+      ].forEach(note => {
+        const osc = audioContext.createOscillator();
+        const gain = audioContext.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(note.frequency, start + note.time);
+        gain.gain.setValueAtTime(.0001, start + note.time);
+        gain.gain.exponentialRampToValueAtTime(.12, start + note.time + .012);
+        gain.gain.exponentialRampToValueAtTime(.0001, start + note.time + note.duration);
+        osc.connect(gain);
+        gain.connect(masterGain);
+        osc.start(start + note.time);
+        osc.stop(start + note.time + note.duration + .01);
+      });
+    }
+
+    function enterGame() {
+      clearTimeout(typingTimer);
+
+      intro.style.display = "none";
+
+      gameScreen.classList.add(
+        "active"
+      );
+
+      playOfficeTypingSound();
+
+      document.body.style.cursor =
+        "default";
+
+      // 이후 게임 장면 연결
+    }
+
+
+    // game1_5 팝업: 상단을 잡아 마우스/터치로 자유롭게 이동
+    const messagePopup = document.getElementById('messagePopup');
+    const popupDragHandle = document.getElementById('popupDragHandle');
+    function showMessagePopup() {
+      if (popupShown) return;
+      popupShown = true;
+      messagePopup.classList.add('visible');
+
+    }
+    let dragState = null;
+    popupDragHandle.addEventListener('pointerdown', event => {
+      if (!popupShown) return;
+      event.preventDefault();
+      event.stopPropagation();
+      const rect = messagePopup.getBoundingClientRect();
+      messagePopup.style.transform = 'none';
+      messagePopup.style.left = rect.left + 'px';
+      messagePopup.style.top = rect.top + 'px';
+      dragState = { id: event.pointerId, x: event.clientX, y: event.clientY, left: rect.left, top: rect.top };
+      popupDragHandle.setPointerCapture(event.pointerId);
+    });
+    popupDragHandle.addEventListener('pointermove', event => {
+      if (!dragState || event.pointerId !== dragState.id) return;
+      const nextLeft = dragState.left + event.clientX - dragState.x;
+      const nextTop = dragState.top + event.clientY - dragState.y;
+      const width = messagePopup.offsetWidth, height = messagePopup.offsetHeight;
+      messagePopup.style.left = Math.max(0, Math.min(window.innerWidth - width, nextLeft)) + 'px';
+      messagePopup.style.top = Math.max(0, Math.min(window.innerHeight - height, nextTop)) + 'px';
+    });
+    function stopPopupDrag(event) {
+      if (dragState && event.pointerId === dragState.id) dragState = null;
+    }
+    popupDragHandle.addEventListener('pointerup', stopPopupDrag);
+    popupDragHandle.addEventListener('pointercancel', stopPopupDrag);
+    messagePopup.addEventListener('click', event => {
+      event.stopPropagation();
+      // 대화창이 표시된 상태에서 첫 클릭은 대화창만 닫기
+      const dialogue = document.getElementById('dialogueOverlay');
+      if (dialogue.classList.contains('visible')) dialogue.classList.remove('visible');
+    });
+    // 링크는 외부 사이트로 연결하지 않고, 지정한 게임 배경 이미지만 바꿈.
+    // 실제 다음 장면 파일명으로 바꾸면 됨.
+    const LINK_NEXT_SCENE_IMAGE = 'game1_6.png';
+    document.getElementById('messageFakeLink').addEventListener('click', event => {
+      event.preventDefault();
+      event.stopPropagation();
+      const map = document.getElementById('gameMap');
+      map.src = LINK_NEXT_SCENE_IMAGE;
+      map.alt = '링크를 클릭한 뒤의 게임 화면';
+      messagePopup.classList.remove('visible');
+      const dialogue = document.getElementById('dialogueOverlay');
+      dialogue.classList.remove('visible');
+      // game1_6 배경으로 전환된 다음 1초 뒤 독백을 표시
+      clearTimeout(window.gxDialogueTimer);
+      window.gxDialogueTimer = setTimeout(() => {
+        if (map.getAttribute('src') !== LINK_NEXT_SCENE_IMAGE) return;
+        document.getElementById('dialogueName').textContent = '-';
+        document.getElementById('dialogueText').textContent = 'GX 편의점...';
+        gxDialogueStep = 1;
+        dialogue.classList.add('visible');
+      }, 1000);
+    });
+
+    const endScreen = document.getElementById('endScreen');
+    const endText = document.getElementById('endText');
+    let endStarted = false;
+    let endTypingFinished = false;
+    function showEndingOne() {
+      if (endStarted) return;
+      endStarted = true;
+      endText.textContent = '';
+      endTypingFinished = false;
+      endScreen.classList.add('visible');
+      const content = 'END #1\n그리고 아무 일도 없었다.';
+      let index = 0;
+      function typeNext() {
+        if (index >= content.length) {
+          endTypingFinished = true;
+          return;
+        }
+        const ch = content[index++];
+        endText.textContent += ch;
+        if (ch !== '\n' && ch !== ' ') playTypingSound();
+        window.setTimeout(typeNext, ch === '\n' ? 260 : 85);
+      }
+      typeNext();
+    }
+    // 엔딩 문구가 전부 출력된 뒤에만 클릭하여 메인 화면으로 복귀
+    document.addEventListener('click', event => {
+      if (!endStarted) return;
+      event.stopImmediatePropagation();
+      if (endTypingFinished) window.location.href = 'index.html';
+    }, true);
+    const choiceMenu = document.getElementById('choiceMenu');
+    const choiceButtons = [...choiceMenu.querySelectorAll('.choice-option')];
+    let chosenRoute = null;
+    function showChoiceMenu() {
+      chosenRoute = null;
+      choiceButtons.forEach((button, index) => button.classList.toggle('is-selected', index === 0));
+      choiceMenu.classList.add('visible');
+    }
+    // 선택 항목이 바뀔 때 짧은 8비트 딸깍 효과음 (외부 음원 불필요)
+    function playChoiceTick() {
+      if (!audioContext || !audioEnabled || volume === 0) return;
+      if (audioContext.state !== 'running') return;
+      const now = audioContext.currentTime;
+      const osc = audioContext.createOscillator();
+      const gain = audioContext.createGain();
+      osc.type = 'square';
+      osc.frequency.setValueAtTime(900, now);
+      osc.frequency.exponentialRampToValueAtTime(510, now + 0.035);
+      gain.gain.setValueAtTime(0.085, now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.045);
+      osc.connect(gain);
+      gain.connect(masterGain);
+      osc.start(now);
+      osc.stop(now + 0.05);
+    }
+    choiceButtons.forEach(button => {
+      button.addEventListener('mouseenter', () => {
+        if (!button.classList.contains('is-selected')) playChoiceTick();
+        choiceButtons.forEach(other => other.classList.toggle('is-selected', other === button));
+      });
+      button.addEventListener('click', event => {
+        event.preventDefault(); event.stopPropagation();
+        initAudio();
+        playChoiceTick();
+        chosenRoute = button.dataset.choice;
+        choiceButtons.forEach(other => other.classList.toggle('is-selected', other === button));
+        if (chosenRoute === 'stay') {
+          choiceMenu.classList.remove('visible');
+          const blackFade = document.getElementById('blackFade');
+          blackFade.classList.add('active');
+          blackFade.addEventListener('transitionend', event => {
+            if (event.propertyName === 'opacity') showEndingOne();
+          }, { once: true });
+        }
+        // '간다' 선택은 다음 장면이 정해질 때까지 현재 화면을 유지.
+      });
+    });
+    document.addEventListener('keydown', event => {
+      if (!choiceMenu.classList.contains('visible')) return;
+      if (event.key === 'ArrowUp' || event.key === 'ArrowDown') {
+        event.preventDefault(); event.stopPropagation();
+        const current = choiceButtons.findIndex(button => button.classList.contains('is-selected'));
+        const next = (current + (event.key === 'ArrowDown' ? 1 : -1) + choiceButtons.length) % choiceButtons.length;
+        playChoiceTick();
+        choiceButtons.forEach((button, i) => button.classList.toggle('is-selected', i === next));
+        choiceButtons[next].focus();
+      } else if (event.key === 'Enter' && document.activeElement !== choiceButtons[0] && document.activeElement !== choiceButtons[1]) {
+        event.preventDefault(); choiceButtons.find(button => button.classList.contains('is-selected')).click();
+      }
+    });
+    // ==============================
+    // 5. 화면 클릭 이벤트
+    // ==============================
+
+    document.addEventListener(
+      "click",
+      function() {
+
+        // 사용자 클릭 후 오디오 활성화
+        initAudio();
+
+        // '제보인가?' 대화창이 떠 있을 때 클릭하면 메신저 화면으로 전환
+        if (gameScreen.classList.contains("active")) {
+          const dialogue = document.getElementById('dialogueOverlay');
+          if (gxDialogueStep === 1 && dialogue.classList.contains('visible')) {
+            gxDialogueStep = 2;
+            document.getElementById('dialogueName').textContent = '-';
+            document.getElementById('dialogueText').textContent = '회사 근처에 있었던것 같은데\n가볼까?';
+            showChoiceMenu();
+            return;
+          }
+          if (choiceMenu.classList.contains('visible')) return;
+          if (dialogue.classList.contains('visible') && !messengerSceneShown) {
+            messengerSceneShown = true;
+            dialogue.classList.remove('visible');
+            const stage = document.getElementById('mapStage');
+            stage.classList.remove('scene-two');
+            stage.classList.add('scene-three');
+            const map = document.getElementById('gameMap');
+            map.src = 'game1_3.png';
+            map.alt = '메신저 대화 화면';
+            document.getElementById('dialogueName').textContent = '-';
+            document.getElementById('dialogueText').textContent = '(일단 메시지 알람을 클릭하자)';
+            messengerTransitioning = true;
+            stage.classList.remove('scene-zoom-in');
+            void stage.offsetWidth; // 연속 전환에서도 애니메이션 재시작
+            stage.classList.add('scene-zoom-in');
+            // 화면 확대가 끝난 뒤 대화창이 아래에서 위로 올라오도록 표시
+            setTimeout(() => {
+              stage.classList.remove('scene-zoom-in');
+              messengerTransitioning = false;
+              dialogue.classList.add('visible');
+            }, 620);
+          } else if (messengerTransitioning) {
+            return;
+          } else if (messengerSceneShown && !sceneThreeDialogueDismissed) {
+            sceneThreeDialogueDismissed = true;
+            dialogue.classList.remove('visible');
+          } else if (sceneThreeDialogueDismissed && !sceneFourShown) {
+            sceneFourShown = true;
+            const stage = document.getElementById('mapStage');
+            stage.classList.remove('scene-three');
+            stage.classList.add('scene-four');
+            const map = document.getElementById('gameMap');
+            map.src = 'game1_4.png';
+            map.alt = '다음 게임 화면';
+            // 별도의 터치 없이 game1_4 위에 채팅 팝업 자동 표시
+            showMessagePopup();
+          }
+          return;
+        }
+
+        // 타이핑 중 클릭
+        if (isTyping) {
+          skipTyping();
+          return;
+        }
+
+        // 문장 완료 후 클릭
+        if (isFinished) {
+          nextScene();
+        }
+      }
+    );
+
+
+    // ==============================
+    // 6. 최초 실행
+    // ==============================
+
+    startTyping();
+
+  </script>
+
+</body>
+</html>
