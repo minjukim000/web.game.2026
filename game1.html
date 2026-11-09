@@ -224,16 +224,23 @@
       display: block;
       animation: dialogueSlideUp 0.48s cubic-bezier(.22, 1, .36, 1) both;
     }
+    #dialogueOverlay.go-slow.visible { animation-duration: 0.85s; }
     @keyframes dialogueSlideUp {
       from { opacity: 0; transform: translate(-50%, 45%); }
       to { opacity: 1; transform: translate(-50%, 8%); }
     }
 
-    #dialogueOverlay img {
+    #dialogueOverlay > img:first-child {
       display: block;
       width: 100%;
       height: 100%;
       image-rendering: pixelated;
+    }
+    #dialoguePortrait {
+      position: absolute; left: 6.2%; top: 30.2%;
+      width: 12.9%; height: 39.1%;
+      object-fit: cover; object-position: center 31%;
+      image-rendering: pixelated; pointer-events: none;
     }
     #dialogueName {
       position: absolute;
@@ -332,6 +339,53 @@
     .choice-option.is-selected, .choice-option:hover, .choice-option:focus-visible { background: #e8e8e8; color: #202020; outline: none; }
     .choice-option.is-selected .choice-cursor, .choice-option:hover .choice-cursor, .choice-option:focus-visible .choice-cursor { visibility: visible; }
     @media (max-width: 600px) { #choiceMenu { right: calc((100vw - min(96vw, 1250px)) / 2 + 24px); bottom: 27vw; width: 150px; padding: 7px; } }
+
+    /* 편의점 점장 면접 선택지: 기존 8비트 선택창과 같은 스타일 */
+    #npcChoiceMenu { position:fixed; z-index:95; right:calc((100vw - min(96vw, 1250px))/2 + 56px); bottom:clamp(165px,24vw,320px); width:clamp(210px,22vw,285px); padding:10px 9px; background:#292929; border:4px solid #e9e9e9; outline:3px solid #171717; box-shadow:inset 3px 3px 0 #777,inset -3px -3px 0 #101010,5px 5px 0 #111; font-family:'Galmuri11',monospace; display:none; image-rendering:pixelated; }
+    #npcChoiceMenu.visible {display:block; animation:choiceAppear .16s steps(3,end) both;}
+    @media(max-width:600px){#npcChoiceMenu{right:calc((100vw - 115vw)/2 + 56px);bottom:27vw;width:210px}}
+
+    /* '간다' 이후 컷신: 어두워진 화면에 세 컷이 차례대로 등장 */
+    #cutscene { position:fixed; inset:0; z-index:80; background:#000; display:none; overflow:hidden; }
+    #cutscene.visible { display:block; }
+    #cutscene.fade-out { opacity:0; transition:opacity .85s ease-in-out; pointer-events:none; }
+    /* 상단 cut1 + cut2 나란히, 하단 cut3. 두 행의 전체 폭을 동일하게 중앙 정렬 */
+    #cutscene .cut-row { position:relative; width:100%; height:100%; }
+    #cutscene .cut-slot {
+      position:absolute; display:flex; align-items:center; justify-content:center;
+      opacity:0; transform:translateY(16px);
+      transition:opacity .38s ease, transform .38s ease;
+    }
+    /* 위쪽 두 이미지의 합산 폭(간격 포함) = 아래쪽 이미지 폭(54vw) */
+    #cutscene .cut-slot:nth-child(1) { left:23%; top:12%; width:26.5%; height:32%; }
+    #cutscene .cut-slot:nth-child(2) { left:50.5%; top:12%; width:26.5%; height:32%; }
+    #cutscene .cut-slot:nth-child(3) { left:23%; top:40%; width:54%; height:36%; }
+    #cutscene .cut-slot.shown { opacity:1; transform:translateY(0); }
+    #cutscene .cut-slot img { display:block; width:100%; height:100%; object-fit:contain; }
+    @media(max-width:600px) {
+      #cutscene .cut-slot:nth-child(1) { left:5%; width:44%; top:18%; height:27%; }
+      #cutscene .cut-slot:nth-child(2) { left:51%; width:44%; top:18%; height:27%; }
+      #cutscene .cut-slot:nth-child(3) { left:5%; width:90%; top:45%; height:29%; }
+    }
+    #cutsceneFade { position:fixed; inset:0; z-index:79; background:#000; opacity:0; pointer-events:none; transition:opacity .65s ease-in; }
+    #cutsceneFade.active { opacity:1; pointer-events:auto; }
+    /* 편의점 출입문: 원본 이미지 비율에 맞춘 투명 히트 영역 */
+    /* 새 편의점 원본(1672×941)에 맞춰 이미지와 문 영역을 정확히 겹친다. */
+    #mapStage.scene-store { width:min(96vw, 170.85vh); height:auto; aspect-ratio:1672 / 941; }
+    #mapStage.scene-store #gameMap { width:100%; height:100%; object-fit:fill; }
+    #storeDoorOverlay { position:absolute; inset:0; width:100%; height:100%; display:none; pointer-events:none; z-index:5; overflow:visible; }
+    #storeDoorOverlay.active { display:block; }
+    #storeDoorHit { fill:transparent; stroke:transparent; stroke-width:6; stroke-linejoin:miter; stroke-linecap:butt; shape-rendering:crispEdges; pointer-events:all; cursor:pointer; }
+    #storeDoorOverlay.dialogue-open #storeDoorHit { pointer-events:none; cursor:default; }
+    #storeDoorOverlay:not(.dialogue-open) #storeDoorHit:hover, #storeDoorOverlay:not(.dialogue-open) #storeDoorHit:focus-visible { stroke:#c42c2c; outline:none; }
+    #dialogueOverlay.interior-dialogue { z-index: 90; }
+    #storeInterior { position:fixed; inset:0; width:100vw; height:100vh; z-index:75; display:none; background:#101017; image-rendering:pixelated; }
+    #storeInterior.active { display:block; }
+    #storeInteriorHelp { position:fixed; top:72px; left:20px; z-index:76; display:none; padding:9px 12px; background:#15121acc; border:1px solid #9c8080; color:#f4e4d6; font:13px monospace; pointer-events:none; }
+    #storeInteriorHelp.active { display:block; }
+    #storeInteriorDebug { position:fixed; top:16px; right:16px; z-index:76; display:none; background:#201922; color:#fff; border:1px solid #886d6d; padding:8px; cursor:pointer; }
+    #storeInteriorDebug.active { display:block; }
+
   </style>
 </head>
 
@@ -367,8 +421,9 @@
   </div>
 
   <!-- 이후 게임 화면 -->
-  <div id="gameScreen"><div id="mapStage"><img id="gameMap" src="game1_1.png" alt="기자 사무실 게임 맵"><img id="characterAlert" src="game_icon2.png" alt="캐릭터 알림 아이콘"></div></div>
-  <div id="dialogueOverlay" aria-live="polite"><img src="chat.png" alt=""><span id="dialogueName">-</span><span id="dialogueText">제보인가?</span></div>
+  <div id="gameScreen"><div id="mapStage"><img id="gameMap" src="game1_1.png" alt="기자 사무실 게임 맵"><img id="characterAlert" src="game_icon2.png" alt="캐릭터 알림 아이콘"><svg id="storeDoorOverlay" viewBox="0 0 1672 941" preserveAspectRatio="xMidYMid meet" aria-label="편의점 출입문"><polygon id="storeDoorHit" points="1057,435 1335,435 1335,881 1057,881" tabindex="0" role="button" aria-label="편의점 문"></polygon></svg></div></div>
+  <canvas id="storeInterior" aria-label="GX 편의점 내부 이동 맵"></canvas><div id="storeInteriorHelp">GX 편의점 · 이동 WASD / 방향키 · 조사 E · 충돌 F3</div><button id="storeInteriorDebug" type="button">충돌 표시</button>
+  <div id="dialogueOverlay" aria-live="polite"><img src="chat.png" alt=""><img id="dialoguePortrait" src="c_1.png" alt="캐릭터 프로필"><span id="dialogueName">-</span><span id="dialogueText">제보인가?</span></div>
 
   <div id="messagePopup" role="dialog" aria-label="익명 메신저 팝업">
     <img src="game1_5.png" alt="익명에게서 도착한 메시지">
@@ -376,11 +431,23 @@
     <button id="messageFakeLink" type="button" aria-label="메시지 링크 열기">https://adfea..</button>
   </div>
 
+  <div id="cutsceneFade" aria-hidden="true"></div>
+  <div id="cutscene" aria-label="이동 장면">
+    <div class="cut-row">
+      <div class="cut-slot"><img src="cut1.png" alt="첫 번째 컷"></div>
+      <div class="cut-slot"><img src="cut2.png" alt="두 번째 컷"></div>
+      <div class="cut-slot"><img src="cut3.png" alt="세 번째 컷"></div>
+    </div>
+  </div>
   <div id="blackFade" aria-hidden="true"></div>
   <div id="endScreen" aria-live="polite"><div id="endText"></div></div>
   <div id="choiceMenu" role="group" aria-label="가볼까? 선택">
     <button class="choice-option is-selected" type="button" data-choice="go"><span class="choice-cursor">▶</span><span>간다</span></button>
     <button class="choice-option" type="button" data-choice="stay"><span class="choice-cursor">▶</span><span>안간다</span></button>
+  </div>
+  <div id="npcChoiceMenu" role="group" aria-label="면접 질문 선택">
+    <button class="choice-option is-selected" type="button" data-answer="yes"><span class="choice-cursor">▶</span><span>네 맞습니다.</span></button>
+    <button class="choice-option" type="button" data-answer="no"><span class="choice-cursor">▶</span><span>아닙니다</span></button>
   </div>
   <script>
     // ==============================
@@ -816,13 +883,15 @@
     const endText = document.getElementById('endText');
     let endStarted = false;
     let endTypingFinished = false;
+    let endTypingTimer = null;
+    const endingContent = 'END #1\n그리고 아무 일도 없었다.';
     function showEndingOne() {
       if (endStarted) return;
       endStarted = true;
       endText.textContent = '';
       endTypingFinished = false;
       endScreen.classList.add('visible');
-      const content = 'END #1\n그리고 아무 일도 없었다.';
+      const content = endingContent;
       let index = 0;
       function typeNext() {
         if (index >= content.length) {
@@ -832,15 +901,21 @@
         const ch = content[index++];
         endText.textContent += ch;
         if (ch !== '\n' && ch !== ' ') playTypingSound();
-        window.setTimeout(typeNext, ch === '\n' ? 260 : 85);
+        endTypingTimer = window.setTimeout(typeNext, ch === '\n' ? 260 : 85);
       }
       typeNext();
     }
-    // 엔딩 문구가 전부 출력된 뒤에만 클릭하여 메인 화면으로 복귀
+    // 엔딩 타이핑 중 클릭하면 즉시 전체 문구 표시, 다음 클릭에 메인 화면으로 복귀
     document.addEventListener('click', event => {
       if (!endStarted) return;
       event.stopImmediatePropagation();
-      if (endTypingFinished) window.location.href = 'index.html';
+      if (!endTypingFinished) {
+        clearTimeout(endTypingTimer);
+        endText.textContent = endingContent;
+        endTypingFinished = true;
+      } else {
+        window.location.href = 'index.html';
+      }
     }, true);
     const choiceMenu = document.getElementById('choiceMenu');
     const choiceButtons = [...choiceMenu.querySelectorAll('.choice-option')];
@@ -886,7 +961,35 @@
             if (event.propertyName === 'opacity') showEndingOne();
           }, { once: true });
         }
-        // '간다' 선택은 다음 장면이 정해질 때까지 현재 화면을 유지.
+        if (chosenRoute === 'go') {
+          // 선택창과 대화창, 메신저 팝업을 모두 제거하고 첫 번째 배경으로 복귀.
+          choiceMenu.classList.remove('visible');
+          document.getElementById('dialogueOverlay').classList.remove('visible');
+          messagePopup.classList.remove('visible');
+          popupShown = false;
+          clearTimeout(window.gxDialogueTimer);
+          const stage = document.getElementById('mapStage');
+          stage.classList.remove('scene-two', 'scene-three', 'scene-four', 'scene-zoom-in');
+          const map = document.getElementById('gameMap');
+          map.src = 'game1_1.png';
+          map.alt = '첫 번째 게임 배경';
+          document.getElementById('blackFade').classList.remove('active');
+          // 이전 대화/선택 장면이 다시 실행되지 않도록 상태를 고정.
+          gxDialogueStep = 3;
+          messengerSceneShown = true;
+          sceneThreeDialogueDismissed = true;
+          sceneFourShown = true;
+          // '간다'를 선택한 뒤, game1_1 배경 위로 대화창을 슬라이드 표시.
+          document.getElementById('dialogueName').textContent = '-';
+          document.getElementById('dialogueText').textContent = '그럼 준비하고 가볼까...';
+          // display 상태를 리셋하여 등장 애니메이션을 다시 실행한다.
+          const goDialogue = document.getElementById('dialogueOverlay');
+          goDialogue.classList.remove('visible');
+          goDialogue.classList.add('go-slow');
+          setTimeout(() => {
+            if (chosenRoute === 'go') goDialogue.classList.add('visible');
+          }, 650);
+        }
       });
     });
     document.addEventListener('keydown', event => {
@@ -902,6 +1005,601 @@
         event.preventDefault(); choiceButtons.find(button => button.classList.contains('is-selected')).click();
       }
     });
+    // 컷별 환경 효과음: 기존 Web Audio 음량 조절과 연결 (별도 파일 불필요)
+    function cutNoise(start, duration, level, frequency, q = 0.7) {
+      if (!audioEnabled || !audioContext || audioContext.state !== 'running' || !masterGain) return;
+      const sampleRate = audioContext.sampleRate;
+      const buffer = audioContext.createBuffer(1, Math.ceil(sampleRate * duration), sampleRate);
+      const samples = buffer.getChannelData(0);
+      for (let i = 0; i < samples.length; i++) samples[i] = Math.random() * 2 - 1;
+      const source = audioContext.createBufferSource();
+      source.buffer = buffer;
+      const filter = audioContext.createBiquadFilter();
+      filter.type = 'lowpass'; filter.frequency.value = frequency; filter.Q.value = q;
+      const gain = audioContext.createGain();
+      gain.gain.setValueAtTime(0.0001, start);
+      gain.gain.linearRampToValueAtTime(level, start + Math.min(.07, duration * .25));
+      gain.gain.exponentialRampToValueAtTime(.0001, start + duration);
+      source.connect(filter); filter.connect(gain); gain.connect(masterGain);
+      source.start(start); source.stop(start + duration);
+    }
+    function playCutSound(index) {
+      if (!audioEnabled || !audioContext || audioContext.state !== 'running') return;
+      const now = audioContext.currentTime + .005;
+      if (index === 0) {
+        // 휴대폰을 손으로 집어 올리는 짧은 마찰음 + 가벼운 접촉음
+        cutNoise(now, .22, .14, 2300);
+        cutNoise(now + .14, .085, .10, 850);
+      } else if (index === 1) {
+        // 구두 발걸음: 바닥을 딛는 둔탁한 소리와 구두굽의 짧은 클릭
+        for (let step = 0; step < 4; step++) {
+          const t = now + step * .34;
+          cutNoise(t, .14, .19, 480);
+          cutNoise(t + .025, .045, .10, 2600);
+        }
+      } else if (index === 2) {
+        // 바람이 스쳐 지나가는 길고 부드러운 소리
+        cutNoise(now, 2.5, .11, 1150, .4);
+        cutNoise(now + .45, 1.7, .045, 2400, .4);
+      }
+    }
+    // 마지막 컷의 바람이 잦아든 뒤 낮게 숨을 내쉬는 남성의 한숨을 합성한다.
+    // 별도 음원 파일 없이 기존 Web Audio 음량 조절을 따른다.
+    function playMaleSigh() {
+      if (!audioEnabled || !audioContext || audioContext.state !== 'running' || !masterGain) return;
+      const now = audioContext.currentTime + .01;
+      const duration = 1.65;
+      const rate = audioContext.sampleRate;
+      const buffer = audioContext.createBuffer(1, Math.ceil(rate * duration), rate);
+      const samples = buffer.getChannelData(0);
+      for (let i = 0; i < samples.length; i++) samples[i] = Math.random() * 2 - 1;
+      const breath = audioContext.createBufferSource();
+      breath.buffer = buffer;
+      const filter = audioContext.createBiquadFilter();
+      filter.type = 'bandpass'; filter.frequency.value = 520; filter.Q.value = .48;
+      const breathGain = audioContext.createGain();
+      breathGain.gain.setValueAtTime(.0001, now);
+      breathGain.gain.linearRampToValueAtTime(.13, now + .28);
+      breathGain.gain.linearRampToValueAtTime(.095, now + .75);
+      breathGain.gain.exponentialRampToValueAtTime(.0001, now + duration);
+      breath.connect(filter); filter.connect(breathGain); breathGain.connect(masterGain);
+      breath.start(now); breath.stop(now + duration);
+      // 낮은 목소리의 공명감을 아주 작게 더한다.
+      const voice = audioContext.createOscillator();
+      const voiceGain = audioContext.createGain();
+      voice.type = 'sawtooth';
+      voice.frequency.setValueAtTime(113, now + .1);
+      voice.frequency.exponentialRampToValueAtTime(78, now + 1.3);
+      voiceGain.gain.setValueAtTime(.0001, now + .1);
+      voiceGain.gain.linearRampToValueAtTime(.018, now + .32);
+      voiceGain.gain.exponentialRampToValueAtTime(.0001, now + 1.35);
+      voice.connect(voiceGain); voiceGain.connect(masterGain);
+      voice.start(now + .1); voice.stop(now + 1.4);
+    }
+    let storeDoorScene = false;
+    let storeDoorDialogueVisible = false;
+    function dismissStoreDoorDialogue() {
+      if (!storeDoorDialogueVisible) return false;
+      storeDoorDialogueVisible = false;
+      document.getElementById('storeDoorOverlay').classList.remove('dialogue-open');
+      document.getElementById('dialogueOverlay').classList.remove('visible');
+      return true;
+    }
+    document.getElementById('storeDoorHit').addEventListener('click', event => {
+      event.stopPropagation();
+      if (storeDoorDialogueVisible) { dismissStoreDoorDialogue(); return; }
+      enterStoreInterior();
+    });
+    document.getElementById('storeDoorHit').addEventListener('keydown', event => {
+      if (event.key === 'Enter' || event.key === ' ') {
+        event.preventDefault();
+        if (storeDoorDialogueVisible) dismissStoreDoorDialogue();
+        else enterStoreInterior();
+      }
+    });
+    // GX 편의점 내부: map.html의 방향별 스프라이트/발 기준 충돌 방식을 사용.
+    const interiorCanvas = document.getElementById('storeInterior');
+    const interiorCtx = interiorCanvas.getContext('2d');
+    const interiorImage = new Image(); interiorImage.src = 'game1_8.png';
+    const interiorFrames = {down:[1,2,3,4],left:[5,6,7,8],right:[9,10,11],up:[12,13,14,15]};
+    const interiorSprites = Object.fromEntries(Object.entries(interiorFrames).map(([dir, ids]) =>
+      [dir, ids.map(id => {const img = new Image(); img.src = `map_c_${id}.png`; return img;})]));
+    const interiorPlayer = {x:720,y:710,dir:'up',walk:0,radius:11};
+    // 계산대 오른쪽 통로에 서 있는 조사 대상 캐릭터 (첨부된 map_c2.png).
+    const storeNpcImage = new Image(); storeNpcImage.src = 'map_c2.png';
+    const storeNpc = {x:1289, y:435, height:124};
+    const storeNpcCollision = [1259, 410, 61, 43]; // 발 주변 충돌 판정 / F3 노란색
+
+    const interiorKeys = new Set();
+    let interiorActive=false, interiorDebug=false, interiorLast=0, interiorMoving=false;
+    // 마우스로 이동할 목적지. 사물은 첫 클릭에 접근, 가까이서 다시 클릭하면 조사.
+    let interiorClickTarget=null;
+    let interiorClickPath=[];
+    function interiorPointerToMap(e){
+      const rect=interiorCanvas.getBoundingClientRect();
+      const scale=Math.min(rect.width/interiorW,rect.height/interiorH);
+      const ox=(rect.width-interiorW*scale)/2,oy=(rect.height-interiorH*scale)/2;
+      return {x:(e.clientX-rect.left-ox)/scale,y:(e.clientY-rect.top-oy)/scale};
+    }
+    function clickedShelf(x,y){
+      return inspectableShelves.findIndex(([sx,sy,sw,sh])=>x>=sx&&x<=sx+sw&&y>=sy&&y<=sy+sh);
+    }
+    function clickedNpc(x,y){
+      const w=storeNpc.height*storeNpcImage.naturalWidth/(storeNpcImage.naturalHeight||storeNpc.height);
+      return x>=storeNpc.x-w/2-12&&x<=storeNpc.x+w/2+12&&y>=storeNpc.y-storeNpc.height-10&&y<=storeNpc.y+10;
+    }
+    // 격자 A* 길찾기: 실제 캐릭터 충돌 범위를 검사하여 진열대를 우회한다.
+    const navCell=16,navCols=Math.ceil(1536/navCell),navRows=Math.ceil(1024/navCell);
+    function navPoint(id){return {x:(id%navCols+.5)*navCell,y:(Math.floor(id/navCols)+.5)*navCell};}
+    function navNearest(x,y){
+      const cx=Math.max(0,Math.min(navCols-1,Math.floor(x/navCell)));
+      const cy=Math.max(0,Math.min(navRows-1,Math.floor(y/navCell)));
+      if(interiorCanStand(x,y))return cy*navCols+cx;
+      for(let r=0;r<Math.max(navCols,navRows);r++){
+        let best=-1,dist=Infinity;
+        for(let yy=Math.max(0,cy-r);yy<=Math.min(navRows-1,cy+r);yy++)
+          for(let xx=Math.max(0,cx-r);xx<=Math.min(navCols-1,cx+r);xx++){
+            if(Math.max(Math.abs(xx-cx),Math.abs(yy-cy))!==r)continue;
+            const id=yy*navCols+xx,pt=navPoint(id);
+            if(interiorCanStand(pt.x,pt.y)){
+              const d=(pt.x-x)**2+(pt.y-y)**2;
+              if(d<dist){best=id;dist=d;}
+            }
+          }
+        if(best!==-1)return best;
+      }
+      return -1;
+    }
+    function navClear(a,b){
+      const d=Math.hypot(b.x-a.x,b.y-a.y),n=Math.ceil(d/6);
+      for(let i=1;i<=n;i++){
+        const f=i/n;
+        if(!interiorCanStand(a.x+(b.x-a.x)*f,a.y+(b.y-a.y)*f))return false;
+      }
+      return true;
+    }
+    function navFindPath(x,y){
+      const start={x:interiorPlayer.x,y:interiorPlayer.y},goal={x,y};
+      if(interiorCanStand(x,y)&&navClear(start,goal))return [goal];
+      const startId=navNearest(start.x,start.y),goalId=navNearest(x,y);
+      if(startId<0||goalId<0)return [];
+      const count=navCols*navRows,g=new Float64Array(count).fill(Infinity);
+      const parent=new Int32Array(count).fill(-1),closed=new Uint8Array(count),open=[startId];
+      g[startId]=0;
+      const h=id=>{const a=navPoint(id),b=navPoint(goalId);return Math.hypot(a.x-b.x,a.y-b.y);};
+      const offsets=[[1,0],[-1,0],[0,1],[0,-1],[1,1],[1,-1],[-1,1],[-1,-1]];
+      let found=false;
+      while(open.length){
+        let best=0,bestF=Infinity;
+        for(let i=0;i<open.length;i++){
+          const f=g[open[i]]+h(open[i]);if(f<bestF){bestF=f;best=i;}
+        }
+        const id=open.splice(best,1)[0];if(closed[id])continue;
+        if(id===goalId){found=true;break;}
+        closed[id]=1;
+        const cx=id%navCols,cy=Math.floor(id/navCols),a=navPoint(id);
+        for(const [ox,oy] of offsets){
+          const nx=cx+ox,ny=cy+oy;
+          if(nx<0||ny<0||nx>=navCols||ny>=navRows)continue;
+          const next=ny*navCols+nx;if(closed[next])continue;
+          const b=navPoint(next);
+          if(!interiorCanStand(b.x,b.y)||!navClear(a,b))continue;
+          const score=g[id]+Math.hypot(ox,oy)*navCell;
+          if(score<g[next]){g[next]=score;parent[next]=id;open.push(next);}
+        }
+      }
+      if(!found)return [];
+      const raw=[];let id=goalId;
+      while(id!==startId&&id!==-1){raw.push(navPoint(id));id=parent[id];}
+      raw.reverse();
+      if(interiorCanStand(x,y)&&navClear(raw.length?raw[raw.length-1]:start,goal))raw.push(goal);
+      // 직선으로 갈 수 있는 구간을 병합해 부드럽게 이동한다.
+      const result=[],all=[start,...raw];let i=0;
+      while(i<all.length-1){let j=all.length-1;while(j>i+1&&!navClear(all[i],all[j]))j--;result.push(all[j]);i=j;}
+      return result;
+    }
+    function setInteriorTarget(x,y){
+      interiorClickPath=navFindPath(x,y);
+      interiorClickTarget=interiorClickPath.shift()||null;
+    }
+    function clearInteriorTarget(){interiorClickTarget=null;interiorClickPath=[];}
+    function advanceInteriorTarget(){interiorClickTarget=interiorClickPath.shift()||null;}
+    interiorCanvas.addEventListener('click',e=>{
+      if(!interiorActive||npcDialogueOpen||shelfDialogueOpen)return;
+      const {x,y}=interiorPointerToMap(e);
+      if(x<0||y<0||x>interiorW||y>interiorH)return;
+      if(clickedNpc(x,y)){
+        if(nearStoreNpc()){clearInteriorTarget();talkToStoreNpc();}
+        else setInteriorTarget(storeNpc.x,storeNpcCollision[1]+storeNpcCollision[3]+interiorPlayer.radius+30);
+        return;
+      }
+      const shelfIndex=clickedShelf(x,y);
+      if(shelfIndex!==-1){
+        const [sx,sy,sw,sh]=inspectableShelves[shelfIndex];
+        const frontX=Math.max(sx+18,Math.min(sx+sw-18,x));
+        const frontY=sy+sh+interiorPlayer.radius+25;
+        if(nearInspectableShelf() && Math.abs(interiorPlayer.x-frontX)<sw/2+25){
+          clearInteriorTarget();inspectShelf();
+        }else setInteriorTarget(frontX,frontY);
+        return;
+      }
+      setInteriorTarget(x,y);
+    });
+
+    let interiorLastMovementAt=0;
+    const interiorHelp=document.getElementById('storeInteriorHelp');
+    let shelfDialogueOpen=false;
+    let npcDialogueOpen=false;
+    let npcDialogueStep=0;
+    const npcChoiceMenu=document.getElementById('npcChoiceMenu');
+    const npcChoiceButtons=[...npcChoiceMenu.querySelectorAll('.choice-option')];
+    let npcAnswer=null;
+    function showNpcChoices(){
+      npcChoiceButtons.forEach((button,i)=>button.classList.toggle('is-selected',i===0));
+      npcChoiceMenu.classList.add('visible');
+    }
+    function advanceNpcDialogue(){
+      if(!npcDialogueOpen)return;
+      if(npcDialogueStep===0){
+        npcDialogueStep=1;
+        document.getElementById('dialoguePortrait').src='c_1.png';
+        document.getElementById('dialogueName').textContent='-';
+        document.getElementById('dialogueText').textContent='(어쩌지?)';
+        showNpcChoices();
+      } // 선택지 등장 후에는 선택할 때까지 대화창 유지
+    }
+    function selectNpcAnswer(button){
+      initAudio();playChoiceTick();
+      npcAnswer=button.dataset.answer;
+      npcChoiceMenu.classList.remove('visible');
+      // 면접 답변에 따라 다음 HTML 장면으로 이동한다.
+      window.location.href = npcAnswer === 'yes' ? 'game2.html' : 'web.html';
+    }
+    npcChoiceButtons.forEach(button=>{
+      button.addEventListener('mouseenter',()=>{
+        if(!button.classList.contains('is-selected'))playChoiceTick();
+        npcChoiceButtons.forEach(other=>other.classList.toggle('is-selected',other===button));
+      });
+      button.addEventListener('click',e=>{e.preventDefault();e.stopPropagation();selectNpcAnswer(button);});
+    });
+    // 진열대 주변의 통로(정면·양옆·뒤쪽)에서 E키로 조사 가능.
+    // 발 위치에서 매대 사각형까지의 최단 거리를 사용하므로 모서리에서도 정상 작동.
+    const inspectableShelves=[[356,390,179,259],[633,389,175,259],[921,407,111,235],[1139,442,92,188]];
+    function nearInspectableShelf(){
+      const px=interiorPlayer.x, py=interiorPlayer.y;
+      return inspectableShelves.some(([x,y,w,h])=>{
+        const dx=Math.max(x-px,0,px-(x+w));
+        const dy=Math.max(y-py,0,py-(y+h));
+        return Math.hypot(dx,dy)<=76;
+      });
+    }
+    function nearStoreNpc(){
+      // NPC 바로 아래(정면)에서만 E로 대화할 수 있도록 제한.
+      const dx=Math.abs(interiorPlayer.x-storeNpc.x);
+      const dy=interiorPlayer.y-(storeNpcCollision[1]+storeNpcCollision[3]);
+      return dx<=62 && dy>=interiorPlayer.radius && dy<=90;
+    }
+    function closeNpcDialogue(){
+      if(!npcDialogueOpen)return;
+      npcDialogueOpen=false;
+      npcDialogueStep=0;
+      npcChoiceMenu.classList.remove('visible');
+      document.getElementById('dialogueOverlay').classList.remove('visible','interior-dialogue');
+    }
+    function talkToStoreNpc(){
+      if(npcDialogueOpen || !nearStoreNpc())return false;
+      interiorKeys.clear();npcDialogueOpen=true;npcDialogueStep=0;npcAnswer=null;
+      document.getElementById('dialoguePortrait').src='c_2.png';
+      document.getElementById('dialogueName').textContent='편의점 점장';
+      document.getElementById('dialogueText').textContent='오늘 알바 면접 보러 오신 분인가요?';
+      const box=document.getElementById('dialogueOverlay');
+      box.classList.remove('go-slow','visible');
+      box.classList.add('interior-dialogue');
+      void box.offsetWidth;
+      box.classList.add('visible');
+      return true;
+    }
+    function closeShelfDialogue(){
+      if(!shelfDialogueOpen)return;
+      shelfDialogueOpen=false;
+      const box=document.getElementById('dialogueOverlay');
+      box.classList.remove('visible','interior-dialogue');
+    }
+    function inspectShelf(){
+      if(shelfDialogueOpen || !nearInspectableShelf())return;
+      interiorKeys.clear();shelfDialogueOpen=true;
+      document.getElementById('dialoguePortrait').src='c_1.png';
+      document.getElementById('dialogueName').textContent='-';
+      document.getElementById('dialogueText').textContent='(SNS에서 봤던 과자들이 쌓여있다...)';
+      const box=document.getElementById('dialogueOverlay');
+      box.classList.remove('go-slow','visible');
+      box.classList.add('interior-dialogue');
+      void box.offsetWidth;
+      box.classList.add('visible');
+    }
+    // 조사 대화창은 화면 어디를 클릭해도 닫히며 다른 씬 클릭 이벤트로 전달되지 않습니다.
+    document.addEventListener('click',e=>{
+      if(!interiorActive||(!shelfDialogueOpen&&!npcDialogueOpen))return;
+      if(e.target.closest('#npcChoiceMenu'))return;
+      e.preventDefault();e.stopImmediatePropagation();
+      if(npcDialogueOpen)advanceNpcDialogue();else closeShelfDialogue();
+    },true);
+    const interiorW=1536, interiorH=1024;
+    // 이미지 원본 픽셀 좌표: 바닥만 통행 가능, 냉장고·진열대·계산대·벽은 차단.
+    const interiorWalkable = [
+      [93,312,1352,518], // 매장 주 통로
+      [605,778,231,55], // 출입문 바로 위의 바닥: 문 자체는 진입 불가
+      [92,259,1349,74]   // 상단 냉장고/계산대 앞 좁은 통로
+    ];
+    const interiorBlocked = [
+      [0,0,1536,95],       // 상단 외벽
+      [92,96,222,213],    // 왼쪽 벽과 창고 출입구
+      [313,96,500,215],   // 냉장고들
+      [816,96,172,204],   // 온장고와 벽면 진열
+      [991,91,269,279],   // 계산대와 직원 공간
+      [1259,95,189,216],  // 오른쪽 창고/벽
+      [89,278,91,515],    // 왼쪽 벽면 상품 선반
+      [1333,276,111,519], // 오른쪽 벽면 상품 선반
+      [356,390,179,259],  // 중앙 왼쪽 과자 진열대
+      [633,389,175,259],  // 중앙 가운데 진열대
+      [921,407,111,235],  // 중앙 오른쪽 소형 진열대
+      [1139,442,92,188],  // 오른쪽 소형 진열대
+      [1069,700,231,135], // 아래 오른쪽 냉동고
+      [468,720,111,118],  // 아래 왼쪽 매대
+      [152,656,132,180],  // 왼쪽 아래 자판기/설비
+      [91,834,510,144],   // 출입문 왼쪽 아래 벽
+      [840,834,610,144],  // 출입문 오른쪽 아래 벽
+      [594,750,249,228]    // 유리 출입문 전체(상단 유리 포함): 충돌 및 붉은 표시
+    ];
+    function insideRect(x,y,r){return x>=r[0]&&x<=r[0]+r[2]&&y>=r[1]&&y<=r[1]+r[3];}
+    function interiorValid(x,y){return interiorWalkable.some(r=>insideRect(x,y,r)) && !interiorBlocked.some(r=>insideRect(x,y,r)) && !insideRect(x,y,storeNpcCollision);}
+    function interiorCanStand(x,y){const r=interiorPlayer.radius;return [[0,0],[r,0],[-r,0],[0,r*.65],[0,-r*.65]].every(([dx,dy])=>interiorValid(x+dx,y+dy));}
+    // 편의점 출입문 종소리: 문을 여는 순간 짧은 금속성 딸랑 소리.
+    // 기존 마스터 음량 조절 및 음소거 설정을 그대로 따릅니다.
+    function playStoreDoorChime(){
+      initAudio();
+      if(!audioContext || !masterGain || volume <= 0) return;
+      const now=audioContext.currentTime + .005;
+      [
+        {t:0, f:1174.66, length:.64, level:.12},
+        {t:.105, f:1567.98, length:.83, level:.085},
+        {t:.22, f:1318.51, length:.58, level:.045}
+      ].forEach(({t,f,length,level})=>{
+        const osc=audioContext.createOscillator();
+        const gain=audioContext.createGain();
+        osc.type='sine';
+        osc.frequency.setValueAtTime(f,now+t);
+        osc.frequency.exponentialRampToValueAtTime(f*.994,now+t+length);
+        gain.gain.setValueAtTime(.0001,now+t);
+        gain.gain.exponentialRampToValueAtTime(level,now+t+.012);
+        gain.gain.exponentialRampToValueAtTime(.0001,now+t+length);
+        osc.connect(gain);gain.connect(masterGain);
+        osc.start(now+t);osc.stop(now+t+length+.02);
+      });
+    }
+    // 실제 이동 중에만 재생하는 짧은 구두 발소리 (기존 음량 조절과 연동).
+    let interiorFootstepClock=0;
+    let interiorFootstepIndex=0;
+    function playInteriorFootstep(){
+      initAudio();
+      if(!audioContext || !masterGain || volume <= 0)return;
+      const now=audioContext.currentTime;
+      const duration=.105;
+      const buffer=audioContext.createBuffer(1,Math.ceil(audioContext.sampleRate*duration),audioContext.sampleRate);
+      const data=buffer.getChannelData(0);
+      // 짧은 저음 충격 + 마찰음으로 딱딱한 매장 바닥의 발소리를 표현.
+      for(let i=0;i<data.length;i++){
+        const t=i/audioContext.sampleRate;
+        const impact=Math.exp(-t*48)*Math.sin(2*Math.PI*(105-25*t)*t);
+        const scrape=(Math.random()*2-1)*Math.exp(-t*37);
+        data[i]=impact*.48+scrape*.19;
+      }
+      const source=audioContext.createBufferSource();source.buffer=buffer;
+      const filter=audioContext.createBiquadFilter();filter.type='lowpass';filter.frequency.value=720;
+      const gain=audioContext.createGain();
+      gain.gain.value=interiorFootstepIndex++%2===0?.17:.14;
+      source.connect(filter);filter.connect(gain);gain.connect(masterGain);
+      source.start(now);source.stop(now+duration);
+    }
+    function enterStoreInterior(){
+      if(interiorActive)return;
+      playStoreDoorChime();
+      interiorActive=true; interiorClickTarget=null; interiorLast=0; interiorLastMovementAt=performance.now(); interiorFootstepClock=0; closeShelfDialogue(); closeNpcDialogue();
+      interiorPlayer.x=720;interiorPlayer.y=710;interiorPlayer.dir='up';interiorPlayer.walk=0;
+      interiorCanvas.classList.add('active');
+      interiorHelp.classList.add('active');
+      document.getElementById('storeInteriorDebug').classList.add('active');
+      document.getElementById('storeDoorOverlay').classList.remove('active');
+      document.getElementById('dialogueOverlay').classList.remove('visible');
+      requestAnimationFrame(interiorFrame);
+    }
+    document.getElementById('storeInteriorDebug').addEventListener('click',()=>{
+      interiorDebug=!interiorDebug;
+      document.getElementById('storeInteriorDebug').textContent=interiorDebug?'충돌 숨기기':'충돌 표시';
+    });
+    document.addEventListener('keydown',e=>{
+      if(!interiorActive)return;
+      const k=e.key.toLowerCase();
+      if(['w','a','s','d','arrowup','arrowdown','arrowleft','arrowright','shift'].includes(k)){
+        e.preventDefault();interiorKeys.add(k);if(k!=='shift')interiorClickTarget=null;
+      }
+      if(npcChoiceMenu.classList.contains('visible')){
+        if(k==='arrowup'||k==='arrowdown'){
+          e.preventDefault();e.stopImmediatePropagation();
+          const i=npcChoiceButtons.findIndex(b=>b.classList.contains('is-selected'));
+          const next=(i+(k==='arrowdown'?1:-1)+npcChoiceButtons.length)%npcChoiceButtons.length;
+          playChoiceTick();npcChoiceButtons.forEach((b,j)=>b.classList.toggle('is-selected',j===next));
+          return;
+        }
+        if(k==='enter'||k==='e'){
+          e.preventDefault();e.stopImmediatePropagation();
+          if(!e.repeat)selectNpcAnswer(npcChoiceButtons.find(b=>b.classList.contains('is-selected')));
+          return;
+        }
+      }
+      if(k==='e'){e.preventDefault();if(!e.repeat){if(npcDialogueOpen)advanceNpcDialogue();else if(shelfDialogueOpen)closeShelfDialogue();else if(!talkToStoreNpc())inspectShelf();}}
+      if(k==='f3'){e.preventDefault();if(!e.repeat)document.getElementById('storeInteriorDebug').click();}
+    },true);
+    document.addEventListener('keyup',e=>interiorKeys.delete(e.key.toLowerCase()),true);
+    window.addEventListener('blur',()=>interiorKeys.clear());
+    function interiorFrame(t){
+      if(!interiorActive)return;
+      const dt=Math.min((t-interiorLast)/1000||0,.05);interiorLast=t;
+      let dx=Number(interiorKeys.has('d')||interiorKeys.has('arrowright'))-Number(interiorKeys.has('a')||interiorKeys.has('arrowleft'));
+      let dy=Number(interiorKeys.has('s')||interiorKeys.has('arrowdown'))-Number(interiorKeys.has('w')||interiorKeys.has('arrowup'));
+      if((dx||dy)&&interiorClickTarget)clearInteriorTarget();
+      // 키보드가 눌리지 않았으면 클릭 목적지를 향해 이동한다.
+      let mouseWalking=false;
+      if(!dx&&!dy&&interiorClickTarget&&!shelfDialogueOpen&&!npcDialogueOpen){
+        const tx=interiorClickTarget.x-interiorPlayer.x;
+        const ty=interiorClickTarget.y-interiorPlayer.y;
+        const distance=Math.hypot(tx,ty);
+        if(distance<=5)advanceInteriorTarget();
+        else{dx=tx/distance;dy=ty/distance;mouseWalking=true;}
+      }
+      const length=Math.hypot(dx,dy);interiorMoving=false;
+      if(length && !shelfDialogueOpen && !npcDialogueOpen){
+        dx/=length;dy/=length;
+        const step=Math.min((interiorKeys.has('shift')?235:145)*dt,
+          mouseWalking?Math.hypot(interiorClickTarget.x-interiorPlayer.x,interiorClickTarget.y-interiorPlayer.y):Infinity);
+        const oldX=interiorPlayer.x,oldY=interiorPlayer.y;
+        if(interiorCanStand(interiorPlayer.x+dx*step,interiorPlayer.y))interiorPlayer.x+=dx*step;
+        if(interiorCanStand(interiorPlayer.x,interiorPlayer.y+dy*step))interiorPlayer.y+=dy*step;
+        interiorMoving=Math.hypot(interiorPlayer.x-oldX,interiorPlayer.y-oldY)>.01;
+        interiorPlayer.dir=Math.abs(dx)>Math.abs(dy)?(dx>0?'right':'left'):(dy>0?'down':'up');
+        if(interiorMoving)interiorPlayer.walk+=dt*9;
+        // 장애물에 막힌 목표점으로 계속 걸으려 하지 않도록 중지.
+        if(mouseWalking&&!interiorMoving)clearInteriorTarget();
+      }
+      // 벽에 막혀 실제로 움직이지 않을 때는 발소리가 나지 않습니다.
+      if(interiorMoving){
+        interiorFootstepClock+=dt;
+        const interval=interiorKeys.has('shift')?.25:.38;
+        if(interiorFootstepClock>=interval){
+          interiorFootstepClock%=interval;
+          playInteriorFootstep();
+        }
+      }else{
+        interiorFootstepClock=0;
+      }
+      // 움직이는 동안 안내를 숨기고, 마지막 이동 후 10초가 지나면 다시 표시.
+      if(interiorMoving){
+        interiorLastMovementAt=t;
+        interiorHelp.classList.remove('active');
+      } else if(t-interiorLastMovementAt>=10000){
+        interiorHelp.classList.add('active');
+      }
+      const dpr=Math.min(window.devicePixelRatio||1,2);
+      const cw=window.innerWidth,ch=window.innerHeight;
+      if(interiorCanvas.width!==Math.round(cw*dpr)||interiorCanvas.height!==Math.round(ch*dpr)){
+        interiorCanvas.width=Math.round(cw*dpr);interiorCanvas.height=Math.round(ch*dpr);
+      }
+      const scale=Math.min(cw/interiorW,ch/interiorH);
+      const ox=(cw-interiorW*scale)/2,oy=(ch-interiorH*scale)/2;
+      interiorCtx.setTransform(dpr,0,0,dpr,0,0);
+      interiorCtx.clearRect(0,0,cw,ch);
+      interiorCtx.fillStyle='#101017';interiorCtx.fillRect(0,0,cw,ch);
+      interiorCtx.translate(ox,oy);interiorCtx.scale(scale,scale);
+      interiorCtx.imageSmoothingEnabled=false;
+      if(interiorImage.complete&&interiorImage.naturalWidth)interiorCtx.drawImage(interiorImage,0,0,interiorW,interiorH);
+      if(interiorDebug){
+        for(const [x,y,w,h] of interiorWalkable){interiorCtx.fillStyle='#35e47b30';interiorCtx.fillRect(x,y,w,h);interiorCtx.strokeStyle='#5af59e';interiorCtx.strokeRect(x,y,w,h);}
+        for(const [x,y,w,h] of interiorBlocked){interiorCtx.fillStyle='#ff38504d';interiorCtx.fillRect(x,y,w,h);interiorCtx.strokeStyle='#ff526d';interiorCtx.strokeRect(x,y,w,h);}
+        // 조사 가능한 NPC는 일반 장애물과 구분하여 노란색으로 표시.
+        {const [x,y,w,h]=storeNpcCollision;interiorCtx.fillStyle='#ffd44778';interiorCtx.fillRect(x,y,w,h);interiorCtx.strokeStyle='#ffe16b';interiorCtx.lineWidth=3;interiorCtx.strokeRect(x,y,w,h);interiorCtx.lineWidth=1;}
+
+      }
+      // NPC를 맵 좌표에 고정하여 배치. 플레이어와 동일한 높이로 그린다.
+      if(storeNpcImage.complete && storeNpcImage.naturalWidth){
+        const nw=storeNpc.height*storeNpcImage.naturalWidth/storeNpcImage.naturalHeight;
+        interiorCtx.fillStyle='#0008';interiorCtx.beginPath();interiorCtx.ellipse(storeNpc.x,storeNpc.y,18,5,0,0,Math.PI*2);interiorCtx.fill();
+        interiorCtx.drawImage(storeNpcImage,Math.round(storeNpc.x-nw/2),Math.round(storeNpc.y-storeNpc.height),nw,storeNpc.height);
+      }
+      const frames=interiorSprites[interiorPlayer.dir];
+      const sprite=frames[interiorMoving?Math.floor(interiorPlayer.walk)%frames.length:0];
+      const h=124; // 편의점 내부 주인공과 NPC 모두 124px로 확대
+      interiorCtx.fillStyle='#0008';interiorCtx.beginPath();interiorCtx.ellipse(interiorPlayer.x,interiorPlayer.y,19,6,0,0,Math.PI*2);interiorCtx.fill();
+      if(sprite.complete&&sprite.naturalWidth){
+        const w=h*sprite.naturalWidth/sprite.naturalHeight;
+        interiorCtx.drawImage(sprite,Math.round(interiorPlayer.x-w/2),Math.round(interiorPlayer.y-h),w,h);
+      }else{
+        interiorCtx.fillStyle='#25232d';interiorCtx.fillRect(interiorPlayer.x-19,interiorPlayer.y-69,38,61);
+        interiorCtx.fillStyle='#e7c2aa';interiorCtx.fillRect(interiorPlayer.x-14,interiorPlayer.y-98,28,30);
+      }
+      requestAnimationFrame(interiorFrame);
+    }
+    function finishCutscene() {
+      const map = document.getElementById('gameMap');
+      const stage = document.getElementById('mapStage');
+      stage.classList.remove('scene-two', 'scene-three', 'scene-four', 'scene-zoom-in');
+      stage.classList.add('scene-store');
+      map.src = 'game1_7.png';
+      map.alt = 'GX 편의점 외관';
+      storeDoorScene = true;
+      storeDoorDialogueVisible = true;
+      document.getElementById('storeDoorOverlay').classList.add('active', 'dialogue-open');
+      document.getElementById('dialogueName').textContent = '-';
+      document.getElementById('dialogueText').textContent = '(문을 클릭해서 들어가자)';
+      const storeDialogue = document.getElementById('dialogueOverlay');
+      storeDialogue.classList.remove('go-slow', 'visible');
+      // 컷신이 사라진 다음 대사창을 아래에서 위로 등장시킨다.
+      setTimeout(() => {
+        if (storeDoorScene && storeDoorDialogueVisible) storeDialogue.classList.add('visible');
+      }, 100);
+      document.getElementById('characterAlert').classList.remove('visible');
+      const cutscene = document.getElementById('cutscene');
+      // 한숨이 시작되는 순간 컷 이미지를 즉시 숨겨 다음 배경을 보여준다.
+      cutscene.classList.remove('visible', 'fade-out');
+      document.getElementById('cutsceneFade').classList.remove('active');
+    }
+    // 컷신은 자동 재생되지만 클릭하면 현재 대기 시간을 건너뛰어 다음 컷으로 진행한다.
+    let cutsceneStarted = false;
+    let cutsceneVisible = false;
+    let cutsceneStep = -1;
+    let cutsceneTimer = null;
+    function clearCutsceneTimer() {
+      if (cutsceneTimer !== null) clearTimeout(cutsceneTimer);
+      cutsceneTimer = null;
+    }
+    function advanceCutscene() {
+      if (!cutsceneStarted || !cutsceneVisible) return;
+      clearCutsceneTimer();
+      const slots = document.querySelectorAll('#cutscene .cut-slot');
+      if (cutsceneStep < slots.length - 1) {
+        cutsceneStep++;
+        slots[cutsceneStep].classList.add('shown');
+        playCutSound(cutsceneStep);
+        // 컷1/2는 1.2초, 컷3은 바람소리와 여운을 위해 3.1초 유지.
+        cutsceneTimer = setTimeout(advanceCutscene, cutsceneStep === 2 ? 3100 : 1200);
+      } else {
+        cutsceneVisible = false;
+        finishCutscene();
+        playMaleSigh();
+      }
+    }
+    function startCutscene() {
+      if (cutsceneStarted) return;
+      cutsceneStarted = true;
+      cutsceneVisible = false;
+      cutsceneStep = -1;
+      document.getElementById('dialogueOverlay').classList.remove('visible');
+      document.getElementById('cutsceneFade').classList.add('active');
+      setTimeout(() => {
+        const cutscene = document.getElementById('cutscene');
+        cutscene.classList.add('visible');
+        cutscene.querySelectorAll('.cut-slot').forEach(slot => slot.classList.remove('shown'));
+        cutsceneVisible = true;
+        cutsceneTimer = setTimeout(advanceCutscene, 500);
+      }, 680);
+    }
+    // 컷신 중 클릭은 게임의 일반 클릭 이벤트보다 먼저 처리하여 중복 진행을 방지한다.
+    document.addEventListener('click', event => {
+      if (!cutsceneStarted || !cutsceneVisible) return;
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      advanceCutscene();
+    }, true);
+
     // ==============================
     // 5. 화면 클릭 이벤트
     // ==============================
@@ -916,6 +1614,16 @@
         // '제보인가?' 대화창이 떠 있을 때 클릭하면 메신저 화면으로 전환
         if (gameScreen.classList.contains("active")) {
           const dialogue = document.getElementById('dialogueOverlay');
+          if (storeDoorScene) {
+            dismissStoreDoorDialogue();
+            return;
+          }
+          if (cutsceneStarted) return;
+          if (chosenRoute === 'go' && dialogue.classList.contains('visible') &&
+              document.getElementById('dialogueText').textContent === '그럼 준비하고 가볼까...') {
+            startCutscene();
+            return;
+          }
           if (gxDialogueStep === 1 && dialogue.classList.contains('visible')) {
             gxDialogueStep = 2;
             document.getElementById('dialogueName').textContent = '-';
