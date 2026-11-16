@@ -345,6 +345,12 @@
     #npcChoiceMenu.visible {display:block; animation:choiceAppear .16s steps(3,end) both;}
     @media(max-width:600px){#npcChoiceMenu{right:calc((100vw - 115vw)/2 + 56px);bottom:27vw;width:210px}}
 
+
+    /* 기존 점장 선택지와 동일한 위치 및 8비트 스타일 */
+    #npcHelpChoiceMenu { position:fixed; z-index:95; right:calc((100vw - min(96vw, 1250px))/2 + 56px); bottom:clamp(165px,24vw,320px); width:clamp(210px,22vw,285px); padding:10px 9px; background:#292929; border:4px solid #e9e9e9; outline:3px solid #171717; box-shadow:inset 3px 3px 0 #777,inset -3px -3px 0 #101010,5px 5px 0 #111; font-family:'Galmuri11',monospace; display:none; image-rendering:pixelated; }
+    #npcHelpChoiceMenu.visible {display:block; animation:choiceAppear .16s steps(3,end) both;}
+    @media(max-width:600px){#npcHelpChoiceMenu{right:calc((100vw - 115vw)/2 + 56px);bottom:27vw;width:210px}}
+
     /* '간다' 이후 컷신: 어두워진 화면에 세 컷이 차례대로 등장 */
     #cutscene { position:fixed; inset:0; z-index:80; background:#000; display:none; overflow:hidden; }
     #cutscene.visible { display:block; }
@@ -448,6 +454,10 @@
   <div id="npcChoiceMenu" role="group" aria-label="면접 질문 선택">
     <button class="choice-option is-selected" type="button" data-answer="yes"><span class="choice-cursor">▶</span><span>네 맞습니다.</span></button>
     <button class="choice-option" type="button" data-answer="no"><span class="choice-cursor">▶</span><span>아닙니다</span></button>
+  </div>
+  <div id="npcHelpChoiceMenu" role="group" aria-label="점장 부탁 선택">
+    <button class="choice-option is-selected" type="button" data-help="accept"><span class="choice-cursor">▶</span><span>한다</span></button>
+    <button class="choice-option" type="button" data-help="decline"><span class="choice-cursor">▶</span><span>안한다</span></button>
   </div>
   <script>
     // ==============================
@@ -574,6 +584,21 @@
       audioEnabled = true;
     }
 
+    // 반복 타이핑 시 매 글자마다 오디오 버퍼를 새로 만들지 않도록 재사용.
+    let typingNoiseBuffer = null;
+    function getTypingNoiseBuffer() {
+      if (typingNoiseBuffer) return typingNoiseBuffer;
+      const duration = 0.025;
+      const buffer = audioContext.createBuffer(1, Math.ceil(audioContext.sampleRate * duration), audioContext.sampleRate);
+      const data = buffer.getChannelData(0);
+      for (let i = 0; i < data.length; i++) {
+        const decay = Math.pow(1 - i / data.length, 4);
+        data[i] = (Math.random() * 2 - 1) * decay;
+      }
+      typingNoiseBuffer = buffer;
+      return buffer;
+    }
+
     // 짧고 건조한 키보드 소리
     function playTypingSound() {
       if (!audioEnabled || !audioContext) return;
@@ -583,26 +608,7 @@
       const now = audioContext.currentTime;
       const duration = 0.025;
 
-      const buffer = audioContext.createBuffer(
-        1,
-        Math.ceil(
-          audioContext.sampleRate * duration
-        ),
-        audioContext.sampleRate
-      );
-
-      const data = buffer.getChannelData(0);
-
-      // 노이즈 생성
-      for (let i = 0; i < data.length; i++) {
-        const decay = Math.pow(
-          1 - i / data.length,
-          4
-        );
-
-        data[i] =
-          (Math.random() * 2 - 1) * decay;
-      }
+      const buffer = getTypingNoiseBuffer();
 
       const source =
         audioContext.createBufferSource();
@@ -1166,7 +1172,8 @@
       const count=navCols*navRows,g=new Float64Array(count).fill(Infinity);
       const parent=new Int32Array(count).fill(-1),closed=new Uint8Array(count),open=[startId];
       g[startId]=0;
-      const h=id=>{const a=navPoint(id),b=navPoint(goalId);return Math.hypot(a.x-b.x,a.y-b.y);};
+      const goalPoint=navPoint(goalId);
+      const h=id=>{const a=navPoint(id);return Math.hypot(a.x-goalPoint.x,a.y-goalPoint.y);};
       const offsets=[[1,0],[-1,0],[0,1],[0,-1],[1,1],[1,-1],[-1,1],[-1,-1]];
       let found=false;
       while(open.length){
@@ -1234,34 +1241,65 @@
     const npcChoiceMenu=document.getElementById('npcChoiceMenu');
     const npcChoiceButtons=[...npcChoiceMenu.querySelectorAll('.choice-option')];
     let npcAnswer=null;
+    const npcHelpChoiceMenu=document.getElementById('npcHelpChoiceMenu');
+    const npcHelpButtons=[...npcHelpChoiceMenu.querySelectorAll('.choice-option')];
+    function setNpcLine(speaker,text){
+      document.getElementById('dialoguePortrait').src=speaker==='편의점 점장'?'c_2.png':'c_1.png';
+      document.getElementById('dialogueName').textContent=speaker;
+      document.getElementById('dialogueText').textContent=text;
+    }
     function showNpcChoices(){
       npcChoiceButtons.forEach((button,i)=>button.classList.toggle('is-selected',i===0));
       npcChoiceMenu.classList.add('visible');
+    }
+    function showNpcHelpChoices(){
+      npcHelpButtons.forEach((button,i)=>button.classList.toggle('is-selected',i===0));
+      npcHelpChoiceMenu.classList.add('visible');
     }
     function advanceNpcDialogue(){
       if(!npcDialogueOpen)return;
       if(npcDialogueStep===0){
         npcDialogueStep=1;
-        document.getElementById('dialoguePortrait').src='c_1.png';
-        document.getElementById('dialogueName').textContent='-';
-        document.getElementById('dialogueText').textContent='(어쩌지?)';
+        setNpcLine('-','(어쩌지?)');
         showNpcChoices();
-      } // 선택지 등장 후에는 선택할 때까지 대화창 유지
+      } else if(npcDialogueStep===2){
+        npcDialogueStep=3;
+        setNpcLine('편의점 점장','그러면 오늘 하루 한 시간만 좀 봐주실 수 있나요?\n손님은 없을 거예요');
+      } else if(npcDialogueStep===3){
+        npcDialogueStep=4;
+        setNpcLine('-','어쩌지?');
+        showNpcHelpChoices();
+      }
+      // 선택지에서는 선택할 때까지 대화창 유지
     }
     function selectNpcAnswer(button){
       initAudio();playChoiceTick();
       npcAnswer=button.dataset.answer;
       npcChoiceMenu.classList.remove('visible');
-      // 면접 답변에 따라 다음 HTML 장면으로 이동한다.
-      window.location.href = npcAnswer === 'yes' ? 'game2.html' : 'web.html';
+      if(npcAnswer==='yes'){
+        window.location.href='game2.html';
+      } else {
+        npcDialogueStep=2;
+        setNpcLine('편의점 점장','아.. 그러신가요?');
+      }
     }
-    npcChoiceButtons.forEach(button=>{
-      button.addEventListener('mouseenter',()=>{
-        if(!button.classList.contains('is-selected'))playChoiceTick();
-        npcChoiceButtons.forEach(other=>other.classList.toggle('is-selected',other===button));
+    function selectNpcHelp(button){
+      initAudio();playChoiceTick();
+      npcHelpChoiceMenu.classList.remove('visible');
+      // 기존 진행 경로를 재사용: 한다 → game2, 안한다 → web
+      window.location.href=button.dataset.help==='accept'?'game2.html':'web.html';
+    }
+    function setupNpcMenu(buttons,choose){
+      buttons.forEach(button=>{
+        button.addEventListener('mouseenter',()=>{
+          if(!button.classList.contains('is-selected'))playChoiceTick();
+          buttons.forEach(other=>other.classList.toggle('is-selected',other===button));
+        });
+        button.addEventListener('click',e=>{e.preventDefault();e.stopPropagation();choose(button);});
       });
-      button.addEventListener('click',e=>{e.preventDefault();e.stopPropagation();selectNpcAnswer(button);});
-    });
+    }
+    setupNpcMenu(npcChoiceButtons,selectNpcAnswer);
+    setupNpcMenu(npcHelpButtons,selectNpcHelp);
     // 진열대 주변의 통로(정면·양옆·뒤쪽)에서 E키로 조사 가능.
     // 발 위치에서 매대 사각형까지의 최단 거리를 사용하므로 모서리에서도 정상 작동.
     const inspectableShelves=[[356,390,179,259],[633,389,175,259],[921,407,111,235],[1139,442,92,188]];
@@ -1284,11 +1322,13 @@
       npcDialogueOpen=false;
       npcDialogueStep=0;
       npcChoiceMenu.classList.remove('visible');
+      npcHelpChoiceMenu.classList.remove('visible');
       document.getElementById('dialogueOverlay').classList.remove('visible','interior-dialogue');
     }
     function talkToStoreNpc(){
       if(npcDialogueOpen || !nearStoreNpc())return false;
       interiorKeys.clear();npcDialogueOpen=true;npcDialogueStep=0;npcAnswer=null;
+      npcChoiceMenu.classList.remove('visible');npcHelpChoiceMenu.classList.remove('visible');
       document.getElementById('dialoguePortrait').src='c_2.png';
       document.getElementById('dialogueName').textContent='편의점 점장';
       document.getElementById('dialogueText').textContent='오늘 알바 면접 보러 오신 분인가요?';
@@ -1320,7 +1360,7 @@
     // 조사 대화창은 화면 어디를 클릭해도 닫히며 다른 씬 클릭 이벤트로 전달되지 않습니다.
     document.addEventListener('click',e=>{
       if(!interiorActive||(!shelfDialogueOpen&&!npcDialogueOpen))return;
-      if(e.target.closest('#npcChoiceMenu'))return;
+      if(e.target.closest('#npcChoiceMenu, #npcHelpChoiceMenu'))return;
       e.preventDefault();e.stopImmediatePropagation();
       if(npcDialogueOpen)advanceNpcDialogue();else closeShelfDialogue();
     },true);
@@ -1353,7 +1393,12 @@
     ];
     function insideRect(x,y,r){return x>=r[0]&&x<=r[0]+r[2]&&y>=r[1]&&y<=r[1]+r[3];}
     function interiorValid(x,y){return interiorWalkable.some(r=>insideRect(x,y,r)) && !interiorBlocked.some(r=>insideRect(x,y,r)) && !insideRect(x,y,storeNpcCollision);}
-    function interiorCanStand(x,y){const r=interiorPlayer.radius;return [[0,0],[r,0],[-r,0],[0,r*.65],[0,-r*.65]].every(([dx,dy])=>interiorValid(x+dx,y+dy));}
+    // 충돌 판정은 매 프레임 수차례 실행되므로 임시 배열 생성을 피한다.
+    function interiorCanStand(x,y){
+      const r=interiorPlayer.radius, vertical=r*.65;
+      return interiorValid(x,y) && interiorValid(x+r,y) && interiorValid(x-r,y)
+        && interiorValid(x,y+vertical) && interiorValid(x,y-vertical);
+    }
     // 편의점 출입문 종소리: 문을 여는 순간 짧은 금속성 딸랑 소리.
     // 기존 마스터 음량 조절 및 음소거 설정을 그대로 따릅니다.
     function playStoreDoorChime(){
@@ -1423,17 +1468,19 @@
       if(['w','a','s','d','arrowup','arrowdown','arrowleft','arrowright','shift'].includes(k)){
         e.preventDefault();interiorKeys.add(k);if(k!=='shift')interiorClickTarget=null;
       }
-      if(npcChoiceMenu.classList.contains('visible')){
+      if(npcChoiceMenu.classList.contains('visible') || npcHelpChoiceMenu.classList.contains('visible')){
+        const helpVisible=npcHelpChoiceMenu.classList.contains('visible');
+        const activeButtons=helpVisible?npcHelpButtons:npcChoiceButtons;
         if(k==='arrowup'||k==='arrowdown'){
           e.preventDefault();e.stopImmediatePropagation();
-          const i=npcChoiceButtons.findIndex(b=>b.classList.contains('is-selected'));
-          const next=(i+(k==='arrowdown'?1:-1)+npcChoiceButtons.length)%npcChoiceButtons.length;
-          playChoiceTick();npcChoiceButtons.forEach((b,j)=>b.classList.toggle('is-selected',j===next));
+          const i=activeButtons.findIndex(b=>b.classList.contains('is-selected'));
+          const next=(i+(k==='arrowdown'?1:-1)+activeButtons.length)%activeButtons.length;
+          playChoiceTick();activeButtons.forEach((b,j)=>b.classList.toggle('is-selected',j===next));
           return;
         }
         if(k==='enter'||k==='e'){
           e.preventDefault();e.stopImmediatePropagation();
-          if(!e.repeat)selectNpcAnswer(npcChoiceButtons.find(b=>b.classList.contains('is-selected')));
+          if(!e.repeat)(helpVisible?selectNpcHelp:selectNpcAnswer)(activeButtons.find(b=>b.classList.contains('is-selected')));
           return;
         }
       }
@@ -1485,9 +1532,9 @@
       // 움직이는 동안 안내를 숨기고, 마지막 이동 후 10초가 지나면 다시 표시.
       if(interiorMoving){
         interiorLastMovementAt=t;
-        interiorHelp.classList.remove('active');
+        if (interiorHelp.classList.contains('active')) interiorHelp.classList.remove('active');
       } else if(t-interiorLastMovementAt>=10000){
-        interiorHelp.classList.add('active');
+        if (!interiorHelp.classList.contains('active')) interiorHelp.classList.add('active');
       }
       const dpr=Math.min(window.devicePixelRatio||1,2);
       const cw=window.innerWidth,ch=window.innerHeight;
