@@ -3,16 +3,70 @@
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>밤의 광장 | MAP 01</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/galmuri@latest/dist/galmuri.css">
 <style>
-:root{color-scheme:dark}*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#0d0e16;font-family:system-ui,-apple-system,'Malgun Gothic',sans-serif}canvas{display:block;width:100%;height:100%;image-rendering:auto;touch-action:none}.hud{position:fixed;top:18px;left:18px;padding:12px 15px;border:1px solid #ffffff30;border-radius:12px;background:#0d1020bc;color:#f2e8d8;backdrop-filter:blur(9px);font-size:13px;line-height:1.7;pointer-events:none}.hud strong{font-size:15px}.hud small{color:#bdb9b7}.help{position:fixed;right:18px;top:18px;display:flex;gap:8px}button{border:1px solid #ffffff4a;background:#101524d9;color:#fff;padding:9px 12px;border-radius:9px;cursor:pointer;font:inherit}button:hover{background:#263149}button:focus-visible{outline:2px solid #f5c47a;outline-offset:2px}.notice{position:fixed;left:50%;bottom:25px;transform:translateX(-50%);padding:9px 14px;background:#0e1220e0;border:1px solid #ffffff35;color:#f4e8d7;border-radius:10px;font-size:12px;white-space:nowrap;pointer-events:none}.touch{position:fixed;left:20px;bottom:25px;display:none;grid-template-columns:repeat(3,50px);grid-template-rows:repeat(3,50px);gap:3px;user-select:none}.touch button{padding:0;font-size:20px;touch-action:none}.touch .up{grid-column:2;grid-row:1}.touch .left{grid-column:1;grid-row:2}.touch .down{grid-column:2;grid-row:2}.touch .right{grid-column:3;grid-row:2}@media(pointer:coarse){.touch{display:grid}.notice{bottom:12px;left:auto;right:14px;transform:none;font-size:10px}.hud{font-size:11px;padding:8px 10px}.help{right:10px;top:10px}.help button{font-size:11px;padding:7px}}
+:root{color-scheme:dark}*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#0d0e16;font-family:system-ui,-apple-system,'Malgun Gothic',sans-serif}canvas{display:block;width:100%;height:100%;image-rendering:auto;touch-action:none}.hud{position:fixed;top:18px;left:18px;padding:12px 15px;border:1px solid #ffffff30;border-radius:12px;background:#0d1020bc;color:#f2e8d8;backdrop-filter:blur(9px);font-size:13px;line-height:1.7;pointer-events:none}.hud strong{font-size:15px}.hud small{color:#bdb9b7}.help{position:fixed;right:18px;top:18px;display:flex;gap:8px}button{border:1px solid #ffffff4a;background:#101524d9;color:#fff;padding:9px 12px;border-radius:9px;cursor:pointer;font:inherit}button:hover{background:#263149}button:focus-visible{outline:2px solid #f5c47a;outline-offset:2px}.notice{display:none;position:fixed;left:50%;bottom:25px;transform:translateX(-50%);padding:9px 14px;background:#0e1220e0;border:1px solid #ffffff35;color:#f4e8d7;border-radius:10px;font-size:12px;white-space:nowrap;pointer-events:none}.touch{position:fixed;left:20px;bottom:25px;display:none;grid-template-columns:repeat(3,50px);grid-template-rows:repeat(3,50px);gap:3px;user-select:none}.touch button{padding:0;font-size:20px;touch-action:none}.touch .up{grid-column:2;grid-row:1}.touch .left{grid-column:1;grid-row:2}.touch .down{grid-column:2;grid-row:2}.touch .right{grid-column:3;grid-row:2}@media(pointer:coarse){.touch{display:grid}.notice{bottom:12px;left:auto;right:14px;transform:none;font-size:10px}.hud{font-size:11px;padding:8px 10px}.help{right:10px;top:10px}.help button{font-size:11px;padding:7px}}
+
+/* game1.html의 chat.png 기반 대화창 구성과 위치를 그대로 적용 */
+.board-dialog{position:fixed;left:50%;bottom:0;width:min(96vw,1250px);aspect-ratio:2048 / 684;transform:translate(-50%,8%);z-index:20;color:#f6f2eb;text-shadow:1px 2px 0 #111;font-family:'Galmuri11',monospace;cursor:pointer;user-select:none}
+.board-dialog[hidden]{display:none}
+.board-dialog:not([hidden]){animation:boardSlideUp .48s cubic-bezier(.22,1,.36,1) both}
+@keyframes boardSlideUp{from{opacity:0;transform:translate(-50%,45%)}to{opacity:1;transform:translate(-50%,8%)}}
+.board-dialog-bg{display:block;width:100%;height:100%;image-rendering:pixelated;pointer-events:none}
+.board-dialog-portrait{position:absolute;left:6.2%;top:30.2%;width:12.9%;height:39.1%;object-fit:cover;object-position:center 31%;image-rendering:pixelated;pointer-events:none}
+.board-speaker{font-family:'Galmuri11',monospace;position:absolute;left:20%;top:25%;width:15%;text-align:center;font-size:clamp(11px,1.35vw,18px);white-space:nowrap;pointer-events:none}
+.board-line{font-family:'Galmuri11',monospace;position:absolute;left:24%;top:43%;right:5%;font-size:clamp(13px,1.65vw,23px);letter-spacing:.02em;line-height:1.55;white-space:pre-line;word-break:keep-all;pointer-events:none}
+@media(max-width:600px){.board-dialog{width:115vw}.board-speaker{font-size:10px}.board-line{font-size:12px}}
+/* game1.html 선택창과 동일한 픽셀 테두리, 커서, 호버 스타일 */
+.trash-choices{position:fixed;z-index:25;right:calc((100vw - min(96vw,1250px))/2 + 56px);bottom:clamp(165px,24vw,320px);width:clamp(210px,22vw,285px);padding:10px 9px;background:#292929;border:4px solid #e9e9e9;outline:3px solid #171717;box-shadow:inset 3px 3px 0 #777,inset -3px -3px 0 #101010,5px 5px 0 #111;font-family:'Galmuri11',monospace;image-rendering:pixelated}
+.trash-choices[hidden]{display:none}
+.trash-choices:not([hidden]){animation:trashChoiceAppear .16s steps(3,end) both}
+@keyframes trashChoiceAppear{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.trash-choices .choice-option{width:100%;display:flex;align-items:center;gap:9px;border:0;border-radius:0;background:transparent;color:#f5f5f5;font-family:'Galmuri11',monospace;font-size:clamp(17px,1.7vw,24px);text-align:left;padding:6px 8px;cursor:pointer}
+.trash-choices .choice-cursor{visibility:hidden;color:#242424;font-size:.9em}
+.trash-choices .choice-option.is-selected,.trash-choices .choice-option:hover,.trash-choices .choice-option:focus-visible{background:#e8e8e8;color:#202020;outline:none}
+.trash-choices .choice-option.is-selected .choice-cursor,.trash-choices .choice-option:hover .choice-cursor,.trash-choices .choice-option:focus-visible .choice-cursor{visibility:visible}
+@media(max-width:600px){.trash-choices{right:calc((100vw - 115vw)/2 + 56px);bottom:27vw;width:210px}}
+
+/* web_intro 날짜 타이핑 인트로 */
+#mapDateIntro{position:fixed;inset:0;z-index:100000;background:#000;color:#f2f2f2;display:flex;align-items:center;justify-content:center;text-align:center;padding:24px;font-family:'Galmuri11',monospace;cursor:pointer;user-select:none}
+#mapDateIntro[hidden]{display:none}
+#mapDateIntro .date-text{font-size:clamp(15px,2.2vw,21px);font-weight:400;letter-spacing:.02em;line-height:2;word-break:keep-all}
+#mapDateIntro .date-cursor{display:inline-block;width:2px;height:1em;margin-left:5px;background:#f2f2f2;vertical-align:-.12em;animation:mapDateBlink .7s steps(1) infinite}
+@keyframes mapDateBlink{50%{opacity:0}}
+#mapDateIntro .date-guide{font-size:clamp(11px,1.5vw,13px);color:#858585;margin-top:24px;opacity:0;transition:opacity .5s;pointer-events:none}
+#mapDateIntro .date-guide.visible{opacity:1}
+#mapDateIntro .date-sound-note{position:absolute;bottom:18px;left:0;right:0;font-size:11px;color:#777;pointer-events:none}
+
+/* 창고 서랍 4자리 번호 입력창 */
+#storagePinOverlay{position:fixed;inset:0;z-index:60;background:#000b;display:flex;align-items:center;justify-content:center;font-family:'Galmuri11',monospace}
+#storagePinOverlay[hidden]{display:none}
+.storage-pin-box{width:min(340px,92vw);padding:22px;background:#292929;border:4px solid #eee;outline:3px solid #111;box-shadow:6px 6px 0 #000;color:#f4f4f4;text-align:center}
+.storage-pin-title{font-size:19px;margin-bottom:18px}.storage-pin-display{height:48px;border:2px solid #aaa;background:#151515;display:flex;justify-content:center;align-items:center;gap:15px;font-size:25px;letter-spacing:2px;margin-bottom:15px}
+.storage-pin-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.storage-pin-grid button{font-family:inherit;font-size:19px;min-height:49px;border:2px solid #999;border-radius:0;background:#3c3c3c;color:#fff}.storage-pin-grid button:hover,.storage-pin-grid button:focus-visible{background:#ddd;color:#222}.storage-pin-message{min-height:25px;margin:12px 0 0;color:#c9c9c9;font-size:12px}
+/* Chapter 1 ending: locked storage exit */
+#chapterOneBlackout{position:fixed;inset:0;background:#000;opacity:0;pointer-events:none;z-index:99990;transition:opacity 1.7s ease}
+#chapterOneBlackout.active{opacity:1;pointer-events:auto}
+#chapterOneEndingText{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:19px;font-family:'Galmuri11',monospace;color:#eee;user-select:none;cursor:pointer}
+#chapterOneEndingText[hidden],#chapterOneEndingMenu[hidden]{display:none}
+#chapterOneEndingLabel{font-size:clamp(21px,3.1vw,37px);letter-spacing:.13em}
+#chapterOneEndingSub{font-size:clamp(12px,1.5vw,17px);color:#999;letter-spacing:.12em}
+#chapterOneEndingMenu{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:22px;font-family:'Galmuri11',monospace;color:#eee}
+#chapterOneEndingMenu button{font-family:'Galmuri11',monospace;font-size:19px;border:2px solid #aaa;border-radius:0;min-width:220px;background:#222;padding:14px}
+#chapterOneEndingMenu button:hover{background:#eee;color:#111}
 </style>
 </head>
 <body>
+<div id="mapDateIntro" role="dialog" aria-label="날짜 인트로"><div><div><span id="mapDateText" class="date-text"></span><span id="mapDateCursor" class="date-cursor"></span></div><p id="mapDateGuide" class="date-guide">화면을 클릭해주세요.</p></div><div id="mapDateSoundNote" class="date-sound-note">소리가 들리지 않으면 화면을 한 번 클릭해주세요.</div></div>
+<div id="chapterOneBlackout" aria-label="챕터 1 종료 암전"><div id="chapterOneEndingText" hidden><div id="chapterOneEndingLabel"></div><div id="chapterOneEndingSub"></div><div id="chapterOneEndingHint" style="font-size:12px;color:#777;margin-top:28px"></div></div><div id="chapterOneEndingMenu" hidden><div style="font-size:21px;margin-bottom:15px">CHAPTER 1 END</div><button type="button" id="chapterOneSave">저장하기</button><button type="button" id="chapterOneIndex">메인 메뉴로 돌아가기</button></div></div>
 <canvas id="game" aria-label="키보드 또는 클릭으로 캐릭터를 이동하는 게임 지도"></canvas>
-<div class="hud"><strong>밤의 오피스 광장</strong><div>MAP 01 · 야외 광장</div><small>이동: 클릭 / 방향키 / WASD · 달리기: Shift · 문 열기: E</small><br><small>충돌 영역 확인: F3</small></div>
-<div class="help"><button id="zoomOut" type="button" aria-label="축소">−</button><button id="zoomIn" type="button" aria-label="확대">＋</button><button id="debugBtn" type="button" aria-pressed="false">충돌 표시</button></div>
-<div class="notice" id="notice">출입문 앞에서 E 또는 문 클릭 · 다른 곳은 클릭 이동</div>
+<div class="notice" id="notice" aria-live="polite"></div>
 <div class="touch" aria-label="화면 이동 버튼"><button class="up" data-dir="up" aria-label="위로">▲</button><button class="left" data-dir="left" aria-label="왼쪽">◀</button><button class="down" data-dir="down" aria-label="아래">▼</button><button class="right" data-dir="right" aria-label="오른쪽">▶</button></div>
+<div id="boardDialog" class="board-dialog" role="dialog" aria-label="근무 수칙" hidden><img class="board-dialog-bg" src="chat.png" alt=""><img class="board-dialog-portrait" src="c_1.png" alt="캐릭터 프로필"><span class="board-speaker">-</span><span id="boardLine" class="board-line"></span></div>
+<div id="trashChoices" class="trash-choices" role="group" aria-label="쓰레기통 조사 선택" hidden><button class="choice-option is-selected" type="button" data-trash="search"><span class="choice-cursor">▶</span><span>뒤져본다.</span></button><button class="choice-option" type="button" data-trash="leave"><span class="choice-cursor">▶</span><span>관둔다.</span></button></div>
+<div id="storageChoices" class="trash-choices" role="group" aria-label="창고 문 선택" hidden><button class="choice-option is-selected" type="button" data-storage="open"><span class="choice-cursor">▶</span><span>열쇠를 사용한다.</span></button><button class="choice-option" type="button" data-storage="cancel"><span class="choice-cursor">▶</span><span>그만둔다.</span></button></div>
+<div id="chairChoices" class="trash-choices" role="group" aria-label="회장실 문 선택" hidden><button class="choice-option is-selected" type="button" data-chair="open"><span class="choice-cursor">▶</span><span>연다.</span></button><button class="choice-option" type="button" data-chair="cancel"><span class="choice-cursor">▶</span><span>관둔다.</span></button></div>
+<div id="storagePinOverlay" role="dialog" aria-modal="true" aria-label="창고 서랍 비밀번호" hidden><div class="storage-pin-box"><div class="storage-pin-title">비밀번호 입력</div><div class="storage-pin-display" id="storagePinDisplay">_ _ _ _</div><div class="storage-pin-grid" id="storagePinGrid"><button type="button" data-pin="1">1</button><button type="button" data-pin="2">2</button><button type="button" data-pin="3">3</button><button type="button" data-pin="4">4</button><button type="button" data-pin="5">5</button><button type="button" data-pin="6">6</button><button type="button" data-pin="7">7</button><button type="button" data-pin="8">8</button><button type="button" data-pin="9">9</button><button type="button" data-pin="clear">지우기</button><button type="button" data-pin="0">0</button><button type="button" data-pin="submit">확인</button></div><p class="storage-pin-message" id="storagePinMessage">4자리 숫자를 입력하세요.</p><button type="button" id="storagePinClose" style="margin-top:8px;font-family:inherit;border-radius:0">돌아가기</button></div></div>
 <script>
 'use strict';
 const canvas=document.getElementById('game'),ctx=canvas.getContext('2d');
@@ -56,17 +110,17 @@ const blocked=[
 // 좌표는 실제 이미지 크기에 맞게 비례 변환됩니다.
 const indoorBaseW=1472,indoorBaseH=1024;
 const indoorWalkable=[
-  [[65,224],[1404,224],[1404,934],[65,934]],
-  [[65,183],[680,183],[680,535],[65,535]],
-  [[1086,205],[1404,205],[1404,442],[1086,442]],
-  [[650,126],[1084,126],[1084,445],[650,445]],
+  [[65,325],[1404,325],[1404,934],[65,934]], // 중앙 벽면 아래 바닥부터 통행
+  [[65,231],[680,231],[680,535],[65,535]], // 왼쪽 수납장 아래쪽 바닥
+  [[1086,260],[1404,260],[1404,442],[1086,442]], // 화장실 벽 아래쪽 바닥
+  [[650,325],[1084,325],[1084,445],[650,445]], // 게시판·엘리베이터 아래 복도
   // 하단 출입문은 상호작용 대상이므로 이동 가능 영역에서 제외
 ];
 const indoorBlocked=[
   [65,74,592,156], // 상단 수납장/선반/화분
   [1085,33,328,227], // 우측 상단 화장실 벽/시설
-  [690,190,151,111], // 게시판 벽
-  [875,174,167,150], // 엘리베이터 문과 벽
+  [697,189,141,91], // 게시판: 실제 벽면에 맞춘 충돌
+  [875,157,133,167], // 엘리베이터 문: 바닥 경계까지 충돌
   [1005,244,83,110], // 엘리베이터 옆 화분
   [647,238,50,103], // 게시판 옆 화분
   [110,276,447,203], // 왼쪽 접수 데스크/컴퓨터
@@ -118,6 +172,257 @@ const player={x:932,y:558,dir:'up',walk:0,radius:10};
 // 건물 정문 이벤트: 이미지 원본 좌표 기준. 필요하면 범위를 조절하세요.
 const door={x1:854,y1:270,x2:1017,y2:330,approachX:936,approachY:352,range:85};
 const elevator={x1:875,y1:174,x2:1008,y2:324,approachX:937,approachY:352,range:110};
+// MAP 05: 남자 화장실 (map_5.png 원본 1536×1024)
+const restroomMap=new Image();
+restroomMap.src='./map_5.png';
+const restroomBaseW=1536,restroomBaseH=1024;
+// MAP 02 오른쪽 상단 남자 화장실 문. 문 앞 바닥에서 E로 진입.
+const mensRoomDoor={x1:1280,y1:87,x2:1380,y2:260,approachX:1325,approachY:313,range:100};
+// 화장실 출입구: 화면 아래 중앙
+const restroomExit={x1:655,y1:914,x2:884,y2:1023,approachX:769,approachY:921,range:105};
+const restroomWalkable=[[[143,515],[1390,515],[1390,908],[143,908]],[[650,900],[885,900],[885,1000],[650,1000]],[[630,425],[1150,425],[1150,575],[630,575]]];
+const restroomBlocked=[
+  [125,80,748,462], // 왼쪽 화장실 칸막이/변기
+  [902,160,278,300], // 소변기와 상단 벽
+  [1210,200,180,320], // 우측 화분/벽
+  [1175,478,220,423], // 세면대와 우측 벽
+  [135,710,105,192], // 좌측 쓰레기통
+  [90,906,560,110], // 아래쪽 왼쪽 벽
+  [885,906,560,110] // 아래쪽 오른쪽 벽
+];
+// MAP 06: 창고 (map_6.png 1536×1024 원본 기준)
+const storageMap=new Image();storageMap.src='./map_6.png';
+const storageBaseW=1536,storageBaseH=1024;
+const storageExit={x1:672,y1:862,x2:870,y2:1023,approachX:769,approachY:900,range:105};
+// 실내 바닥과 하단 출입구만 통행 가능. 중앙 작업대와 벽면 수납품은 충돌.
+const storageWalkable=[[[210,348],[1320,348],[1320,918],[210,918]],[[650,900],[886,900],[886,1005],[650,1005]],[[85,675],[1450,675],[1450,907],[85,907]]];
+const storageBlocked=[
+ [80,48,1380,309], // 상단 벽면의 선반·상자·북·무구
+ [25,120,195,565], // 왼쪽 선반 및 의복 거치대
+ [1290,360,225,330], // 오른쪽 수납장 및 화분
+ [510,390,625,310], // 중앙 작업대와 의자, 물품
+ [38,670,420,250], // 왼쪽 아래 제단과 서랍장
+ [960,688,530,235], // 오른쪽 아래 작업대와 보관함
+ [80,910,568,112], // 출입구 왼쪽 하단 벽
+ [886,910,568,112] // 출입구 오른쪽 하단 벽
+];
+// MAP 06 왼쪽 상단 서랍장 (비밀번호는 추후 지정 가능)
+const storagePinDrawer={x1:318,y1:235,x2:522,y2:366,approachX:415,approachY:400,range:135};
+const storagePinOverlay=document.getElementById('storagePinOverlay');
+const storagePinDisplay=document.getElementById('storagePinDisplay');
+const storagePinMessage=document.getElementById('storagePinMessage');
+let storagePinDigits='';
+let storageDrawerUnlocked=false;
+let storagePinWrongDialog=false;
+let storageCardKeyObtained=false;
+let storageCardDialogStep=-1;
+function nearStoragePinDrawer(){
+ if(scene!==6)return false;
+ const bx=player.x*storageBaseW/MAP_W,by=player.y*storageBaseH/MAP_H;
+ return Math.hypot(bx-storagePinDrawer.approachX,by-storagePinDrawer.approachY)<=storagePinDrawer.range;
+}
+function renderStoragePin(){storagePinDisplay.textContent=Array.from({length:4},(_,i)=>storagePinDigits[i]||'_').join(' ');}
+function openStoragePin(){
+ if(storagePinWrongDialog||storageCardDialogStep>=0||storageCardKeyObtained)return false;
+ if(!nearStoragePinDrawer()||!storagePinOverlay.hidden)return false;
+ clickPath=[];keys.clear();storagePinDigits='';storagePinMessage.textContent='4자리 숫자를 입력하세요.';
+ renderStoragePin();storagePinOverlay.hidden=false;return true;
+}
+function closeStoragePin(){storagePinOverlay.hidden=true;storagePinDigits='';keys.clear();}
+function playStoragePinSound(success){
+ try{
+  const C=window.AudioContext||window.webkitAudioContext;
+  if(!C)return;
+  if(!doorAudioContext)doorAudioContext=new C();
+  const ac=doorAudioContext;
+  if(ac.state==='suspended')ac.resume().catch(()=>{});
+  const t=ac.currentTime;
+  if(!success){
+   const o=ac.createOscillator(),g=ac.createGain();
+   o.type='sawtooth';o.frequency.setValueAtTime(230,t);
+   g.gain.setValueAtTime(.0001,t);g.gain.linearRampToValueAtTime(.11,t+.018);
+   g.gain.setValueAtTime(.11,t+.45);g.gain.exponentialRampToValueAtTime(.0001,t+.7);
+   o.connect(g);g.connect(ac.destination);o.start(t);o.stop(t+.71);
+   return;
+  }
+  // 금속 잠금쇠가 풀리는 짧은 연속 클릭 + 서랍이 열리는 소리
+  for(const [delay,freq,level] of [[0,850,.13],[.13,610,.12],[.29,400,.09]]){
+   const o=ac.createOscillator(),g=ac.createGain();o.type='triangle';
+   o.frequency.setValueAtTime(freq,t+delay);
+   o.frequency.exponentialRampToValueAtTime(freq*.57,t+delay+.09);
+   g.gain.setValueAtTime(.0001,t+delay);g.gain.linearRampToValueAtTime(level,t+delay+.008);
+   g.gain.exponentialRampToValueAtTime(.0001,t+delay+.13);
+   o.connect(g);g.connect(ac.destination);o.start(t+delay);o.stop(t+delay+.14);
+  }
+ }catch(_){}
+}
+function handleStoragePin(value){
+ if(value==='clear'){storagePinDigits=storagePinDigits.slice(0,-1);storagePinMessage.textContent='4자리 숫자를 입력하세요.';}
+ else if(value==='submit'){
+  if(storagePinDigits.length!==4){storagePinMessage.textContent='숫자 4자리를 입력해주세요.';}
+  else if(storagePinDigits==='1221'){
+   storageDrawerUnlocked=true;
+   playStoragePinSound(true);
+   storagePinMessage.textContent='잠금이 해제되었습니다.';
+   closeStoragePin();
+   // 잠금 해제 직후 기존 대화창에서 카드키 획득 이벤트 진행
+   storageCardDialogStep=0;
+   clickPath=[];keys.clear();
+   document.getElementById('boardLine').textContent='...';
+   boardDialog.hidden=false;
+  }else{
+   playStoragePinSound(false);
+   closeStoragePin();
+   storagePinWrongDialog=true;boardDialogIndex=-3;
+   clickPath=[];keys.clear();
+   document.getElementById('boardLine').textContent='(틀린 것 같다.)';
+   boardDialog.hidden=false;
+  }
+ }else if(/^\d$/.test(value)&&storagePinDigits.length<4){storagePinDigits+=value;storagePinMessage.textContent='4자리 숫자를 입력하세요.';}
+ renderStoragePin();
+}
+document.getElementById('storagePinGrid').addEventListener('click',e=>{const button=e.target.closest('button[data-pin]');if(button)handleStoragePin(button.dataset.pin);});
+document.getElementById('storagePinClose').addEventListener('click',closeStoragePin);
+document.addEventListener('keydown',e=>{
+ if(storagePinOverlay.hidden)return;
+ if(/^\d$/.test(e.key))handleStoragePin(e.key);
+ else if(e.key==='Backspace')handleStoragePin('clear');
+ else if(e.key==='Enter')handleStoragePin('submit');
+ else if(e.key==='Escape')closeStoragePin();
+ e.preventDefault();e.stopImmediatePropagation();
+},true);
+function enterStorageRoom(){
+ if(doorTransitioning||scene!==3||!nearStorageDoor()||!storageKeyObtained||!storageDoorOpened)return false;
+ if(!storageMap.complete||!storageMap.naturalWidth){document.getElementById('notice').textContent='map_6.png를 map.html과 같은 폴더에 넣어주세요';return false;}
+ doorTransitioning=true;clickPath=[];keys.clear();
+ scene=6;MAP_W=storageMap.naturalWidth;MAP_H=storageMap.naturalHeight;image.src=storageMap.src;
+ player.x=MAP_W*768/storageBaseW;player.y=MAP_H*883/storageBaseH;
+ zoom=1.0;player.dir='up';player.walk=0;spriteTime=0;
+ document.title='창고 | MAP 06';doorTransitioning=false;return true;
+}
+function nearStorageExit(){
+ if(scene!==6)return false;
+ const bx=player.x*storageBaseW/MAP_W,by=player.y*storageBaseH/MAP_H;
+ return Math.hypot(bx-storageExit.approachX,by-storageExit.approachY)<=storageExit.range;
+}
+// Chapter 1 finale: the storage exit is locked from the inside.
+let storageEndingPhase=0,storageEndingTime=0;
+const chapterOneBlackout=document.getElementById('chapterOneBlackout');
+const endingText=document.getElementById('chapterOneEndingText'),endingLabel=document.getElementById('chapterOneEndingLabel'),endingSub=document.getElementById('chapterOneEndingSub'),endingHint=document.getElementById('chapterOneEndingHint'),endingMenu=document.getElementById('chapterOneEndingMenu');
+let endingTitleElapsed=0,endingTitleReady=false;
+function showChapterEndingTitle(){
+ endingText.hidden=false;endingMenu.hidden=true;endingLabel.textContent='';endingSub.textContent='';endingHint.textContent='';endingTitleElapsed=0;endingTitleReady=false;
+}
+function updateChapterEndingTitle(dt){
+ if(endingText.hidden||endingTitleReady)return;
+ endingTitleElapsed+=dt;
+ const title='제1장　完',start=2,step=.18;
+ const n=Math.min(Array.from(title).length,Math.max(0,Math.floor((endingTitleElapsed-start)/step)+1));
+ endingLabel.textContent=Array.from(title).slice(0,n).join('');
+ if(endingTitleElapsed>start+title.length*step+1.7)endingSub.textContent='CHAPTER 1 END';
+ if(endingTitleElapsed>start+title.length*step+3){endingHint.textContent='화면을 클릭해주세요.';endingTitleReady=true;}
+}
+endingText.addEventListener('click',()=>{if(!endingTitleReady)return;endingText.hidden=true;endingMenu.hidden=false;});
+document.getElementById('chapterOneSave').addEventListener('click',()=>{
+ // 기존 ESC 저장 시스템과 같은 슬롯 및 스냅샷을 사용합니다.
+ document.dispatchEvent(new KeyboardEvent('keydown',{key:'Escape',bubbles:true,cancelable:true}));
+});
+document.getElementById('chapterOneIndex').addEventListener('click',()=>{location.href='index.html';});
+
+function playStorageLockedRattle(stronger=false){
+ try{
+  const C=window.AudioContext||window.webkitAudioContext;if(!C)return;
+  if(!doorAudioContext)doorAudioContext=new C();
+  const ac=doorAudioContext;if(ac.state==='suspended')ac.resume().catch(()=>{});
+  const now=ac.currentTime,rate=ac.sampleRate,duration=stronger?.65:.43;
+  const buffer=ac.createBuffer(1,Math.ceil(rate*duration),rate),data=buffer.getChannelData(0);
+  for(let i=0;i<data.length;i++){
+   const t=i/rate;let amp=0;
+   for(const beat of (stronger?[.02,.19,.36,.52]:[.02,.20]))amp+=Math.exp(-Math.max(0,t-beat)*43)*(t>=beat?1:0);
+   data[i]=(Math.random()*2-1)*Math.min(1,amp)*.65;
+  }
+  const src=ac.createBufferSource(),filter=ac.createBiquadFilter(),gain=ac.createGain();
+  filter.type='bandpass';filter.frequency.value=stronger?1250:920;filter.Q.value=1.1;
+  gain.gain.value=.35;src.buffer=buffer;src.connect(filter);filter.connect(gain);gain.connect(ac.destination);src.start(now);
+ }catch(_){} // The cutscene continues even when audio is blocked.
+}
+function leaveStorageRoom(){
+ if(storageEndingPhase||doorTransitioning||!nearStorageExit())return false;
+ // No transition to MAP 03: this is the irreversible Chapter 1 ending.
+ storageEndingPhase=1;storageEndingTime=0;storageEndingStartY=player.y;clickPath=[];keys.clear();
+ player.dir='down';player.walk=0;playStorageLockedRattle();return true;
+}
+function updateStorageEnding(dt){
+ if(!storageEndingPhase)return;
+ const previous=storageEndingTime;storageEndingTime+=dt;
+ // First the handle rattles; the protagonist steps back and approaches again.
+ if(storageEndingPhase===1&&storageEndingTime>=.72){storageEndingPhase=2;storageEndingTime=0;player.dir='up';}
+ else if(storageEndingPhase===2){
+  const distance=Math.min(1,storageEndingTime/.9)*64;
+  const nextY=storageEndingStartY-distance;
+  if(canStand(player.x,nextY))player.y=nextY;
+  player.dir='up';player.walk+=dt*11;wasMoving=true;
+  if(storageEndingTime>=.9){storageEndingPhase=3;storageEndingTime=0;}
+ }
+ else if(storageEndingPhase===3){
+  const distance=Math.min(1,storageEndingTime/.95)*64;
+  const nextY=storageEndingStartY-64+distance;
+  if(canStand(player.x,nextY))player.y=nextY;
+  player.dir='down';player.walk+=dt*11;wasMoving=true;
+  if(storageEndingTime>=.95){storageEndingPhase=4;storageEndingTime=0;player.walk=0;playStorageLockedRattle(true);}
+ }
+ else if(storageEndingPhase===4){
+  player.dir='down';wasMoving=false;
+  if(previous<.82&&storageEndingTime>=.82)playStorageLockedRattle(true);
+  if(storageEndingTime>=2.05){storageEndingPhase=5;storageEndingTime=0;chapterOneBlackout.classList.add('active');}
+ }
+ else if(storageEndingPhase===5){wasMoving=false;if(storageEndingTime>=1.7){storageEndingPhase=6;showChapterEndingTitle();}}
+ else if(storageEndingPhase===6){wasMoving=false;updateChapterEndingTitle(dt);}
+ else wasMoving=false;
+}
+let storageEndingStartY=0;
+// MAP 04: 회장실 (첨부된 map_4.png, 1536×1024)
+const chairmanMap=new Image();
+chairmanMap.src='./map_4.png';
+const chairmanBaseW=1536,chairmanBaseH=1024;
+const chairmanExit={x1:665,y1:946,x2:878,y2:1023,approachX:768,approachY:910,range:105};
+// 회장실의 바닥만 이동 가능. 책상·소파·수납장·제단 등은 통과 불가.
+const chairmanWalkable=[[[85,325],[1455,325],[1455,905],[85,905]],[[665,905],[875,905],[875,998],[665,998]]];
+const chairmanBlocked=[
+ [90,100,195,235], [300,205,200,125], [1050,180,210,170], [1290,185,175,235],
+ [282,215,112,155], // 회장실 왼쪽 위 붉은 잎 화분: 화분과 화분 받침 전체 충돌
+ [565,345,410,165], // 회장 책상 본체만 충돌 (주변 카펫은 이동 가능)
+ [35,365,245,200], // 왼쪽 제단
+ [505,595,535,230], // 중앙 응접 소파·테이블
+ [1280,440,215,340], // 오른쪽 무구 진열대
+ [45,590,250,290], // 왼쪽 아래 병풍과 향로
+ [85,890,555,125], [895,890,550,125] // 하단 벽(출입구 제외)
+];
+function enterChairmanRoom(){
+  if(doorTransitioning||scene!==3||!nearChairmanDoor()||!trashKeyObtained)return false;
+  if(!chairmanMap.complete||!chairmanMap.naturalWidth){
+    document.getElementById('notice').textContent='map_4.png를 HTML과 같은 폴더에 넣어주세요';return false;
+  }
+  playChairmanKeyUnlockSound();doorTransitioning=true;clickPath=[];keys.clear();
+  scene=4;MAP_W=chairmanMap.naturalWidth;MAP_H=chairmanMap.naturalHeight;image.src=chairmanMap.src;
+  player.x=MAP_W*768/chairmanBaseW;player.y=MAP_H*890/chairmanBaseH;
+  zoom=1.0;player.dir='up';player.walk=0;spriteTime=0;
+  document.title='회장실 | MAP 04';
+  doorTransitioning=false;return true;
+}
+function nearChairmanExit(){
+  if(scene!==4)return false;
+  const bx=player.x*chairmanBaseW/MAP_W,by=player.y*chairmanBaseH/MAP_H;
+  return Math.hypot(bx-chairmanExit.approachX,by-chairmanExit.approachY)<=chairmanExit.range;
+}
+function leaveChairmanRoom(){
+  if(doorTransitioning||!nearChairmanExit()||!thirdMap.complete||!thirdMap.naturalWidth)return false;
+  playDoorOpenSound();doorTransitioning=true;clickPath=[];keys.clear();
+  scene=3;MAP_W=thirdMap.naturalWidth;MAP_H=thirdMap.naturalHeight;image.src=thirdMap.src;
+  player.x=MAP_W*710/thirdBaseW;player.y=MAP_H*337/thirdBaseH;
+  zoom=1.80;player.dir='down';player.walk=0;spriteTime=0;
+  document.title='MAP 03';doorTransitioning=false;return true;
+}
 const thirdMap=new Image();
 thirdMap.src='./map_3.png';
 const exitDoor={x1:650,y1:903,x2:920,y2:1008,approachX:745,approachY:870,range:105};
@@ -126,6 +431,72 @@ const thirdElevator={x1:1191,y1:180,x2:1306,y2:309,approachX:1250,approachY:358,
 let doorTransitioning=false;
 const nextMap=new Image();
 nextMap.src='./map_2.png';
+// 문 전환에만 사용하는 짧은 문 열림 효과음 (외부 음원 파일 불필요)
+let doorAudioContext;
+function playDoorOpenSound(){
+  try{
+    const AudioContextClass=window.AudioContext||window.webkitAudioContext;
+    if(!AudioContextClass)return;
+    if(!doorAudioContext)doorAudioContext=new AudioContextClass();
+    if(doorAudioContext.state==='suspended')doorAudioContext.resume().catch(()=>{});
+    const now=doorAudioContext.currentTime;
+    // 낮은 문고리 딸깍 소리와 문이 열리는 짧은 마찰음
+    const duration=.34, sampleRate=doorAudioContext.sampleRate;
+    const buffer=doorAudioContext.createBuffer(1,Math.ceil(sampleRate*duration),sampleRate);
+    const data=buffer.getChannelData(0);
+    let noise=0;
+    for(let i=0;i<data.length;i++){
+      const t=i/sampleRate;
+      noise=noise*.86+(Math.random()*2-1)*.14;
+      const click=(t<.055?Math.exp(-t*65)*.85:0);
+      const creak=(t>.065?Math.sin(2*Math.PI*(185-95*t)*t)*Math.exp(-(t-.065)*9)*.26:0);
+      data[i]=Math.max(-1,Math.min(1,noise*click+creak));
+    }
+    const source=doorAudioContext.createBufferSource();source.buffer=buffer;
+    const gain=doorAudioContext.createGain();gain.gain.value=.32;
+    source.connect(gain);gain.connect(doorAudioContext.destination);
+    source.start(now);
+  }catch(err){/* 오디오가 차단되어도 맵 이동은 계속 진행 */}
+}
+// 회장실 문: 열쇠를 꽂고 돌린 뒤 잠금장치가 풀리는 금속성 소리.
+// 열쇠 보유 여부는 enterChairmanRoom()에서 확인하며, 외부 음원 파일은 필요하지 않습니다.
+function playChairmanKeyUnlockSound(){
+  try{
+    const C=window.AudioContext||window.webkitAudioContext;
+    if(!C)return;
+    if(!doorAudioContext)doorAudioContext=new C();
+    const ac=doorAudioContext;
+    if(ac.state==='suspended')ac.resume().catch(()=>{});
+    const start=ac.currentTime;
+    // 열쇠 삽입, 회전, 잠금 해제 순으로 짧은 금속성 클릭을 배치합니다.
+    for(const [offset,frequency,duration,level] of [
+      [0,1250,.045,.10],[.10,760,.075,.085],[.24,520,.11,.12],[.40,920,.055,.09]
+    ]){
+      const osc=ac.createOscillator(),gain=ac.createGain();
+      osc.type='triangle';
+      osc.frequency.setValueAtTime(frequency,start+offset);
+      osc.frequency.exponentialRampToValueAtTime(frequency*.62,start+offset+duration);
+      gain.gain.setValueAtTime(.0001,start+offset);
+      gain.gain.linearRampToValueAtTime(level,start+offset+.007);
+      gain.gain.exponentialRampToValueAtTime(.0001,start+offset+duration);
+      osc.connect(gain);gain.connect(ac.destination);
+      osc.start(start+offset);osc.stop(start+offset+duration+.005);
+    }
+    // 열쇠가 돌아가는 동안 들리는 약한 금속 마찰음.
+    const duration=.33,buffer=ac.createBuffer(1,Math.ceil(ac.sampleRate*duration),ac.sampleRate);
+    const data=buffer.getChannelData(0);
+    for(let i=0;i<data.length;i++){
+      const t=i/ac.sampleRate;
+      data[i]=(Math.random()*2-1)*Math.sin(Math.PI*t/duration)**2*.12;
+    }
+    const source=ac.createBufferSource(),filter=ac.createBiquadFilter(),gain=ac.createGain();
+    source.buffer=buffer;filter.type='bandpass';filter.frequency.value=2350;filter.Q.value=1.6;
+    gain.gain.value=.12;
+    source.connect(filter);filter.connect(gain);gain.connect(ac.destination);
+    source.start(start+.08);
+  }catch(err){/* 오디오 재생에 실패해도 회장실 입장은 유지 */}
+}
+
 function nearDoor(){
   return scene===1 && Math.abs(player.x-door.approachX)<=105 && Math.hypot(player.x-door.approachX,player.y-door.approachY)<=door.range;
 }
@@ -135,6 +506,7 @@ function enterDoor(){
     document.getElementById('notice').textContent='map_2.png를 map.html과 같은 폴더에 넣어주세요';
     return false;
   }
+  playDoorOpenSound();
   doorTransitioning=true;
   clickPath=[];keys.clear();
   scene=2;
@@ -146,13 +518,48 @@ function enterDoor(){
   zoom=1.40; // 실내에서 더 넓은 공간을 볼 수 있도록 확대율 완화
   player.dir='up';player.walk=0;spriteTime=0;
   document.title='실내 지도 | MAP 02';
-  document.querySelector('.hud strong').textContent='실내 지도';
-  document.querySelector('.hud div').textContent='MAP 02 · 실내';
   document.getElementById('notice').textContent='MAP 02 · 가구와 벽은 통과할 수 없습니다';
   doorTransitioning=false;
   return true;
 }
 
+function nearMensRoom(){
+  if(scene!==2)return false;
+  const bx=player.x*indoorBaseW/MAP_W,by=player.y*indoorBaseH/MAP_H;
+  return Math.hypot(bx-mensRoomDoor.approachX,by-mensRoomDoor.approachY)<=mensRoomDoor.range;
+}
+function enterMensRoom(){
+  if(doorTransitioning||!nearMensRoom())return false;
+  if(!restroomMap.complete||!restroomMap.naturalWidth){
+    document.getElementById('notice').textContent='map_5.png를 HTML과 같은 폴더에 넣어주세요';
+    return false;
+  }
+  playDoorOpenSound();
+  doorTransitioning=true;clickPath=[];keys.clear();
+  scene=5;MAP_W=restroomMap.naturalWidth;MAP_H=restroomMap.naturalHeight;
+  image.src=restroomMap.src;
+  player.x=MAP_W*(769/restroomBaseW);player.y=MAP_H*(891/restroomBaseH);
+  zoom=0.75;player.dir='up';player.walk=0;spriteTime=0;
+  document.title='남자 화장실 | MAP 05';
+  doorTransitioning=false;return true;
+}
+function nearRestroomExit(){
+  if(scene!==5)return false;
+  const bx=player.x*restroomBaseW/MAP_W,by=player.y*restroomBaseH/MAP_H;
+  return Math.hypot(bx-restroomExit.approachX,by-restroomExit.approachY)<=restroomExit.range;
+}
+function leaveMensRoom(){
+  if(doorTransitioning||!nearRestroomExit())return false;
+  if(!nextMap.complete||!nextMap.naturalWidth)return false;
+  playDoorOpenSound();
+  doorTransitioning=true;clickPath=[];keys.clear();
+  scene=2;MAP_W=nextMap.naturalWidth;MAP_H=nextMap.naturalHeight;
+  image.src=nextMap.src;
+  player.x=MAP_W*(1325/indoorBaseW);player.y=MAP_H*(320/indoorBaseH);
+  zoom=1.40;player.dir='down';player.walk=0;spriteTime=0;
+  document.title='실내 지도 | MAP 02';
+  doorTransitioning=false;return true;
+}
 function nearExitDoor(){
   if(scene!==2)return false;
   const bx=player.x*indoorBaseW/MAP_W,by=player.y*indoorBaseH/MAP_H;
@@ -160,6 +567,7 @@ function nearExitDoor(){
 }
 function exitToOutdoor(){
   if(doorTransitioning||!nearExitDoor())return false;
+  playDoorOpenSound();
   doorTransitioning=true;
   clickPath=[];keys.clear();
   scene=1;MAP_W=1774;MAP_H=887;
@@ -167,11 +575,29 @@ function exitToOutdoor(){
   player.x=936;player.y=366;
   zoom=1.85;player.dir='down';player.walk=0;spriteTime=0;
   document.title='밤의 광장 | MAP 01';
-  document.querySelector('.hud strong').textContent='밤의 오피스 광장';
-  document.querySelector('.hud div').textContent='MAP 01 · 야외 광장';
   document.getElementById('notice').textContent='MAP 01 · 건물 문 앞에서 E 또는 문 클릭';
   doorTransitioning=false;
   return true;
+}
+// MAP 02 ↔ MAP 03: 엘리베이터 도착 알림음 (띵-)
+function playElevatorDing(){
+  try{
+    const AudioContextClass=window.AudioContext||window.webkitAudioContext;
+    if(!AudioContextClass)return;
+    if(!doorAudioContext)doorAudioContext=new AudioContextClass();
+    if(doorAudioContext.state==='suspended')doorAudioContext.resume().catch(()=>{});
+    const ctx=doorAudioContext,now=ctx.currentTime;
+    // 두 배음이 겹치며 부드럽게 감쇠하는 금속성 엘리베이터 벨
+    for(const [frequency,level] of [[880,.12],[1320,.045],[1760,.018]]){
+      const osc=ctx.createOscillator(),gain=ctx.createGain();
+      osc.type='sine';osc.frequency.setValueAtTime(frequency,now);
+      gain.gain.setValueAtTime(.0001,now);
+      gain.gain.linearRampToValueAtTime(level,now+.014);
+      gain.gain.exponentialRampToValueAtTime(.0001,now+1.05);
+      osc.connect(gain);gain.connect(ctx.destination);
+      osc.start(now);osc.stop(now+1.07);
+    }
+  }catch(err){/* 오디오 차단 시에도 맵 이동은 정상 동작 */}
 }
 function nearElevator(){
   if(scene!==2)return false;
@@ -184,14 +610,13 @@ function enterElevator(){
     document.getElementById('notice').textContent='map_3.png를 map.html과 같은 폴더에 넣어주세요';
     return false;
   }
+  playElevatorDing();
   doorTransitioning=true;clickPath=[];keys.clear();
   scene=3;MAP_W=thirdMap.naturalWidth;MAP_H=thirdMap.naturalHeight;
   image.src=thirdMap.src;
   player.x=MAP_W*(1250/thirdBaseW);player.y=MAP_H*(361/thirdBaseH);
   zoom=1.80;player.dir='up';player.walk=0;spriteTime=0;
   document.title='MAP 03';
-  document.querySelector('.hud strong').textContent='MAP 03';
-  document.querySelector('.hud div').textContent='MAP 03 · 엘리베이터 이동';
   document.getElementById('notice').textContent='MAP 03 · 벽과 가구는 통과할 수 없습니다';
   doorTransitioning=false;return true;
 }
@@ -206,21 +631,316 @@ function returnToSecondFloor(){
     document.getElementById('notice').textContent='map_2.png를 map.html과 같은 폴더에 넣어주세요';
     return false;
   }
+  playElevatorDing();
   doorTransitioning=true;clickPath=[];keys.clear();
   scene=2;MAP_W=nextMap.naturalWidth;MAP_H=nextMap.naturalHeight;
   image.src=nextMap.src;
   player.x=MAP_W*(937/indoorBaseW);player.y=MAP_H*(367/indoorBaseH);
   zoom=1.40;player.dir='down';player.walk=0;spriteTime=0;
   document.title='실내 지도 | MAP 02';
-  document.querySelector('.hud strong').textContent='실내 지도';
-  document.querySelector('.hud div').textContent='MAP 02 · 실내';
   document.getElementById('notice').textContent='MAP 02 · 엘리베이터 앞에 도착했습니다';
   doorTransitioning=false;return true;
 }
+// MAP 02 게시판: 캐릭터가 게시판 바로 앞에 있을 때 E로 조사
+const boardRules=[
+  '근무 수칙',
+  '무조건 정시 출근 할 것. (늦으면 관리실 문 안 열어줌)',
+  '복장은 간편하게, 편하게',
+  '첫째도 안전, 둘째도 안전, 셋째는 납품 기일 엄수'
+];
+// MAP 05 왼쪽 아래 쓰레기통: 캐릭터가 옆에 있을 때 E/클릭 조사
+const trashCan={x1:135,y1:710,x2:240,y2:902,approachX:298,approachY:799,range:130};
+const trashLines=['(..쓰레기통이다.)','(뒤져볼까?)'];
+let trashDialogIndex=-1;
+let trashKeyObtained=false; // MAP 05에서 열쇠를 한 번만 획득
+let storageKeyObtained=false; // 회장실 화분에서 창고 열쇠 획득
+let plantDialogIndex=-1;
+const trashChoices=document.getElementById('trashChoices');
+function nearTrashCan(){
+  if(scene!==5)return false;
+  const bx=player.x*restroomBaseW/MAP_W,by=player.y*restroomBaseH/MAP_H;
+  return Math.hypot(bx-trashCan.approachX,by-trashCan.approachY)<=trashCan.range;
+}
+function startTrashDialog(){
+  if(!nearTrashCan()||boardDialogIndex>=0||trashDialogIndex>=0)return false;
+  clickPath=[];keys.clear();trashDialogIndex=trashKeyObtained?4:0;
+  document.getElementById('boardLine').textContent=trashKeyObtained?'(더 얻을 건 없어 보인다.)':trashLines[0];
+  boardDialog.hidden=false;trashChoices.hidden=true;
+  return true;
+}
+function advanceTrashDialog(){
+  if(trashDialogIndex<0)return;
+  if(trashDialogIndex===4||trashDialogIndex===3){closeTrashDialog();return;}
+  if(trashDialogIndex===2){
+    trashDialogIndex=3;
+    trashKeyObtained=true;
+    document.getElementById('boardLine').textContent='(열쇠를 얻었다.)';
+    playTrashKeySound();
+    return;
+  }
+  if(trashDialogIndex===0){
+    trashDialogIndex=1;
+    document.getElementById('boardLine').textContent=trashLines[1];
+    trashChoices.hidden=false;
+    trashChoiceButtons.forEach((button,i)=>button.classList.toggle('is-selected',i===0));
+  }
+  // 두 번째 대사에서는 선택지를 클릭할 때까지 대기
+}
+function closeTrashDialog(){
+  trashDialogIndex=-1;trashChoices.hidden=true;boardDialog.hidden=true;
+}
+// game1.html의 playChoiceTick()과 같은 900→510Hz 사각파 효과음.
+let trashChoiceAudio=null;
+function playTrashChoiceTick(){
+  const AudioContextClass=window.AudioContext||window.webkitAudioContext;
+  if(!AudioContextClass)return;
+  if(!trashChoiceAudio)trashChoiceAudio=new AudioContextClass();
+  if(trashChoiceAudio.state==='suspended')trashChoiceAudio.resume();
+  const now=trashChoiceAudio.currentTime;
+  const osc=trashChoiceAudio.createOscillator();
+  const gain=trashChoiceAudio.createGain();
+  osc.type='square';
+  osc.frequency.setValueAtTime(900,now);
+  osc.frequency.exponentialRampToValueAtTime(510,now+0.035);
+  gain.gain.setValueAtTime(0.085,now);
+  gain.gain.exponentialRampToValueAtTime(0.001,now+0.045);
+  osc.connect(gain);gain.connect(trashChoiceAudio.destination);
+  osc.start(now);osc.stop(now+0.05);
+}
+// 쓰레기통 안의 종이/잡동사니를 뒤적이는 바스락거림 (별도 음원 불필요)
+function playTrashRummageSound(){
+  const C=window.AudioContext||window.webkitAudioContext;
+  if(!C)return;
+  if(!trashChoiceAudio)trashChoiceAudio=new C();
+  if(trashChoiceAudio.state==='suspended')trashChoiceAudio.resume();
+  const ac=trashChoiceAudio,now=ac.currentTime,rate=ac.sampleRate;
+  const duration=1.25,buffer=ac.createBuffer(1,Math.ceil(rate*duration),rate),data=buffer.getChannelData(0);
+  for(let i=0;i<data.length;i++)data[i]=Math.random()*2-1;
+  const source=ac.createBufferSource();source.buffer=buffer;
+  const filter=ac.createBiquadFilter();filter.type='bandpass';filter.frequency.value=1700;filter.Q.value=.65;
+  const gain=ac.createGain();gain.gain.setValueAtTime(.0001,now);
+  // 여러 차례 뒤적이는 불규칙한 바스락 소리
+  [[.03,.15],[.16,.015],[.27,.20],[.40,.018],[.55,.14],[.67,.015],[.79,.19],[.94,.02],[1.05,.11],[1.24,.0001]].forEach(([t,v])=>gain.gain.linearRampToValueAtTime(v,now+t));
+  source.connect(filter);filter.connect(gain);gain.connect(ac.destination);
+  source.start(now);source.stop(now+duration);
+}
+// 아이템 획득을 알리는 짧은 상승 8비트 효과음
+function playTrashKeySound(){
+  const C=window.AudioContext||window.webkitAudioContext;
+  if(!C)return;
+  if(!trashChoiceAudio)trashChoiceAudio=new C();
+  if(trashChoiceAudio.state==='suspended')trashChoiceAudio.resume();
+  const ac=trashChoiceAudio,now=ac.currentTime;
+  [659.25,880,1174.66].forEach((hz,i)=>{
+    const t=now+i*.115,osc=ac.createOscillator(),gain=ac.createGain();
+    osc.type='square';osc.frequency.value=hz;
+    gain.gain.setValueAtTime(.0001,t);
+    gain.gain.linearRampToValueAtTime(.065,t+.012);
+    gain.gain.exponentialRampToValueAtTime(.0001,t+.22);
+    osc.connect(gain);gain.connect(ac.destination);osc.start(t);osc.stop(t+.23);
+  });
+}
+const trashChoiceButtons=[...trashChoices.querySelectorAll('.choice-option')];
+trashChoiceButtons.forEach(button=>{
+  button.addEventListener('mouseenter',()=>{
+    if(!button.classList.contains('is-selected'))playTrashChoiceTick();
+    trashChoiceButtons.forEach(other=>other.classList.toggle('is-selected',other===button));
+  });
+  button.addEventListener('click',e=>{
+    e.preventDefault();e.stopPropagation();
+    playTrashChoiceTick();
+    if(button.dataset.trash==='search'){
+      trashChoices.hidden=true;
+      trashDialogIndex=2;
+      document.getElementById('boardLine').textContent='...';
+      playTrashRummageSound();
+    }else{
+      closeTrashDialog();
+    }
+  });
+});
+addEventListener('keydown',e=>{
+  if(trashChoices.hidden)return;
+  if(e.key==='ArrowUp'||e.key==='ArrowDown'){
+    e.preventDefault();e.stopImmediatePropagation();
+    const current=trashChoiceButtons.findIndex(button=>button.classList.contains('is-selected'));
+    const next=(current+(e.key==='ArrowDown'?1:-1)+trashChoiceButtons.length)%trashChoiceButtons.length;
+    playTrashChoiceTick();
+    trashChoiceButtons.forEach((button,i)=>button.classList.toggle('is-selected',i===next));
+    trashChoiceButtons[next].focus();
+  }else if(e.key==='Enter'||e.key===' '){
+    e.preventDefault();e.stopImmediatePropagation();
+    trashChoiceButtons.find(button=>button.classList.contains('is-selected')).click();
+  }
+},true);
+// MAP 03 가장 왼쪽 문: 창고. map_3.png (1774×887) 원본 좌표 기준.
+const storageDoor={x1:99,y1:167,x2:183,y2:298,approachX:141,approachY:343,range:110};
+let storageDialogIndex=-1,storageDoorOpened=false;
+const storageChoices=document.getElementById('storageChoices');
+const storageButtons=[...storageChoices.querySelectorAll('.choice-option')];
+function nearStorageDoor(){
+ if(scene!==3)return false;
+ const bx=player.x*thirdBaseW/MAP_W,by=player.y*thirdBaseH/MAP_H;
+ return Math.hypot(bx-storageDoor.approachX,by-storageDoor.approachY)<=storageDoor.range;
+}
+function startStorageDialog(){
+ if(!nearStorageDoor()||storageDialogIndex>=0||chairDialogIndex>=0||trashDialogIndex>=0||plantDialogIndex>=0||boardDialogIndex>=0)return false;
+ // 한 번 잠금을 해제한 창고는 대화/선택지 없이 바로 재입장합니다.
+ if(storageDoorOpened)return enterStorageRoom();
+ keys.clear();clickPath=[];storageDialogIndex=0;storageChoices.hidden=true;
+ document.getElementById('boardLine').textContent='(창고)';boardDialog.hidden=false;return true;
+}
+function closeStorageDialog(){storageDialogIndex=-1;storageChoices.hidden=true;boardDialog.hidden=true;}
+function advanceStorageDialog(){
+ if(storageDialogIndex<0||!storageChoices.hidden)return;
+ if(storageDialogIndex===3){closeStorageDialog();enterStorageRoom();return;}
+ if(storageDialogIndex===0){
+   if(!storageKeyObtained){storageDialogIndex=2;document.getElementById('boardLine').textContent='(지금은 못 할 것 같다.)';return;}
+   storageDialogIndex=1;document.getElementById('boardLine').textContent='(열까?)';
+   storageButtons.forEach((b,i)=>b.classList.toggle('is-selected',i===0));storageChoices.hidden=false;return;
+ }
+ closeStorageDialog();
+}
+storageButtons.forEach(button=>{
+ button.addEventListener('mouseenter',()=>{if(!button.classList.contains('is-selected'))playTrashChoiceTick();storageButtons.forEach(b=>b.classList.toggle('is-selected',b===button));});
+ button.addEventListener('click',e=>{
+   e.preventDefault();e.stopPropagation();playTrashChoiceTick();
+   const selected=button.dataset.storage;storageChoices.hidden=true;
+   if(selected==='open'&&storageKeyObtained){
+     if(!storageDoorOpened)playChairmanKeyUnlockSound();
+     storageDoorOpened=true;storageDialogIndex=3;
+     document.getElementById('boardLine').textContent='(창고 문을 열었다.)';
+   }else closeStorageDialog();
+ });
+});
+addEventListener('keydown',e=>{
+ if(storageChoices.hidden)return;
+ if(e.key==='ArrowUp'||e.key==='ArrowDown'){
+   e.preventDefault();e.stopImmediatePropagation();
+   const index=storageButtons.findIndex(b=>b.classList.contains('is-selected'));
+   const next=(index+(e.key==='ArrowDown'?1:-1)+storageButtons.length)%storageButtons.length;
+   playTrashChoiceTick();storageButtons.forEach((b,i)=>b.classList.toggle('is-selected',i===next));storageButtons[next].focus();
+ }else if(e.key==='Enter'||e.key===' '){e.preventDefault();e.stopImmediatePropagation();storageButtons.find(b=>b.classList.contains('is-selected')).click();}
+},true);
+// MAP 03 회장실: 상단 중앙 왼쪽의 큰 유리문 (원본 map_3 좌표)
+const chairmanDoor={x1:608,y1:133,x2:812,y2:297,approachX:710,approachY:337,range:115};
+let chairDialogIndex=-1;
+const chairChoices=document.getElementById('chairChoices');
+const chairButtons=[...chairChoices.querySelectorAll('.choice-option')];
+function nearChairmanDoor(){
+  if(scene!==3)return false;
+  const bx=player.x*thirdBaseW/MAP_W,by=player.y*thirdBaseH/MAP_H;
+  return Math.hypot(bx-chairmanDoor.approachX,by-chairmanDoor.approachY)<=chairmanDoor.range;
+}
+function startChairmanDialog(){
+  if(!nearChairmanDoor()||chairDialogIndex>=0||boardDialogIndex>=0||trashDialogIndex>=0)return false;
+  keys.clear();clickPath=[];chairDialogIndex=0;
+  document.getElementById('boardLine').textContent='(회장실)';
+  chairChoices.hidden=true;boardDialog.hidden=false;
+  return true;
+}
+function closeChairmanDialog(){chairDialogIndex=-1;chairChoices.hidden=true;boardDialog.hidden=true;}
+function advanceChairmanDialog(){
+  if(chairDialogIndex<0||!chairChoices.hidden)return;
+  if(chairDialogIndex===0){chairDialogIndex=1;document.getElementById('boardLine').textContent='(잠겨있다.)';return;}
+  if(chairDialogIndex===1){
+    chairDialogIndex=2;
+    if(trashKeyObtained){
+      document.getElementById('boardLine').textContent='(열쇠로 열까?)';
+      chairButtons.forEach((b,i)=>b.classList.toggle('is-selected',i===0));
+      chairChoices.hidden=false;
+    }else document.getElementById('boardLine').textContent='...\n(열 수 없을 것 같다)';
+    return;
+  }
+  closeChairmanDialog();
+}
+chairButtons.forEach(button=>{
+  button.addEventListener('mouseenter',()=>{
+    if(!button.classList.contains('is-selected'))playTrashChoiceTick();
+    chairButtons.forEach(b=>b.classList.toggle('is-selected',b===button));
+  });
+  button.addEventListener('click',e=>{
+    e.preventDefault();e.stopPropagation();playTrashChoiceTick();
+    const selected=button.dataset.chair;
+    closeChairmanDialog();
+    if(selected==='open')enterChairmanRoom();
+  });
+});
+addEventListener('keydown',e=>{
+  if(chairChoices.hidden)return;
+  if(e.key==='ArrowUp'||e.key==='ArrowDown'){
+    e.preventDefault();e.stopImmediatePropagation();
+    const index=chairButtons.findIndex(b=>b.classList.contains('is-selected'));
+    const next=(index+(e.key==='ArrowDown'?1:-1)+chairButtons.length)%chairButtons.length;
+    playTrashChoiceTick();chairButtons.forEach((b,i)=>b.classList.toggle('is-selected',i===next));chairButtons[next].focus();
+  }else if(e.key==='Enter'||e.key===' '){
+    e.preventDefault();e.stopImmediatePropagation();chairButtons.find(b=>b.classList.contains('is-selected')).click();
+  }
+},true);
+let boardDialogIndex=-1;
+const boardDialog=document.getElementById('boardDialog');
+function nearNoticeBoard(){
+  if(scene!==2)return false;
+  const bx=player.x*indoorBaseW/MAP_W,by=player.y*indoorBaseH/MAP_H;
+  return bx>=680&&bx<=860&&by>=315&&by<=435;
+}
+function advanceBoardDialog(){
+  if(boardDialogIndex<0)return;
+  boardDialogIndex++;
+  if(boardDialogIndex>=boardRules.length){
+    boardDialogIndex=-1;boardDialog.hidden=true;return;
+  }
+  document.getElementById('boardLine').textContent=boardRules[boardDialogIndex];
+}
+function startBoardDialog(){
+  if(!nearNoticeBoard()||boardDialogIndex>=0)return false;
+  clickPath=[];keys.clear();boardDialogIndex=0;
+  document.getElementById('boardLine').textContent=boardRules[0];
+  boardDialog.hidden=false;return true;
+}
+function advanceStorageCardDialog(){
+ if(storageCardDialogStep===0){
+  storageCardDialogStep=1;
+  document.getElementById('boardLine').textContent='(카드키다.)';
+ }else if(storageCardDialogStep===1){
+  storageCardDialogStep=2;
+  storageCardKeyObtained=true;
+  document.getElementById('boardLine').textContent='(카드키를 획득 했습니다.)';
+  playTrashKeySound();
+ }else{
+  storageCardDialogStep=-1;boardDialog.hidden=true;
+ }
+}
+boardDialog.addEventListener('click',()=>{if(storageCardDialogStep>=0){advanceStorageCardDialog();return;}if(storagePinWrongDialog){storagePinWrongDialog=false;boardDialogIndex=-1;boardDialog.hidden=true;return;}if(!chairChoices.hidden||!trashChoices.hidden||!storageChoices.hidden)return;if(storageDialogIndex>=0)advanceStorageDialog();else if(chairDialogIndex>=0)advanceChairmanDialog();else if(trashDialogIndex>=0)advanceTrashDialog();else if(plantDialogIndex>=0)advancePlantDialog();else advanceBoardDialog()});
+// 회장실 왼쪽 위 붉은 화분: 충돌 구역 바깥에서 조사
+const chairmanPlant={x:338,y:310,range:155};
+function nearChairmanPlant(){
+ if(scene!==4)return false;
+ const bx=player.x*chairmanBaseW/MAP_W,by=player.y*chairmanBaseH/MAP_H;
+ return Math.hypot(bx-chairmanPlant.x,by-chairmanPlant.y)<=chairmanPlant.range;
+}
+function startPlantDialog(){
+ if(!nearChairmanPlant()||plantDialogIndex>=0||boardDialogIndex>=0||trashDialogIndex>=0||chairDialogIndex>=0)return false;
+ keys.clear();clickPath=[];plantDialogIndex=0;
+ document.getElementById('boardLine').textContent=storageKeyObtained?'(나무 사이에는 더 이상 아무것도 없다.)':'(나무사이에 열쇠가 걸려있다.)';
+ boardDialog.hidden=false;return true;
+}
+function advancePlantDialog(){
+ if(plantDialogIndex<0)return;
+ if(plantDialogIndex===0&&!storageKeyObtained){
+   storageKeyObtained=true;plantDialogIndex=1;
+   document.getElementById('boardLine').textContent='(창고 열쇠를 획득했다.)';
+   playTrashKeySound();return;
+ }
+ plantDialogIndex=-1;boardDialog.hidden=true;
+}
 function interactDoor(){
   if(scene===1)return enterDoor();
-  if(scene===2)return nearElevator()?enterElevator():exitToOutdoor();
-  if(scene===3)return returnToSecondFloor();
+  if(scene===2)return startBoardDialog() || (nearMensRoom()?enterMensRoom():(nearElevator()?enterElevator():exitToOutdoor()));
+  if(scene===3)return startStorageDialog() || startChairmanDialog() || returnToSecondFloor();
+  if(scene===5)return startTrashDialog() || leaveMensRoom();
+  if(scene===4)return startPlantDialog() || leaveChairmanRoom();
+  if(scene===6)return openStoragePin() || leaveStorageRoom();
   return false;
 }
 
@@ -231,8 +951,9 @@ for(const [dir,ids] of Object.entries(spriteFrames)){
   sprites[dir]=ids.map(id=>{const img=new Image();img.src=`./map_c_${id}.png`;return img});
 }
 // 캐릭터의 발 위치를 기준으로 그림을 그립니다. 필요하면 크기를 변경하세요.
-const SPRITE_HEIGHT=60,SPRITE_FPS=9; // 기본 캐릭터 높이 (MAP 01, MAP 03)
-const MAP2_SPRITE_HEIGHT=82; // MAP 02에서는 실내 배경 비율에 맞춰 크게 표시
+const SPRITE_FPS=9;
+// 맵 확대율과 관계없이 캐릭터를 화면상 동일한 높이로 표시합니다.
+const PLAYER_SCREEN_HEIGHT=120; // CSS 픽셀 기준, 모든 맵에서 동일한 화면상 높이
 let spriteTime=0,wasMoving=false;
 
 const keys=new Set();let clickPath=[];let zoom=1.85,debug=false,last=0,viewW=0,viewH=0,dpr=1,camX=0,camY=0;
@@ -240,18 +961,15 @@ const minZoom=1.15,maxZoom=3.0;
 function resize(){dpr=Math.min(devicePixelRatio||1,2);viewW=innerWidth;viewH=innerHeight;canvas.width=Math.round(viewW*dpr);canvas.height=Math.round(viewH*dpr);ctx.setTransform(dpr,0,0,dpr,0,0)}
 addEventListener('resize',resize);resize();
 function inPolygon(x,y,poly){let inside=false;for(let i=0,j=poly.length-1;i<poly.length;j=i++){const a=poly[i],b=poly[j];if(((a[1]>y)!==(b[1]>y))&&(x<(b[0]-a[0])*(y-a[1])/(b[1]-a[1])+a[0]))inside=!inside}return inside}
-function validPoint(x,y){if(scene===3){const bx=x*thirdBaseW/MAP_W,by=y*thirdBaseH/MAP_H;return thirdWalkable.some(poly=>inPolygon(bx,by,poly))&&!thirdBlocked.some(([rx,ry,rw,rh])=>bx>=rx&&bx<=rx+rw&&by>=ry&&by<=ry+rh);}if(scene===2){
+function validPoint(x,y){if(scene===6){const bx=x*storageBaseW/MAP_W,by=y*storageBaseH/MAP_H;return storageWalkable.some(poly=>inPolygon(bx,by,poly))&&!storageBlocked.some(([rx,ry,rw,rh])=>bx>=rx&&bx<=rx+rw&&by>=ry&&by<=ry+rh);}if(scene===4){const bx=x*chairmanBaseW/MAP_W,by=y*chairmanBaseH/MAP_H;return chairmanWalkable.some(poly=>inPolygon(bx,by,poly))&&!chairmanBlocked.some(([rx,ry,rw,rh])=>bx>=rx&&bx<=rx+rw&&by>=ry&&by<=ry+rh);}if(scene===5){const bx=x*restroomBaseW/MAP_W,by=y*restroomBaseH/MAP_H;return restroomWalkable.some(poly=>inPolygon(bx,by,poly))&&!restroomBlocked.some(([rx,ry,rw,rh])=>bx>=rx&&bx<=rx+rw&&by>=ry&&by<=ry+rh);}if(scene===3){const bx=x*thirdBaseW/MAP_W,by=y*thirdBaseH/MAP_H;return thirdWalkable.some(poly=>inPolygon(bx,by,poly))&&!thirdBlocked.some(([rx,ry,rw,rh])=>bx>=rx&&bx<=rx+rw&&by>=ry&&by<=ry+rh);}if(scene===2){
   const bx=x*indoorBaseW/MAP_W,by=y*indoorBaseH/MAP_H;
   return indoorWalkable.some(poly=>inPolygon(bx,by,poly)) && !indoorBlocked.some(([rx,ry,rw,rh])=>bx>=rx&&bx<=rx+rw&&by>=ry&&by<=ry+rh);
 }if(!walkable.some(p=>inPolygon(x,y,p)))return false;return !blocked.some(([bx,by,bw,bh])=>x>=bx&&x<=bx+bw&&y>=by&&y<=by+bh)}
 function canStand(x,y){const r=player.radius;return [[0,0],[-r,0],[r,0],[0,-r*.55],[0,r*.55]].every(([dx,dy])=>validPoint(x+dx,y+dy))}
-function toggleDebug(){debug=!debug;document.getElementById('debugBtn').setAttribute('aria-pressed',String(debug));document.getElementById('debugBtn').textContent=debug?'충돌 숨기기':'충돌 표시'}
+function toggleDebug(){debug=!debug;}
 const movement=new Set(['arrowup','arrowdown','arrowleft','arrowright','w','a','s','d','shift']);
-addEventListener('keydown',e=>{const k=e.key.toLowerCase();if(movement.has(k)){e.preventDefault();keys.add(k);if(k!=='shift')clickPath=[]}if(k==='e'){e.preventDefault();if(!e.repeat)interactDoor()}if(k==='f3'){e.preventDefault();if(!e.repeat)toggleDebug()}});
+addEventListener('keydown',e=>{if(storageEndingPhase){e.preventDefault();e.stopImmediatePropagation();return;}const k=e.key.toLowerCase();if(movement.has(k)){e.preventDefault();if(boardDialogIndex<0&&trashDialogIndex<0&&chairDialogIndex<0&&plantDialogIndex<0&&storageDialogIndex<0){keys.add(k);if(k!=='shift')clickPath=[]}}if(k==='e'){e.preventDefault();if(!e.repeat){if(!chairChoices.hidden||!trashChoices.hidden||!storageChoices.hidden)return;if(storageDialogIndex>=0)advanceStorageDialog();else if(chairDialogIndex>=0)advanceChairmanDialog();else if(trashDialogIndex>=0)advanceTrashDialog();else if(boardDialogIndex>=0)advanceBoardDialog();else if(plantDialogIndex>=0)advancePlantDialog();else interactDoor()}}if(k==='f3'){e.preventDefault();if(!e.repeat)toggleDebug()}});
 addEventListener('keyup',e=>keys.delete(e.key.toLowerCase()));addEventListener('blur',()=>keys.clear());
-document.getElementById('debugBtn').onclick=toggleDebug;
-document.getElementById('zoomIn').onclick=()=>zoom=Math.min(maxZoom,+(zoom+.2).toFixed(2));
-document.getElementById('zoomOut').onclick=()=>zoom=Math.max(minZoom,+(zoom-.2).toFixed(2));
 for(const b of document.querySelectorAll('[data-dir]')){const dir=b.dataset.dir;const k='arrow'+dir;const stop=e=>{e.preventDefault();keys.delete(k);try{b.releasePointerCapture(e.pointerId)}catch{}};b.addEventListener('pointerdown',e=>{e.preventDefault();b.setPointerCapture(e.pointerId);keys.add(k)});b.addEventListener('pointerup',stop);b.addEventListener('pointercancel',stop);b.addEventListener('lostpointercapture',()=>keys.delete(k))}
 // 클릭 이동: 현재 위치에서 실제로 도달할 수 있는 격자를 탐색합니다.
 // 붉은 충돌 구역을 클릭하면, 도달 가능한 칸 중 클릭 지점에 가장 가까운 칸을 목적지로 삼습니다.
@@ -292,6 +1010,13 @@ function planClickPath(tx,ty){
 }
 function clearSegment(x1,y1,x2,y2){const n=Math.max(1,Math.ceil(Math.hypot(x2-x1,y2-y1)/4));for(let i=1;i<=n;i++){const t=i/n;if(!canStand(x1+(x2-x1)*t,y1+(y2-y1)*t))return false}return true}
 canvas.addEventListener('pointerdown',e=>{
+  if(storageEndingPhase)return;
+  if(!storagePinOverlay.hidden)return;
+  if(storageDialogIndex>=0){if(storageChoices.hidden)advanceStorageDialog();return;}
+  if(chairDialogIndex>=0){if(chairChoices.hidden)advanceChairmanDialog();return;}
+  if(trashDialogIndex>=0){if(trashChoices.hidden)advanceTrashDialog();return;}
+  if(boardDialogIndex>=0){advanceBoardDialog();return;}
+   if(plantDialogIndex>=0){advancePlantDialog();return;}
   if(e.button!==0)return;
   const rect=canvas.getBoundingClientRect();
   const x=camX+(e.clientX-rect.left)/rect.width*viewW/zoom;
@@ -304,6 +1029,10 @@ canvas.addEventListener('pointerdown',e=>{
   }
   if(scene===2){
     const bx=x*indoorBaseW/MAP_W,by=y*indoorBaseH/MAP_H;
+    if(bx>=mensRoomDoor.x1&&bx<=mensRoomDoor.x2&&by>=mensRoomDoor.y1&&by<=mensRoomDoor.y2){
+      if(nearMensRoom())enterMensRoom();
+      return;
+    }
     if(bx>=elevator.x1&&bx<=elevator.x2&&by>=elevator.y1&&by<=elevator.y2){
       if(nearElevator())enterElevator();
       else document.getElementById('notice').textContent='엘리베이터 앞까지 이동한 뒤 E키를 누르거나 문을 클릭하세요';
@@ -317,9 +1046,33 @@ canvas.addEventListener('pointerdown',e=>{
   }
   if(scene===3){
     const bx=x*thirdBaseW/MAP_W,by=y*thirdBaseH/MAP_H;
+    if(bx>=storageDoor.x1&&bx<=storageDoor.x2&&by>=storageDoor.y1&&by<=storageDoor.y2){if(nearStorageDoor())startStorageDialog();return;}
+    if(bx>=chairmanDoor.x1&&bx<=chairmanDoor.x2&&by>=chairmanDoor.y1&&by<=chairmanDoor.y2){if(nearChairmanDoor())startChairmanDialog();return;}
     if(bx>=thirdElevator.x1&&bx<=thirdElevator.x2&&by>=thirdElevator.y1&&by<=thirdElevator.y2){
       if(nearThirdElevator())returnToSecondFloor();
       else document.getElementById('notice').textContent='엘리베이터 앞까지 이동한 뒤 E키를 누르거나 문을 클릭하세요';
+      return;
+    }
+  }
+  if(scene===4){
+    const bx=x*chairmanBaseW/MAP_W,by=y*chairmanBaseH/MAP_H;
+    if(bx>=chairmanExit.x1&&bx<=chairmanExit.x2&&by>=chairmanExit.y1&&by<=chairmanExit.y2){
+      if(nearChairmanExit())leaveChairmanRoom();return;
+    }
+  }
+  if(scene===6){
+    const bx=x*storageBaseW/MAP_W,by=y*storageBaseH/MAP_H;
+    if(bx>=storagePinDrawer.x1&&bx<=storagePinDrawer.x2&&by>=storagePinDrawer.y1&&by<=storagePinDrawer.y2){if(nearStoragePinDrawer())openStoragePin();return;}
+    if(bx>=storageExit.x1&&bx<=storageExit.x2&&by>=storageExit.y1&&by<=storageExit.y2){if(nearStorageExit())leaveStorageRoom();return;}
+  }
+  if(scene===5){
+    const bx=x*restroomBaseW/MAP_W,by=y*restroomBaseH/MAP_H;
+    if(bx>=trashCan.x1&&bx<=trashCan.x2&&by>=trashCan.y1&&by<=trashCan.y2){
+      if(nearTrashCan())startTrashDialog();
+      return;
+    }
+    if(bx>=restroomExit.x1&&bx<=restroomExit.x2&&by>=restroomExit.y1&&by<=restroomExit.y2){
+      if(nearRestroomExit())leaveMensRoom();
       return;
     }
   }
@@ -338,13 +1091,13 @@ function moveClick(dt){
     if(step>=dist-0.001)clickPath.shift();
   }
 }
-function move(dt){const oldX=player.x,oldY=player.y;let dx=Number(keys.has('arrowright')||keys.has('d'))-Number(keys.has('arrowleft')||keys.has('a'));let dy=Number(keys.has('arrowdown')||keys.has('s'))-Number(keys.has('arrowup')||keys.has('w'));if(!dx&&!dy){moveClick(dt);wasMoving=Math.hypot(player.x-oldX,player.y-oldY)>0.01;return;}const len=Math.hypot(dx,dy);dx/=len;dy/=len;const dist=(keys.has('shift')?220:135)*dt;const nx=player.x+dx*dist,ny=player.y+dy*dist;if(canStand(nx,player.y))player.x=nx;if(canStand(player.x,ny))player.y=ny;if(Math.abs(dx)>Math.abs(dy))player.dir=dx>0?'right':'left';else player.dir=dy>0?'down':'up';player.walk+=dt*11;wasMoving=Math.hypot(player.x-oldX,player.y-oldY)>0.01}
+function move(dt){if(storageEndingPhase){updateStorageEnding(dt);return;}if(!storagePinOverlay.hidden||storageCardDialogStep>=0){wasMoving=false;return;}if(boardDialogIndex>=0||trashDialogIndex>=0||chairDialogIndex>=0||plantDialogIndex>=0||storageDialogIndex>=0){wasMoving=false;return;}const oldX=player.x,oldY=player.y;let dx=Number(keys.has('arrowright')||keys.has('d'))-Number(keys.has('arrowleft')||keys.has('a'));let dy=Number(keys.has('arrowdown')||keys.has('s'))-Number(keys.has('arrowup')||keys.has('w'));if(!dx&&!dy){moveClick(dt);wasMoving=Math.hypot(player.x-oldX,player.y-oldY)>0.01;return;}const len=Math.hypot(dx,dy);dx/=len;dy/=len;const dist=(keys.has('shift')?220:135)*dt;const nx=player.x+dx*dist,ny=player.y+dy*dist;if(canStand(nx,player.y))player.x=nx;if(canStand(player.x,ny))player.y=ny;if(Math.abs(dx)>Math.abs(dy))player.dir=dx>0?'right':'left';else player.dir=dy>0?'down':'up';player.walk+=dt*11;wasMoving=Math.hypot(player.x-oldX,player.y-oldY)>0.01}
 function drawPlayer(){
   const frames=sprites[player.dir]||sprites.down;
   const frameIndex=wasMoving?Math.floor(spriteTime*SPRITE_FPS)%frames.length:0;
   const sprite=frames[frameIndex];
   if(sprite.complete&&sprite.naturalWidth>0){
-    const h=scene===2?MAP2_SPRITE_HEIGHT:SPRITE_HEIGHT,w=h*sprite.naturalWidth/sprite.naturalHeight;
+    const h=PLAYER_SCREEN_HEIGHT/zoom,w=h*sprite.naturalWidth/sprite.naturalHeight;
     ctx.save();
     ctx.fillStyle='#0008';ctx.beginPath();ctx.ellipse(player.x,player.y,Math.min(w*.28,13),4,0,0,Math.PI*2);ctx.fill();
     ctx.imageSmoothingEnabled=false;
@@ -361,6 +1114,24 @@ ctx.fillStyle='#14151b';ctx.fillRect(-13,-26,4,14);ctx.fillRect(9,-26,4,14);
 ctx.fillStyle='#f2d0b4';ctx.fillRect(-9,-44,18,18);ctx.fillStyle='#211b21';ctx.fillRect(-10,-46,20,9);ctx.fillRect(-10,-42,4,9);
 if(player.dir!=='up'){ctx.fillStyle='#29252b';if(side){ctx.fillRect(player.dir==='right'?5:-7,-35,2,2)}else{ctx.fillRect(-5,-35,2,2);ctx.fillRect(4,-35,2,2)}}ctx.restore()}
 function drawDebug(){ctx.save();ctx.lineWidth=2/zoom;
+  if(scene===6){
+    ctx.save();ctx.scale(MAP_W/storageBaseW,MAP_H/storageBaseH);
+    for(const poly of storageWalkable){ctx.beginPath();poly.forEach(([x,y],i)=>i?ctx.lineTo(x,y):ctx.moveTo(x,y));ctx.closePath();ctx.fillStyle='#31dd7433';ctx.fill();ctx.strokeStyle='#53f4a8';ctx.stroke()}
+    for(const [x,y,w,h] of storageBlocked){ctx.fillStyle='#ff47664d';ctx.fillRect(x,y,w,h);ctx.strokeStyle='#ff6985';ctx.strokeRect(x,y,w,h)}
+    ctx.restore();ctx.beginPath();ctx.arc(player.x,player.y,player.radius,0,Math.PI*2);ctx.strokeStyle='#ffe66c';ctx.stroke();ctx.restore();return;
+  }
+  if(scene===4){
+    ctx.save();ctx.scale(MAP_W/chairmanBaseW,MAP_H/chairmanBaseH);
+    for(const poly of chairmanWalkable){ctx.beginPath();poly.forEach(([x,y],i)=>i?ctx.lineTo(x,y):ctx.moveTo(x,y));ctx.closePath();ctx.fillStyle='#31dd7433';ctx.fill();ctx.strokeStyle='#53f4a8';ctx.stroke()}
+    for(const [x,y,w,h] of chairmanBlocked){ctx.fillStyle='#ff47664d';ctx.fillRect(x,y,w,h);ctx.strokeStyle='#ff6985';ctx.strokeRect(x,y,w,h)}
+    ctx.restore();ctx.beginPath();ctx.arc(player.x,player.y,player.radius,0,Math.PI*2);ctx.strokeStyle='#ffe66c';ctx.stroke();ctx.restore();return;
+  }
+  if(scene===5){
+    ctx.save();ctx.scale(MAP_W/restroomBaseW,MAP_H/restroomBaseH);
+    for(const poly of restroomWalkable){ctx.beginPath();poly.forEach(([x,y],i)=>i?ctx.lineTo(x,y):ctx.moveTo(x,y));ctx.closePath();ctx.fillStyle='#31dd7433';ctx.fill();ctx.strokeStyle='#53f4a8';ctx.stroke()}
+    for(const [x,y,w,h] of restroomBlocked){ctx.fillStyle='#ff47664d';ctx.fillRect(x,y,w,h);ctx.strokeStyle='#ff6985';ctx.strokeRect(x,y,w,h)}
+    ctx.restore();ctx.beginPath();ctx.arc(player.x,player.y,player.radius,0,Math.PI*2);ctx.strokeStyle='#ffe66c';ctx.stroke();ctx.restore();return;
+  }
   if(scene===3){
     ctx.save();ctx.scale(MAP_W/thirdBaseW,MAP_H/thirdBaseH);
     for(const poly of thirdWalkable){ctx.beginPath();poly.forEach(([x,y],i)=>i?ctx.lineTo(x,y):ctx.moveTo(x,y));ctx.closePath();ctx.fillStyle='#31dd7433';ctx.fill();ctx.strokeStyle='#53f4a8';ctx.stroke()}
@@ -375,12 +1146,125 @@ function drawDebug(){ctx.save();ctx.lineWidth=2/zoom;
     ctx.restore();ctx.beginPath();ctx.arc(player.x,player.y,player.radius,0,Math.PI*2);ctx.strokeStyle='#ffe66c';ctx.stroke();ctx.restore();return;
   }
   for(const p of walkable){ctx.beginPath();p.forEach(([x,y],i)=>i?ctx.lineTo(x,y):ctx.moveTo(x,y));ctx.closePath();ctx.fillStyle='#31dd7433';ctx.fill();ctx.strokeStyle='#53f4a8';ctx.stroke()}for(const [x,y,w,h]of blocked){ctx.fillStyle='#ff47664d';ctx.fillRect(x,y,w,h);ctx.strokeStyle='#ff6985';ctx.strokeRect(x,y,w,h)}ctx.beginPath();ctx.arc(player.x,player.y,player.radius,0,Math.PI*2);ctx.strokeStyle='#ffe66c';ctx.stroke();ctx.restore()}
-function frame(t){const dt=Math.min((t-last)/1000||0,.05);last=t;move(dt);if(wasMoving)spriteTime+=dt;else spriteTime=0;ctx.setTransform(dpr,0,0,dpr,0,0);ctx.clearRect(0,0,viewW,viewH);
+function frame(t){const dt=Math.min((t-last)/1000||0,.05);last=t;if(storageEndingPhase||!window.gwIsMenuOpen?.())move(dt);else{wasMoving=false;keys.clear();clickPath=[];}if(wasMoving)spriteTime+=dt;else spriteTime=0;ctx.setTransform(dpr,0,0,dpr,0,0);ctx.clearRect(0,0,viewW,viewH);
 // 맵이 화면보다 작은 축에서도 카메라가 배경 밖으로 나가지 않도록 제한
 const vw=viewW/zoom,vh=viewH/zoom;
 camX=vw>=MAP_W?(MAP_W-vw)/2:Math.max(0,Math.min(MAP_W-vw,player.x-vw/2));
 camY=vh>=MAP_H?(MAP_H-vh)/2:Math.max(0,Math.min(MAP_H-vh,player.y-vh/2));
 ctx.save();ctx.scale(zoom,zoom);ctx.translate(-camX,-camY);if(image.complete&&image.naturalWidth)ctx.drawImage(image,0,0,MAP_W,MAP_H);else{ctx.fillStyle='#11141f';ctx.fillRect(0,0,MAP_W,MAP_H)}if(debug)drawDebug();drawPlayer();ctx.restore();requestAnimationFrame(frame)}requestAnimationFrame(frame);
 image.onerror=()=>{document.getElementById('notice').textContent=`map_${scene}.png 파일을 map.html과 같은 폴더에 넣어주세요`};
+
+// ESC 저장/불러오기: map.html의 실제 플레이 상태
+window.gwCaptureState=()=>({scene,px:player.x,py:player.y,dir:player.dir,zoom,trashKeyObtained,storageKeyObtained,storageDoorOpened,storageDrawerUnlocked,storageCardKeyObtained,chapterOneEnding:storageEndingPhase>0,chairmanDoorOpened:typeof chairmanDoorOpened!=='undefined'?chairmanDoorOpened:false});
+window.gwRestoreState=(state)=>{
+ if(window.mapDateIntroDismiss)window.mapDateIntroDismiss(false);
+ if(!state||![1,2,3,4,5,6].includes(Number(state.scene)))return;
+ const id=Number(state.scene);
+ const mapImages={1:'./map_1.png',2:'./map_2.png',3:'./map_3.png',4:'./map_4.png',5:'./map_5.png',6:'./map_6.png'};
+ scene=id;image.src=mapImages[id];
+ const srcImg={1:null,2:nextMap,3:thirdMap,4:chairmanMap,5:restroomMap,6:storageMap}[id];
+ const dims={1:[1774,887],2:[1472,1024],3:[1774,887],4:[1536,1024],5:[1536,1024],6:[1536,1024]}[id];
+ MAP_W=(srcImg&&srcImg.naturalWidth)||dims[0];MAP_H=(srcImg&&srcImg.naturalHeight)||dims[1];
+ player.x=Math.max(0,Math.min(MAP_W,Number(state.px)||MAP_W/2));player.y=Math.max(0,Math.min(MAP_H,Number(state.py)||MAP_H/2));
+ player.dir=['up','down','left','right'].includes(state.dir)?state.dir:'up';player.walk=0;
+ zoom=Number.isFinite(Number(state.zoom))?Number(state.zoom):zoom;
+ trashKeyObtained=!!state.trashKeyObtained;
+ storageEndingPhase=state.chapterOneEnding?6:0;storageEndingTime=0;chapterOneBlackout.classList.toggle('active',!!state.chapterOneEnding);if(state.chapterOneEnding){endingText.hidden=true;endingMenu.hidden=false;}else{endingText.hidden=true;endingMenu.hidden=true;}
+ storageKeyObtained=!!state.storageKeyObtained;
+ storageDoorOpened=!!state.storageDoorOpened;storageDrawerUnlocked=!!state.storageDrawerUnlocked;storagePinWrongDialog=false;storageCardKeyObtained=!!state.storageCardKeyObtained;storageCardDialogStep=-1;closeStoragePin();storageDialogIndex=-1;storageChoices.hidden=true;
+ plantDialogIndex=-1;
+ if(typeof chairmanDoorOpened!=='undefined')chairmanDoorOpened=!!state.chairmanDoorOpened;
+ clickPath=[];keys.clear();spriteTime=0;
+ if(typeof boardDialogIndex!=='undefined')boardDialogIndex=-1;
+ if(typeof trashDialogIndex!=='undefined')trashDialogIndex=-1;
+ if(typeof chairmanDialogIndex!=='undefined')chairmanDialogIndex=-1;
+ const dialog=document.getElementById('boardDialog');if(dialog)dialog.hidden=true;
+ const notice=document.getElementById('notice');if(notice)notice.textContent='';
+ document.title='귀시무담 | MAP '+String(scene).padStart(2,'0');
+};
 </script>
+<script>
+/* web_intro(2).html과 동일한 글자 간격, 시작 지연 및 타이핑 소리 합성 */
+(()=>{
+'use strict';
+const MESSAGE='20XX년 2월 7일 오후 10시', SPEED=125, START_DELAY=650;
+const overlay=document.getElementById('mapDateIntro');
+const text=document.getElementById('mapDateText'),cursor=document.getElementById('mapDateCursor');
+const guide=document.getElementById('mapDateGuide'),soundNote=document.getElementById('mapDateSoundNote');
+let index=0,finished=false,timer=null,ctx=null,noiseBuffer=null,masterGain=null;
+function enableSound(){
+ try{
+  if(!ctx){const AudioContextClass=window.AudioContext||window.webkitAudioContext;if(!AudioContextClass)return;ctx=new AudioContextClass();masterGain=ctx.createGain();masterGain.gain.value=.6;masterGain.connect(ctx.destination);}
+  if(ctx.state==='suspended')ctx.resume().catch(()=>{});
+  soundNote.style.display='none';
+ }catch(e){}
+}
+function typingSound(){
+ if(!ctx||ctx.state!=='running')return;
+ if(!noiseBuffer){noiseBuffer=ctx.createBuffer(1,Math.ceil(ctx.sampleRate*.025),ctx.sampleRate);const samples=noiseBuffer.getChannelData(0);for(let i=0;i<samples.length;i++)samples[i]=(Math.random()*2-1)*Math.pow(1-i/samples.length,4);}
+ const now=ctx.currentTime,source=ctx.createBufferSource(),filter=ctx.createBiquadFilter(),gain=ctx.createGain();
+ source.buffer=noiseBuffer;filter.type='bandpass';filter.frequency.value=1600+Math.random()*400;filter.Q.value=.8;
+ gain.gain.setValueAtTime(.035,now);gain.gain.exponentialRampToValueAtTime(.001,now+.025);
+ source.connect(filter);filter.connect(gain);gain.connect(masterGain);source.start(now);source.stop(now+.025);
+}
+function finish(){finished=true;clearTimeout(timer);cursor.style.display='none';guide.classList.add('visible');}
+function typeNext(){const chars=Array.from(MESSAGE);if(index>=chars.length){finish();return;}const ch=chars[index++];text.textContent+=ch;if(ch.trim())typingSound();timer=setTimeout(typeNext,SPEED);}
+function dismiss(showOpeningDialog=true){
+ clearTimeout(timer);overlay.hidden=true;window.mapDateIntroActive=false;
+ if(ctx&&ctx.state==='running')ctx.suspend().catch(()=>{});
+ if(showOpeningDialog){
+  // 기존 chat.png 대화창을 재사용하며, 첫 클릭으로 닫히도록 마지막 단계에 둡니다.
+  const dialog=document.getElementById('boardDialog');
+  const line=document.getElementById('boardLine');
+  if(dialog&&line){
+   boardDialogIndex=boardRules.length-1;
+   dialog.querySelector('.board-speaker').textContent='-';
+   line.textContent='(회사 안으로 들어가자)';
+   clickPath=[];keys.clear();
+   dialog.hidden=false;
+  }
+ }
+}
+window.mapDateIntroActive=true;
+window.mapDateIntroDismiss=dismiss;
+// 인트로가 보이는 동안 지도에 클릭·키 입력이 전달되지 않도록 차단
+for(const eventName of ['pointerdown','pointerup','click','dblclick','contextmenu','wheel']){
+ overlay.addEventListener(eventName,e=>{
+  e.stopPropagation();if(eventName==='pointerdown')enableSound();
+  if(eventName==='click'){if(!finished){text.textContent=MESSAGE;finish();}else dismiss(true);}
+ });
+}
+window.addEventListener('keydown',e=>{if(!window.mapDateIntroActive)return;enableSound();if(e.key==='Enter'||e.key===' '){e.preventDefault();if(!finished){text.textContent=MESSAGE;finish();}else dismiss(true);}else if(['ArrowUp','ArrowDown','ArrowLeft','ArrowRight','w','a','s','d','e','Shift'].includes(e.key)){e.preventDefault();}e.stopImmediatePropagation();},true);
+timer=setTimeout(typeNext,START_DELAY);
+})();
+</script>
+<script>
+// 챕터 1 엔딩 저장 메뉴: 저장 완료 후 '돌아가기'를 누르면 메인 화면으로 이동.
+(function(){
+ let endingSaved=false;
+ window.addEventListener('message',function(event){
+   if(typeof storageEndingPhase==='undefined'||storageEndingPhase!==6)return;
+   const overlay=document.getElementById('gw-esc-overlay');
+   const iframe=overlay?.querySelector('iframe');
+   if(!iframe||event.source!==iframe.contentWindow)return;
+   const data=event.data||{};
+   if(data.type==='GW_ESC_SAVE'){
+     const slot=Number(data.slot);
+     if(Number.isInteger(slot)&&slot>=1&&slot<=10){
+       // 브리지의 저장 처리가 성공한 경우에만 이동 허용.
+       setTimeout(function(){
+         try{
+           const saved=JSON.parse(localStorage.getItem('gwisimu_save_v2_'+slot)||'null');
+           if(saved?.state?.chapterOneEnding)endingSaved=true;
+         }catch(_){}
+       },0);
+     }
+   }else if(data.type==='GWISIMU_ESC_CLOSE'&&endingSaved){
+     event.stopImmediatePropagation();
+     location.href='index.html';
+   }
+ },true);
+})();
+</script>
+<script src="gw_save_bridge.js" defer></script>
 </body></html>

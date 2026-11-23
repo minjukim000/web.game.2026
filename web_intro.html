@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>귀시무담 - 날짜 인트로</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/galmuri@latest/dist/galmuri.css">
+<style>
+*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden}
+body{background:#000;color:#f2f2f2;font-family:'Galmuri11',monospace;user-select:none;cursor:pointer}
+main{min-height:100dvh;display:flex;align-items:center;justify-content:center;text-align:center;padding:24px}
+#text{font-size:clamp(15px,2.2vw,21px);font-weight:400;letter-spacing:.02em;line-height:2;word-break:keep-all}
+#cursor{display:inline-block;width:2px;height:1em;margin-left:5px;background:#f2f2f2;vertical-align:-.12em;animation:blink .7s steps(1) infinite}
+@keyframes blink{50%{opacity:0}}
+#guide{font-size:clamp(11px,1.5vw,13px);color:#858585;margin-top:24px;opacity:0;transition:opacity .5s;pointer-events:none}
+#guide.visible{opacity:1}
+#room{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:#000}
+#room.visible{display:flex}
+#roomStage{position:relative;width:min(90vw,135vh);aspect-ratio:3/2;flex:none}
+#roomStage>img:first-child{display:block;width:100%;height:100%;object-fit:contain;image-rendering:pixelated}
+#headIcon{position:absolute;left:73.1%;top:27.0%;width:8.0%;height:auto;transform:translate(-50%,-100%);image-rendering:pixelated;display:none;filter:drop-shadow(0 2px 2px #0009)}
+#headIcon.visible{display:block;animation:pop .3s steps(3,end) both}
+@keyframes pop{from{opacity:0;transform:translate(-50%,-88%)}to{opacity:1;transform:translate(-50%,-100%)}}
+#soundNote{position:fixed;bottom:18px;left:0;right:0;text-align:center;font-size:11px;color:#777;pointer-events:none}
+/* 화면 왼쪽 위 8비트 사운드 컨트롤 */
+    #soundControl {
+      position: fixed; top: 20px; left: 20px; z-index: 100;
+      display: flex; align-items: center; gap: 10px;
+      padding: 9px 12px; background: transparent;
+      border: none; box-shadow: none;
+      font-family: 'Galmuri11', monospace; color: #e0dcd8;
+    }
+    #volumePanel { display: none; align-items: center; gap: 10px; }
+    #soundControl:hover #volumePanel,
+    #soundControl:focus-within #volumePanel,
+    #soundControl.open #volumePanel { display: flex; }
+    #muteButton {
+      width: 30px; height: 30px; display: grid; place-items: center;
+      border: 0; padding: 0; background: transparent; color: inherit; cursor: pointer;
+    }
+    #muteButton svg { width: 27px; height: 27px; shape-rendering: crispEdges; }
+    #muteButton:focus-visible, #volumeSlider:focus-visible { outline: 2px solid #fff; outline-offset: 3px; }
+    #volumeSlider { width: 100px; height: 8px; appearance: none; -webkit-appearance: none;
+      background: #565153; border: 2px solid #aaa3a0; border-radius: 0; cursor: pointer; }
+    #volumeSlider::-webkit-slider-thumb { appearance: none; width: 12px; height: 18px; border: 2px solid #282426; background: #eee9df; border-radius: 0; }
+    #volumeSlider::-moz-range-thumb { width: 9px; height: 15px; border: 2px solid #282426; background: #eee9df; border-radius: 0; }
+    #volumeValue { min-width: 35px; font-size: 11px; text-align: right; }
+    @media(max-width: 500px) { #soundControl { top: 12px; left: 12px; padding: 7px; gap: 7px; } #volumeSlider { width: 72px; } }
+
+
+    
+</style>
+</head>
+<body>
+<div id="soundControl" aria-label="게임 소리 설정">
+    <button id="muteButton" type="button" aria-label="음량 조절 열기" aria-expanded="false" aria-controls="volumePanel" title="음량 조절">
+      <svg viewBox="0 0 24 24" aria-hidden="true" fill="currentColor">
+        <path d="M3 9h4V6h3V4h3v16h-3v-2H7v-3H3z"/>
+        <path class="soundWave" d="M15 8h2v8h-2z M19 5h2v14h-2z"/>
+        <path class="muteCross" d="M15 9h2v2h2V9h2v2h-2v2h2v2h-2v-2h-2v2h-2v-2h2v-2h-2z" style="display:none"/>
+      </svg>
+    </button>
+    <div id="volumePanel">
+      <input id="volumeSlider" type="range" min="0" max="100" step="1" value="60" aria-label="음량 조절">
+      <span id="volumeValue">60%</span>
+    </div>
+  </div>
+
+  
+<main><div><div><span id="text"></span><span id="cursor"></span></div><p id="guide">화면을 클릭해주세요.</p></div></main>
+<div id="room"><div id="roomStage"><img src="web.png" alt="밤의 원룸"><img id="headIcon" src="game_icon1.png" alt="캐릭터 머리 위 알림"></div></div>
+<div id="soundNote">소리가 들리지 않으면 화면을 한 번 클릭해주세요.</div>
+<script>
+'use strict';
+const MESSAGE='20XX년 2월 6일 오후 8시';
+const SPEED=125, START_DELAY=650;
+const text=document.getElementById('text');
+const cursor=document.getElementById('cursor');
+const guide=document.getElementById('guide');
+const soundNote=document.getElementById('soundNote');
+const room=document.getElementById('room');
+const headIcon=document.getElementById('headIcon');
+let roomShown=false;
+let iconShown=false, redirectTimer=null;
+function goToWeb(){
+  if(!iconShown)return;
+  clearTimeout(redirectTimer);
+  window.location.href='web.html';
+}
+let index=0,finished=false,timer=null,ctx=null,noiseBuffer=null;
+let masterGain=null,volume=0.6,lastNonZeroVolume=0.6;
+const volumeSlider=document.getElementById('volumeSlider');
+const volumeValue=document.getElementById('volumeValue');
+const muteButton=document.getElementById('muteButton');
+const soundControl=document.getElementById('soundControl');
+function setVolume(value){
+  volume=Math.max(0,Math.min(1,value));
+  if(volume>0)lastNonZeroVolume=volume;
+  volumeSlider.value=Math.round(volume*100);
+  volumeValue.textContent=Math.round(volume*100)+'%';
+  muteButton.title=volume===0?'음소거 상태 · 음량 조절':'음량 조절';
+  muteButton.querySelector('.soundWave').style.display=volume===0?'none':'';
+  muteButton.querySelector('.muteCross').style.display=volume===0?'':'none';
+  if(masterGain&&ctx)masterGain.gain.setTargetAtTime(volume,ctx.currentTime,.01);
+}
+volumeSlider.addEventListener('input',e=>setVolume(Number(e.target.value)/100));
+soundControl.addEventListener('click',e=>e.stopPropagation());
+soundControl.addEventListener('pointerenter',()=>muteButton.setAttribute('aria-expanded','true'));
+soundControl.addEventListener('pointerleave',()=>{soundControl.classList.remove('open');muteButton.setAttribute('aria-expanded','false');});
+muteButton.addEventListener('click',e=>{
+  if(e.detail===0)return;
+  if(matchMedia('(hover: none)').matches){
+    const opened=soundControl.classList.toggle('open');
+    muteButton.setAttribute('aria-expanded',String(opened));
+  }
+});
+document.addEventListener('click',e=>{if(!soundControl.contains(e.target)){soundControl.classList.remove('open');muteButton.blur();}});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){soundControl.classList.remove('open');muteButton.blur();}});
+setVolume(volume);
+function enableSound(){
+  try{
+    if(!ctx){const AudioContext=window.AudioContext||window.webkitAudioContext;if(!AudioContext)return;ctx=new AudioContext();masterGain=ctx.createGain();masterGain.gain.value=volume;masterGain.connect(ctx.destination);}
+    if(ctx.state==='suspended')ctx.resume();
+    soundNote.style.display='none';
+  }catch(e){}
+}
+function typingSound(){
+  if(!ctx||ctx.state!=='running')return;
+  if(!noiseBuffer){
+    noiseBuffer=ctx.createBuffer(1,Math.ceil(ctx.sampleRate*.025),ctx.sampleRate);
+    const samples=noiseBuffer.getChannelData(0);
+    for(let i=0;i<samples.length;i++)samples[i]=(Math.random()*2-1)*Math.pow(1-i/samples.length,4);
+  }
+  const now=ctx.currentTime,source=ctx.createBufferSource(),filter=ctx.createBiquadFilter(),gain=ctx.createGain();
+  source.buffer=noiseBuffer;filter.type='bandpass';filter.frequency.value=1600+Math.random()*400;filter.Q.value=.8;
+  gain.gain.setValueAtTime(.035,now);gain.gain.exponentialRampToValueAtTime(.001,now+.025);
+  source.connect(filter);filter.connect(gain);gain.connect(masterGain);
+  source.start(now);source.stop(now+.025);
+}
+function playDing(){
+  if(!ctx||ctx.state!=='running')return;
+  const t=ctx.currentTime;
+  [{at:0,hz:880,len:.17},{at:.13,hz:1320,len:.34}].forEach(n=>{
+    const o=ctx.createOscillator(),g=ctx.createGain();o.type='sine';
+    o.frequency.setValueAtTime(n.hz,t+n.at);
+    g.gain.setValueAtTime(.0001,t+n.at);
+    g.gain.exponentialRampToValueAtTime(.11,t+n.at+.012);
+    g.gain.exponentialRampToValueAtTime(.0001,t+n.at+n.len);
+    o.connect(g);g.connect(masterGain);
+    o.start(t+n.at);o.stop(t+n.at+n.len+.01);
+  });
+}
+function showRoom(){
+  if(roomShown)return;
+  roomShown=true;
+  document.querySelector('main').style.display='none';
+  room.classList.add('visible');
+  soundNote.style.display='none';
+  setTimeout(()=>{
+    playDing();
+    headIcon.classList.add('visible');
+    iconShown=true;
+    redirectTimer=setTimeout(goToWeb,5000);
+  },1000);
+}
+function finish(){finished=true;clearTimeout(timer);cursor.style.display='none';guide.classList.add('visible');}
+function typeNext(){
+  const chars=Array.from(MESSAGE);
+  if(index>=chars.length){finish();return;}
+  const ch=chars[index++];text.textContent+=ch;
+  if(ch.trim())typingSound();
+  timer=setTimeout(typeNext,SPEED);
+}
+function start(){index=0;finished=false;text.textContent='';cursor.style.display='inline-block';guide.classList.remove('visible');timer=setTimeout(typeNext,START_DELAY);}
+document.addEventListener('pointerdown',enableSound,{passive:true});
+document.addEventListener('keydown',enableSound);
+document.addEventListener('click',()=>{
+  if(roomShown){if(iconShown)goToWeb();return;}
+  if(!finished){clearTimeout(timer);text.textContent=MESSAGE;finish();return;}
+  showRoom();
+});
+start();
+</script>
+<script src="gw_save_bridge.js" defer></script>
+</body>
+</html>
