@@ -1,0 +1,13 @@
+(()=>{'use strict';
+const SAVE_PREFIX='gwisimu_save_v2_';const PENDING='gwisimu_pending_load_v2';const PAGE=location.pathname.split('/').pop()||'map.html';
+let overlay=null, frame=null, open=false;
+function snapshot(){let chapterNumber=Number(window.gwChapter)||1;let chapterTitle=typeof window.gwChapterTitle==='string'?window.gwChapterTitle:'';let data={version:2,page:PAGE,at:new Date().toISOString(),title:document.title,chapter:chapterNumber,chapterTitle:chapterTitle};if(typeof window.gwCaptureState==='function'){try{data.state=window.gwCaptureState()}catch(e){console.warn('저장 상태 캡처 실패',e)}}return data}
+function ensureOverlay(){if(overlay)return;overlay=document.createElement('div');overlay.id='gw-esc-overlay';overlay.style.cssText='position:fixed;inset:0;z-index:2147483640;background:#000b;display:none';frame=document.createElement('iframe');frame.src='esc.html';frame.title='게임 메뉴';frame.style.cssText='border:0;width:100%;height:100%;display:block';overlay.append(frame);document.body.append(overlay)}
+function toggle(force){ensureOverlay();open=force===undefined?!open:!!force;overlay.style.display=open?'block':'none';document.documentElement.dataset.gwMenuOpen=open?'1':'0';if(open){frame.contentWindow?.postMessage({type:'GW_ESC_STATE',snapshot:snapshot()},'*')}else{document.activeElement?.blur()}}
+window.gwIsMenuOpen=()=>open;
+window.addEventListener('message',e=>{if(e.source!==frame?.contentWindow)return;const d=e.data||{};if(d.type==='GWISIMU_ESC_CLOSE'){toggle(false)}if(d.type==='GW_ESC_GET_STATE'){frame.contentWindow.postMessage({type:'GW_ESC_STATE',snapshot:snapshot()},'*')}if(d.type==='GW_ESC_SAVE'){try{const n=Number(d.slot);if(n<1||n>10||!Number.isInteger(n))return;const value=snapshot();localStorage.setItem(SAVE_PREFIX+n,JSON.stringify(value));frame.contentWindow.postMessage({type:'GW_ESC_SAVED',slot:n,snapshot:value},'*')}catch(err){frame.contentWindow.postMessage({type:'GW_ESC_ERROR',message:'저장할 수 없습니다: '+err.message},'*')}}});
+document.addEventListener('keydown',e=>{if(e.key!=='Escape'||e.repeat||e.defaultPrevented)return;if(e.target?.closest?.('input,textarea,[contenteditable="true"]'))return;e.preventDefault();e.stopImmediatePropagation();toggle()},true);
+// Only apply a pending restore when it targets this page.
+let pending=null;try{pending=JSON.parse(sessionStorage.getItem(PENDING)||'null')}catch{};
+if(pending&&pending.page===PAGE){sessionStorage.removeItem(PENDING);window.addEventListener('load',()=>{if(typeof window.gwRestoreState==='function'&&pending.state){try{window.gwRestoreState(pending.state)}catch(err){console.warn('게임 상태 복구 실패',err)}}},{once:true})}
+})();

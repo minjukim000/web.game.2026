@@ -1,0 +1,581 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>GX 편의점 창고 | MAP 04</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/galmuri@latest/dist/galmuri.css">
+<style>
+:root{color-scheme:dark}*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#0d0e16;font-family:system-ui,-apple-system,'Malgun Gothic',sans-serif}canvas{display:block;width:100%;height:100%;image-rendering:auto;touch-action:none}.hud{position:fixed;top:18px;left:18px;padding:12px 15px;border:1px solid #ffffff30;border-radius:12px;background:#0d1020bc;color:#f2e8d8;backdrop-filter:blur(9px);font-size:13px;line-height:1.7;pointer-events:none}.hud strong{font-size:15px}.hud small{color:#bdb9b7}.help{position:fixed;right:18px;top:18px;display:flex;gap:8px}button{border:1px solid #ffffff4a;background:#101524d9;color:#fff;padding:9px 12px;border-radius:9px;cursor:pointer;font:inherit}button:hover{background:#263149}button:focus-visible{outline:2px solid #f5c47a;outline-offset:2px}.notice{position:fixed;left:50%;bottom:25px;transform:translateX(-50%);padding:9px 14px;background:#0e1220e0;border:1px solid #ffffff35;color:#f4e8d7;border-radius:10px;font-size:12px;white-space:nowrap;pointer-events:none}.touch{position:fixed;left:20px;bottom:25px;display:none;grid-template-columns:repeat(3,50px);grid-template-rows:repeat(3,50px);gap:3px;user-select:none}.touch button{padding:0;font-size:20px;touch-action:none}.touch .up{grid-column:2;grid-row:1}.touch .left{grid-column:1;grid-row:2}.touch .down{grid-column:2;grid-row:2}.touch .right{grid-column:3;grid-row:2}@media(pointer:coarse){.touch{display:grid}.notice{bottom:12px;left:auto;right:14px;transform:none;font-size:10px}.hud{font-size:11px;padding:8px 10px}.help{right:10px;top:10px}.help button{font-size:11px;padding:7px}}
+
+/* game1.html의 chat.png 대화창 구성과 선택지 스타일 */
+.dialogue-overlay{position:fixed;left:50%;bottom:0;width:min(96vw,1250px);aspect-ratio:2048/684;transform:translate(-50%,8%);z-index:90;display:none;pointer-events:none;font-family:'Galmuri11',monospace;color:#f6f2eb;text-shadow:1px 2px 0 #111}
+.dialogue-overlay.open{display:block;animation:dialogueSlideUp .48s cubic-bezier(.22,1,.36,1) both}
+@keyframes dialogueSlideUp{from{opacity:0;transform:translate(-50%,45%)}to{opacity:1;transform:translate(-50%,8%)}}
+.dialogue-bg{display:block;width:100%;height:100%;image-rendering:pixelated}
+.dialogue-portrait{position:absolute;left:6.2%;top:30.2%;width:12.9%;height:39.1%;object-fit:cover;object-position:center 31%;image-rendering:pixelated}
+.dialogue-speaker{position:absolute;left:20%;top:25%;width:15%;text-align:center;font-size:clamp(11px,1.35vw,18px);white-space:nowrap}
+.dialogue-text{position:absolute;left:24%;top:43%;font-size:clamp(13px,1.65vw,23px);letter-spacing:.02em;white-space:pre-line;line-height:1.6}
+.dialogue-options{position:fixed;z-index:95;right:calc((100vw - min(96vw,1250px))/2 + 56px);bottom:clamp(165px,24vw,320px);width:clamp(210px,22vw,285px);padding:10px 9px;background:#292929;border:4px solid #e9e9e9;outline:3px solid #171717;box-shadow:inset 3px 3px 0 #777,inset -3px -3px 0 #101010,5px 5px 0 #111;font-family:'Galmuri11',monospace;display:none;image-rendering:pixelated}
+.dialogue-options.open{display:block;animation:choiceAppear .16s steps(3,end) both}
+@keyframes choiceAppear{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.dialogue-options button{width:100%;display:flex;align-items:center;gap:9px;border:0;border-radius:0;background:transparent;color:#f5f5f5;font-family:inherit;font-size:clamp(17px,1.7vw,24px);text-align:left;padding:6px 8px;cursor:pointer}
+.dialogue-options .choice-cursor{visibility:hidden;color:#242424;font-size:.9em}
+.dialogue-options button.is-selected,.dialogue-options button:hover,.dialogue-options button:focus-visible{background:#e8e8e8;color:#202020;outline:none}
+.dialogue-options button.is-selected .choice-cursor,.dialogue-options button:hover .choice-cursor,.dialogue-options button:focus-visible .choice-cursor{visibility:visible}
+@media(max-width:600px){.dialogue-overlay{width:115vw}.dialogue-speaker{font-size:10px}.dialogue-text{font-size:12px}.dialogue-options{right:calc((100vw - 115vw)/2 + 56px);bottom:27vw;width:210px}}
+/* 읽는다 선택 시 메모 이미지 보기 */
+.memo-viewer{position:fixed;inset:0;z-index:120;display:none;align-items:center;justify-content:center;background:transparent;cursor:default;padding:24px}
+.memo-viewer.open{display:flex}
+.memo-viewer ~ .dialogue-overlay{z-index:130}
+.memo-viewer ~ .dialogue-options{z-index:135}
+.memo-viewer img{display:block;max-width:min(85vw,900px);max-height:85vh;width:auto;height:auto;object-fit:contain;image-rendering:pixelated}
+.memo-viewer{z-index:100}.dialogue-overlay{z-index:130}.dialogue-options{z-index:135}
+/* END #3: game1 엔딩처럼 검은 화면으로 페이드 후 우측 하단 타이핑 */
+#endingFade{position:fixed;inset:0;z-index:200;background:#000;opacity:0;pointer-events:none;transition:opacity .42s ease-in}
+#endingFade.active{opacity:1;pointer-events:auto}
+#endingScreen{position:fixed;inset:0;z-index:201;display:none;pointer-events:none;color:#f1f1f1;font-family:'Galmuri11','Galmuri',monospace}
+#endingScreen.visible{display:block;pointer-events:auto;cursor:pointer}
+#endingText{position:absolute;right:clamp(28px,7vw,120px);bottom:clamp(35px,9vh,105px);text-align:right;white-space:pre-line;font-size:clamp(17px,2vw,28px);line-height:1.85;text-shadow:2px 2px #333}
+#freezerDebugOverlay{position:fixed;z-index:40;pointer-events:none;background:rgba(255,220,25,.55);border:3px solid #ffe52c;color:#191100;text-align:center;font:700 12px 'Galmuri11',monospace;display:flex;align-items:center;justify-content:center;text-shadow:0 1px #fff8}
+#freezerDebugOverlay[hidden]{display:none!important}
+
+</style>
+</head>
+<body>
+<canvas id="game" aria-label="키보드 또는 클릭으로 캐릭터를 이동하는 게임 지도"></canvas>
+<div id="freezerDebugOverlay" hidden aria-hidden="true">냉동고 E 상호작용</div>
+
+
+<div class="touch" aria-label="화면 이동 버튼"><button class="up" data-dir="up" aria-label="위로">▲</button><button class="left" data-dir="left" aria-label="왼쪽">◀</button><button class="down" data-dir="down" aria-label="아래">▼</button><button class="right" data-dir="right" aria-label="오른쪽">▶</button></div>
+<div class="dialogue-overlay" id="itemDialogue" role="dialog" aria-modal="true" aria-label="메모 조사 대화창">
+ <img class="dialogue-bg" src="chat.png" alt="">
+ <img class="dialogue-portrait" src="c_1.png" alt="캐릭터 프로필">
+ <span class="dialogue-speaker">-</span>
+ <span class="dialogue-text" id="dialogueText">...
+(메모가 있다.)</span>
+</div>
+<div class="dialogue-options" id="dialogueOptions" role="group" aria-label="메모 선택">
+ <button type="button" class="is-selected" id="readMemo"><span class="choice-cursor">▶</span><span>(읽는다.)</span></button>
+ <button type="button" id="leaveMemo"><span class="choice-cursor">▶</span><span>(그대로 둔다.)</span></button>
+</div>
+<div class="memo-viewer" id="memoViewer" aria-label="메모 내용" tabindex="-1"><img src="game2_3.png" alt="메모에 적힌 숫자 1221"></div>
+<div id="endingFade" aria-hidden="true"></div>
+<div id="endingScreen" aria-live="polite" aria-label="세 번째 엔딩"><div id="endingText"></div></div>
+<script>
+
+'use strict';
+const canvas=document.getElementById('game'),ctx=canvas.getContext('2d');
+const image=new Image();image.src='./game2_2.png';
+const MAP_W=1536,MAP_H=1024;
+const player={x:770,y:718,dir:'up',walk:0,radius:11};
+const spriteFrames={down:[1,2,3,4],left:[5,6,7,8],right:[9,10,11],up:[12,13,14,15]};
+const sprites={};
+for(const [dir,ids] of Object.entries(spriteFrames)){
+  sprites[dir]=ids.map(id=>{const img=new Image();img.src=`./map_c_${id}.png`;return img;});
+}
+const SPRITE_HEIGHT=195,SPRITE_FPS=9;
+let spriteTime=0,wasMoving=false;
+let dialogueOpen=false;
+let freezerDialogueOpen=false;
+// 냉동고 본체와 실제로 캐릭터가 서서 E를 누를 수 있는 앞쪽 통로를 분리합니다.
+const FREEZER={x1:645,y1:125,x2:900,y2:425};
+const FREEZER_INTERACT={x1:620,y1:415,x2:905,y2:490};
+function nearFreezer(){
+ return player.x>=FREEZER_INTERACT.x1 && player.x<=FREEZER_INTERACT.x2 &&
+        player.y>=FREEZER_INTERACT.y1 && player.y<=FREEZER_INTERACT.y2;
+}
+function showFreezerDialogue(){
+ if(dialogueOpen||endingStarted||!nearFreezer())return;
+ dialogueOpen=true;freezerDialogueOpen=true;keys.clear();clickPath=[];clickMarker=null;
+ dialogueText.textContent='(냉동식품들을 보관 중인 것 같다.)';
+ dialogueOptions.classList.remove('open');memoViewer.classList.remove('open');
+ dialogueEl.classList.add('open');
+}
+function closeFreezerDialogue(){freezerDialogueOpen=false;dialogueOpen=false;dialogueEl.classList.remove('open');}
+
+const dialogueEl=document.getElementById('itemDialogue');
+const dialogueText=document.getElementById('dialogueText');
+const dialogueOptions=document.getElementById('dialogueOptions');
+function nearItem(){return Math.hypot(player.x-1230,player.y-640)<=165;}
+function showItemDialogue(){
+ if(dialogueOpen||memoCollected||!nearItem())return;
+ dialogueOpen=true;keys.clear();clickPath=[];clickMarker=null;
+ dialogueText.textContent='...\n(메모가 있다.)';dialogueOptions.classList.add('open');
+ dialogueEl.classList.add('open');setSelectedChoice(0);
+}
+let memoTimer=null;
+let memoCollected=false;
+let photoDialoguePending=false;
+let cameraAudioContext=null;
+function playCameraShutter(){
+ try{
+  const AudioCtx=window.AudioContext||window.webkitAudioContext;if(!AudioCtx)return;
+  if(!cameraAudioContext)cameraAudioContext=new AudioCtx();
+  const audio=cameraAudioContext;
+  if(audio.state==='suspended')audio.resume().catch(()=>{});
+  const t=audio.currentTime+.015;
+  // 짧은 셔터의 기계음: 클릭 두 번과 미세한 잡음
+  for(const [delay,freq,duration,level] of [[0,1250,.038,.11],[.07,820,.055,.085]]){
+   const osc=audio.createOscillator(),gain=audio.createGain();
+   osc.type='square';osc.frequency.setValueAtTime(freq,t+delay);
+   osc.frequency.exponentialRampToValueAtTime(freq*.58,t+delay+duration);
+   gain.gain.setValueAtTime(level,t+delay);
+   gain.gain.exponentialRampToValueAtTime(.0001,t+delay+duration);
+   osc.connect(gain);gain.connect(audio.destination);osc.start(t+delay);osc.stop(t+delay+duration+.005);
+  }
+  const duration=.12,buffer=audio.createBuffer(1,Math.ceil(audio.sampleRate*duration),audio.sampleRate),data=buffer.getChannelData(0);
+  for(let i=0;i<data.length;i++)data[i]=(Math.random()*2-1)*Math.pow(1-i/data.length,5);
+  const noise=audio.createBufferSource(),filter=audio.createBiquadFilter(),gain=audio.createGain();
+  noise.buffer=buffer;filter.type='highpass';filter.frequency.value=1700;gain.gain.value=.095;
+  noise.connect(filter);filter.connect(gain);gain.connect(audio.destination);noise.start(t);noise.stop(t+duration);
+ }catch(err){console.warn('카메라 셔터 효과음 재생 실패:',err);}
+}
+
+let knockAudioContext=null;
+// 별도 효과음 파일 없이 세 번의 묵직한 문 두드림을 합성합니다.
+async function playDoorKnocks(delaySeconds=0){
+ try{
+  const AudioCtx=window.AudioContext||window.webkitAudioContext;
+  if(!AudioCtx)return;
+  if(!knockAudioContext)knockAudioContext=new AudioCtx();
+  const audio=knockAudioContext;
+  // 브라우저의 자동 재생 제한으로 중단된 오디오를 사용자 클릭 직후 재개합니다.
+  if(audio.state!=='running')await audio.resume();
+  if(audio.state!=='running')return;
+  const master=audio.createDynamicsCompressor();
+  master.threshold.value=-14;master.knee.value=10;
+  master.ratio.value=5;master.attack.value=0.003;master.release.value=0.18;
+  const volume=audio.createGain();volume.gain.value=0.48;
+  master.connect(volume);volume.connect(audio.destination);
+  const start=audio.currentTime+delaySeconds+0.035;
+  [0,0.39,0.78].forEach((delay,i)=>{
+   const t=start+delay;
+   // 낮고 묵직한 나무문 울림
+   const osc=audio.createOscillator(),gain=audio.createGain();
+   osc.type='triangle';
+   osc.frequency.setValueAtTime(145,t);
+   osc.frequency.exponentialRampToValueAtTime(57,t+0.19);
+   gain.gain.setValueAtTime(0.0001,t);
+   gain.gain.exponentialRampToValueAtTime(i===2?0.75:0.65,t+0.008);
+   gain.gain.exponentialRampToValueAtTime(0.0001,t+0.31);
+   const filter=audio.createBiquadFilter();filter.type='lowpass';filter.frequency.value=650;
+   osc.connect(filter);filter.connect(gain);gain.connect(master);
+   osc.start(t);osc.stop(t+0.32);
+   // 짧은 타격음과 문 표면의 거친 울림
+   const duration=0.17;
+   const buffer=audio.createBuffer(1,Math.ceil(audio.sampleRate*duration),audio.sampleRate);
+   const data=buffer.getChannelData(0);
+   for(let n=0;n<data.length;n++)data[n]=(Math.random()*2-1)*Math.pow(1-n/data.length,2.6);
+   const noise=audio.createBufferSource();noise.buffer=buffer;
+   const low=audio.createBiquadFilter();low.type='lowpass';low.frequency.value=1450;
+   const ng=audio.createGain();ng.gain.value=i===2?0.8:0.7;
+   noise.connect(low);low.connect(ng);ng.connect(master);
+   noise.start(t);noise.stop(t+duration);
+  });
+ }catch(err){console.warn('문 두드림 효과음 재생 실패:',err);}
+}
+
+// 선택지 이동음과 확정음: game1.html의 짧은 사각파 효과음 기반.
+let choiceAudioContext=null;
+function playChoiceSound(confirm=false){
+ try{
+  const AudioCtx=window.AudioContext||window.webkitAudioContext;
+  if(!AudioCtx)return;
+  if(!choiceAudioContext)choiceAudioContext=new AudioCtx();
+  if(choiceAudioContext.state==='suspended')choiceAudioContext.resume().catch(()=>{});
+  const audio=choiceAudioContext,now=audio.currentTime;
+  const osc=audio.createOscillator(),gain=audio.createGain();
+  osc.type='square';
+  osc.frequency.setValueAtTime(confirm?680:900,now);
+  osc.frequency.exponentialRampToValueAtTime(confirm?340:510,now+(confirm?.085:.035));
+  gain.gain.setValueAtTime(confirm?.065:.042,now);
+  gain.gain.exponentialRampToValueAtTime(.0001,now+(confirm?.11:.045));
+  osc.connect(gain);gain.connect(audio.destination);
+  osc.start(now);osc.stop(now+(confirm?.115:.05));
+ }catch(err){console.warn('선택 효과음 재생 실패:',err);}
+}
+let endingStarted=false,endingFinished=false,endingTimer=null;
+const endingContent='#3 END\n남의 물건은 건들지 말자';
+function startEndingThree(){
+ if(endingStarted)return;
+ endingStarted=true;
+ keys.clear();clickPath=[];clickMarker=null;
+ const fade=document.getElementById('endingFade');
+ fade.classList.add('active');
+ const reveal=()=>{
+  const screen=document.getElementById('endingScreen');
+  const text=document.getElementById('endingText');
+  text.textContent='';screen.classList.add('visible');
+  let i=0;
+  function typeNext(){
+   if(i>=endingContent.length){endingFinished=true;return;}
+   const ch=endingContent[i++];text.textContent+=ch;
+   endingTimer=setTimeout(typeNext,ch==='\n'?260:85);
+  }
+  typeNext();
+ };
+ fade.addEventListener('transitionend',e=>{if(e.propertyName==='opacity')reveal();},{once:true});
+ // CSS transition이 실행되지 않는 환경에서도 엔딩 표시
+ setTimeout(()=>{if(!document.getElementById('endingScreen').classList.contains('visible'))reveal();},650);
+}
+document.getElementById('endingScreen').addEventListener('click',()=>{
+ if(!endingFinished){clearTimeout(endingTimer);document.getElementById('endingText').textContent=endingContent;endingFinished=true;}
+ else location.href='index.html';
+});
+const memoViewer=document.getElementById('memoViewer');
+const readButton=document.getElementById('readMemo');
+const leaveButton=document.getElementById('leaveMemo');
+const memoButtons=[readButton,leaveButton];
+function setSelectedChoice(index,withSound=false){const before=memoButtons.findIndex(button=>button.classList.contains('is-selected'));memoButtons.forEach((button,i)=>button.classList.toggle('is-selected',i===index));if(withSound&&before!==index)playChoiceSound(false);}
+function closeItemDialogue(){
+ freezerDialogueOpen=false;
+ photoDialoguePending=false;
+ clearTimeout(memoTimer);memoTimer=null;
+ dialogueOpen=false;
+ dialogueEl.classList.remove('open');dialogueOptions.classList.remove('open');
+ memoViewer.classList.remove('open');
+ readButton.querySelector('span:last-child').textContent='(읽는다.)';
+ leaveButton.querySelector('span:last-child').textContent='(그대로 둔다.)';
+}
+leaveButton.addEventListener('click',()=>{
+ playChoiceSound(true);
+ if(memoViewer.classList.contains('open')){
+  // '챙기지 않는다': 메모 이미지를 닫고 독백만 표시. 다음 클릭에 촬영.
+  clearTimeout(memoTimer);memoTimer=null;
+  memoViewer.classList.remove('open');
+  dialogueOptions.classList.remove('open');
+  dialogueText.textContent='(역시 사진만 찍어두자)';
+  dialogueEl.classList.add('open');
+  photoDialoguePending=true;
+ }else closeItemDialogue();
+});
+// 독백이 나온 뒤 사용자가 화면을 한 번 더 클릭할 때만 찰칵 소리 재생.
+document.addEventListener('pointerdown',e=>{
+ if(!photoDialoguePending||e.button!==0)return;
+ e.preventDefault();e.stopImmediatePropagation();
+ playCameraShutter();closeItemDialogue();
+},true);
+readButton.addEventListener('click',()=>{
+ playChoiceSound(true);
+ if(!memoViewer.classList.contains('open')){
+  dialogueOptions.classList.remove('open');dialogueEl.classList.remove('open');
+  memoViewer.classList.add('open');
+  memoTimer=setTimeout(()=>{
+   memoTimer=null;
+   if(!dialogueOpen||!memoViewer.classList.contains('open'))return;
+   dialogueText.textContent='2244..';
+   readButton.querySelector('span:last-child').textContent='챙긴다';
+   leaveButton.querySelector('span:last-child').textContent='챙기지 않는다';
+   setSelectedChoice(0);
+   dialogueEl.classList.add('open');dialogueOptions.classList.add('open');
+  },1100);
+ }else{
+  memoCollected=true;
+  closeItemDialogue();
+  // 클릭 직후 오디오를 활성화하되 첫 타격은 0.85초 뒤 예약합니다.
+  // 타이머 안에서 오디오를 시작하면 브라우저 자동재생 제한에 걸릴 수 있습니다.
+  playDoorKnocks(0.85);
+  // 세 번의 문 두드림이 끝난 다음 END #3으로 전환.
+  setTimeout(startEndingThree,2200);
+ }
+});
+memoButtons.forEach((button,index)=>button.addEventListener('mouseenter',()=>{if(dialogueOptions.classList.contains('open'))setSelectedChoice(index,true);}));
+dialogueEl.addEventListener('click',()=>{if(freezerDialogueOpen)closeFreezerDialogue();});
+document.addEventListener('pointerdown',e=>{
+ if(!freezerDialogueOpen||e.button!==0)return;
+ e.preventDefault();e.stopImmediatePropagation();closeFreezerDialogue();
+},true);
+let clickMarker=null; // 실제 이동 목표 지점 (맵 좌표)
+const keys=new Set();let clickPath=[],zoom=1.15,debug=false,last=0,viewW=0,viewH=0,dpr=1,camX=0,camY=0;
+// 작은 창고 맵은 항상 화면 전체에 들어오도록 자동 축소합니다.
+const minZoom=0.85,maxZoom=3.0;
+
+// 좌표는 game2_2.png (1536 × 1024) 기준. 캐릭터의 발 좌표로 판정.
+// 초록색: 이동 가능 영역 / 빨간색: 통과 불가. F3로 확인하며 조정 가능.
+const walkable=[
+  [[90,408],[1450,408],[1450,805],[1320,805],[1320,861],[880,861],
+   [880,800],[660,800],[660,861],[220,861],[220,803],[90,803]],
+  [[400,351],[925,351],[925,470],[400,470]],
+  [[900,340],[1210,340],[1210,650],[900,650]],
+  [[400,690],[1145,690],[1145,845],[400,845]]
+];
+const blocked=[
+  [0,0,1536,100],         // 상단 벽
+  [0,100,95,720],         // 좌측 벽
+  [1450,100,86,730],      // 우측 벽
+  [0,815,665,209],        // 하단 왼쪽 벽/물품
+  [875,815,661,209],      // 하단 오른쪽 벽/물품
+  [120,145,312,615],      // 왼쪽 선반, 박스 및 사다리
+  [425,205,132,205],      // 냉장고 왼쪽의 적재물
+  [650,125,245,295],      // 상단 냉장고
+  [910,160,235,315],      // 중앙 오른쪽 선반
+  [1190,140,218,445],     // 오른쪽 상단 선반
+  [1365,320,90,475],      // 오른쪽 가장자리 물품
+  [540,455,195,230],      // 중앙 운반 카트
+  [1120,520,205,210],     // 오른쪽 아래 운반 카트
+  [1245,690,155,175],     // 오른쪽 아래 카트·선반 사이 틈 및 벽: 이동 불가
+  [1040,755,210,115],     // 하단 오른쪽 플라스틱 상자
+  [295,775,310,105],      // 하단 왼쪽 박스와 상자
+  [680,750,180,175],      // 하단 출입문: 현재는 통과 불가
+  [90,695,130,112],       // 왼쪽 하단 청소 도구
+  [255,510,145,245]       // 왼쪽 사다리
+];
+function resize(){
+ dpr=Math.min(devicePixelRatio||1,2);viewW=innerWidth;viewH=innerHeight;
+ canvas.width=Math.round(viewW*dpr);canvas.height=Math.round(viewH*dpr);
+ ctx.setTransform(dpr,0,0,dpr,0,0);
+}
+addEventListener('resize',resize);resize();
+function inPolygon(x,y,poly){
+ let inside=false;
+ for(let i=0,j=poly.length-1;i<poly.length;j=i++){
+  const a=poly[i],b=poly[j];
+  if(((a[1]>y)!==(b[1]>y))&&(x<(b[0]-a[0])*(y-a[1])/(b[1]-a[1])+a[0]))inside=!inside;
+ }
+ return inside;
+}
+function validPoint(x,y){
+ return walkable.some(p=>inPolygon(x,y,p))&&!blocked.some(([bx,by,bw,bh])=>x>=bx&&x<=bx+bw&&y>=by&&y<=by+bh);
+}
+function canStand(x,y){
+ const r=player.radius;
+ return [[0,0],[-r,0],[r,0],[0,-r*.65],[0,r*.65],
+         [-r*.7,-r*.45],[r*.7,-r*.45],[-r*.7,r*.45],[r*.7,r*.45]]
+        .every(([dx,dy])=>validPoint(x+dx,y+dy));
+}
+function toggleDebug(){
+ debug=!debug;
+ document.getElementById('freezerDebugOverlay').hidden=!debug;
+
+}
+const movement=new Set(['arrowup','arrowdown','arrowleft','arrowright','w','a','s','d','shift']);
+addEventListener('keydown',e=>{
+ const k=e.key.toLowerCase();
+ if(endingStarted){e.preventDefault();return;}
+ if(dialogueOpen){
+  if(freezerDialogueOpen){if(k==='escape'||k==='enter'||k===' '){e.preventDefault();closeFreezerDialogue();}return;}
+  if(photoDialoguePending&&(k==='enter'||k===' ')){e.preventDefault();playCameraShutter();closeItemDialogue();return;}
+  if(k==='escape'){e.preventDefault();closeItemDialogue();}
+  else if(memoViewer.classList.contains('open')&&!dialogueOptions.classList.contains('open')){e.preventDefault();return;}
+  else if(dialogueOptions.classList.contains('open')&&(k==='arrowup'||k==='arrowdown')){e.preventDefault();const i=memoButtons.findIndex(b=>b.classList.contains('is-selected'));setSelectedChoice((i+(k==='arrowdown'?1:-1)+2)%2,true);}
+  else if(k==='enter'||k===' '){e.preventDefault();if(dialogueOptions.classList.contains('open'))memoButtons.find(b=>b.classList.contains('is-selected')).click();else closeItemDialogue();}
+  return;
+ }
+ if(k==='e'&&!e.repeat&&nearFreezer()){e.preventDefault();showFreezerDialogue();return;}
+ if(k==='e'&&!e.repeat&&nearItem()){e.preventDefault();showItemDialogue();return;}
+ if(movement.has(k)){e.preventDefault();keys.add(k);if(k!=='shift'){clickPath=[];clickMarker=null;}}
+ if(k==='f3'||k==='f4'){e.preventDefault();if(!e.repeat)toggleDebug();}
+});
+
+addEventListener('keyup',e=>keys.delete(e.key.toLowerCase()));
+addEventListener('blur',()=>keys.clear());
+
+
+for(const b of document.querySelectorAll('[data-dir]')){
+ const k='arrow'+b.dataset.dir;
+ const stop=e=>{e.preventDefault();keys.delete(k);try{b.releasePointerCapture(e.pointerId)}catch{}};
+ b.addEventListener('pointerdown',e=>{e.preventDefault();b.setPointerCapture(e.pointerId);keys.add(k);});
+ b.addEventListener('pointerup',stop);
+ b.addEventListener('pointercancel',stop);
+ b.addEventListener('lostpointercapture',()=>keys.delete(k));
+}
+const CELL=12;
+const gridSize=()=>[Math.ceil(MAP_W/CELL),Math.ceil(MAP_H/CELL)];
+function gridPoint(ix,iy){return{x:Math.min(MAP_W-1,ix*CELL+CELL/2),y:Math.min(MAP_H-1,iy*CELL+CELL/2)};}
+function nearestGrid(x,y){
+ const [gw,gh]=gridSize();
+ return[Math.max(0,Math.min(gw-1,Math.floor(x/CELL))),Math.max(0,Math.min(gh-1,Math.floor(y/CELL)))];
+}
+function clearSegment(x1,y1,x2,y2){
+ const n=Math.max(1,Math.ceil(Math.hypot(x2-x1,y2-y1)/4));
+ for(let i=1;i<=n;i++){const t=i/n;if(!canStand(x1+(x2-x1)*t,y1+(y2-y1)*t))return false;}
+ return true;
+}
+function planClickPath(tx,ty){
+ const [GW,GH]=gridSize(),[sx,sy]=nearestGrid(player.x,player.y);
+ const start=sy*GW+sx,total=GW*GH,seen=new Uint8Array(total),parent=new Int32Array(total);
+ parent.fill(-1);
+ const queue=new Int32Array(total);let head=0,tail=0;
+ seen[start]=1;queue[tail++]=start;
+ let best=start,bestDist=Infinity;
+ const dirs=[[1,0],[-1,0],[0,1],[0,-1],[1,1],[1,-1],[-1,1],[-1,-1]];
+ while(head<tail){
+  const id=queue[head++],gx=id%GW,gy=Math.floor(id/GW),pt=gridPoint(gx,gy);
+  const dist=(pt.x-tx)**2+(pt.y-ty)**2;
+  if(dist<bestDist){bestDist=dist;best=id;}
+  for(const [dx,dy] of dirs){
+   const nx=gx+dx,ny=gy+dy;
+   if(nx<0||ny<0||nx>=GW||ny>=GH)continue;
+   const next=ny*GW+nx;if(seen[next])continue;
+   const np=gridPoint(nx,ny);if(!canStand(np.x,np.y))continue;
+   if(dx&&dy){
+    const a=gridPoint(gx+dx,gy),b=gridPoint(gx,gy+dy);
+    if(!canStand(a.x,a.y)||!canStand(b.x,b.y))continue;
+   }
+   seen[next]=1;parent[next]=id;queue[tail++]=next;
+  }
+ }
+ const reverse=[];
+ for(let at=best;at!==start&&at!==-1;at=parent[at])
+  reverse.push(gridPoint(at%GW,Math.floor(at/GW)));
+ reverse.reverse();
+ const end=reverse.length?reverse[reverse.length-1]:{x:player.x,y:player.y};
+ if(canStand(tx,ty)&&Math.hypot(tx-end.x,ty-end.y)<CELL*1.8&&clearSegment(end.x,end.y,tx,ty))
+  reverse.push({x:tx,y:ty});
+ clickPath=reverse;
+ // 실제로 경로가 만들어졌을 때만 도착 위치에 표시합니다.
+ clickMarker=reverse.length?{...reverse[reverse.length-1]}:null;
+}
+canvas.addEventListener('pointerdown',e=>{
+ if(e.button!==0||dialogueOpen)return;
+ const rect=canvas.getBoundingClientRect();
+ const x=camX+(e.clientX-rect.left)/rect.width*viewW/zoom;
+ const y=camY+(e.clientY-rect.top)/rect.height*viewH/zoom;
+ // 앞쪽 노란 상호작용 구역에 서서 냉동고 본체 또는 노란 구역을 클릭하면 조사합니다.
+ if(nearFreezer()&&((x>=FREEZER.x1&&x<=FREEZER.x2&&y>=FREEZER.y1&&y<=FREEZER.y2)||(x>=FREEZER_INTERACT.x1&&x<=FREEZER_INTERACT.x2&&y>=FREEZER_INTERACT.y1&&y<=FREEZER_INTERACT.y2))){showFreezerDialogue();return;}
+ // 아이템 상자 영역을 가까이서 클릭하면 이동 대신 조사합니다.
+ if(x>=1160&&x<=1325&&y>=560&&y<=725&&nearItem()){showItemDialogue();return;}
+ planClickPath(Math.max(0,Math.min(MAP_W-1,x)),Math.max(0,Math.min(MAP_H-1,y)));
+});
+function moveClick(dt){
+ let remaining=135*dt;
+ while(remaining>0&&clickPath.length){
+  const target=clickPath[0],dx=target.x-player.x,dy=target.y-player.y,dist=Math.hypot(dx,dy);
+  if(dist<1){clickPath.shift();continue;}
+  const step=Math.min(remaining,dist),nx=player.x+dx/dist*step,ny=player.y+dy/dist*step;
+  if(!clearSegment(player.x,player.y,nx,ny)){clickPath=[];clickMarker=null;break;}
+  player.x=nx;player.y=ny;remaining-=step;
+  if(Math.abs(dx)>Math.abs(dy))player.dir=dx>0?'right':'left';
+  else player.dir=dy>0?'down':'up';
+  player.walk+=step/135*11;
+  if(step>=dist-.001)clickPath.shift();
+ }
+ // 마지막 목적지에 도착하면 클릭 표시를 제거합니다.
+ if(!clickPath.length)clickMarker=null;
+}
+function move(dt){
+ const oldX=player.x,oldY=player.y;
+ let dx=Number(keys.has('arrowright')||keys.has('d'))-Number(keys.has('arrowleft')||keys.has('a'));
+ let dy=Number(keys.has('arrowdown')||keys.has('s'))-Number(keys.has('arrowup')||keys.has('w'));
+ if(!dx&&!dy){
+  moveClick(dt);wasMoving=Math.hypot(player.x-oldX,player.y-oldY)>.01;return;
+ }
+ const len=Math.hypot(dx,dy);dx/=len;dy/=len;
+ const dist=(keys.has('shift')?220:135)*dt;
+ const nx=player.x+dx*dist,ny=player.y+dy*dist;
+ if(canStand(nx,player.y))player.x=nx;
+ if(canStand(player.x,ny))player.y=ny;
+ if(Math.abs(dx)>Math.abs(dy))player.dir=dx>0?'right':'left';
+ else player.dir=dy>0?'down':'up';
+ player.walk+=dt*11;
+ wasMoving=Math.hypot(player.x-oldX,player.y-oldY)>.01;
+}
+
+// 오른쪽 핸드카트 위 상자에 놓인 조사 아이템: 3프레임 흰색 도트 반짝임.
+// 맵 원본(1536x1024) 기준 좌표. 반짝임은 상자 윗부분에 고정됩니다.
+const ITEM_SPARKLE={x:1230,y:594,frameSeconds:0.28};
+function drawItemSparkle(time){
+  if(memoCollected)return;
+  const {x,y,frameSeconds}=ITEM_SPARKLE;
+  const frame=Math.floor(time/1000/frameSeconds)%3;
+  const patterns=[
+    // 1: 작은 별
+    [[-2,-10,4,20],[-10,-2,20,4],[-4,-4,8,8]],
+    // 2: 별이 크게 빛남
+    [[-2,-16,4,32],[-16,-2,32,4],[-5,-5,10,10],[-11,-11,4,4],[8,8,4,4]],
+    // 3: 다시 작아짐
+    [[-2,-7,4,14],[-7,-2,14,4],[-3,-3,6,6]]
+  ];
+  ctx.save();
+  ctx.imageSmoothingEnabled=false;
+  // 가장자리만 아주 은은하게 밝아지도록 하여 기존 도트 그림체를 유지합니다.
+  ctx.fillStyle='rgba(255,248,219,0.22)';
+  ctx.fillRect(x-(frame===1?11:6),y-(frame===1?11:6),frame===1?22:12,frame===1?22:12);
+  ctx.fillStyle='#fffdf3';
+  for(const [dx,dy,w,h] of patterns[frame])ctx.fillRect(x+dx,y+dy,w,h);
+  ctx.restore();
+}
+
+function drawClickMarker(t){
+ if(!clickMarker)return;
+ const {x,y}=clickMarker;
+ ctx.save();
+ // 클릭한 목적지: 연노란색 반투명 가로 타원 (그림자 느낌)
+ ctx.fillStyle='rgba(255, 239, 153, 0.6)';
+ ctx.beginPath();
+ ctx.ellipse(x,y,23,9,0,0,Math.PI*2);
+ ctx.fill();
+ ctx.restore();
+}
+function drawPlayer(){
+ const frames=sprites[player.dir]||sprites.down;
+ const frameIndex=wasMoving?Math.floor(spriteTime*SPRITE_FPS)%frames.length:0;
+ const sprite=frames[frameIndex];
+ if(sprite.complete&&sprite.naturalWidth>0){
+  const h=SPRITE_HEIGHT,w=h*sprite.naturalWidth/sprite.naturalHeight;
+  ctx.save();ctx.fillStyle='#0008';ctx.beginPath();
+  ctx.ellipse(player.x,player.y,Math.min(w*.28,13),4,0,0,Math.PI*2);ctx.fill();
+  ctx.imageSmoothingEnabled=false;
+  ctx.drawImage(sprite,Math.round(player.x-w/2),Math.round(player.y-h),w,h);
+  ctx.restore();return;
+ }
+ // 스프라이트 PNG를 찾지 못했을 때 표시할 임시 도트 캐릭터
+ const x=player.x,y=player.y;ctx.save();ctx.translate(x,y);
+ const bounce=wasMoving?Math.sin(player.walk*2)*1.4:0;
+ ctx.fillStyle='#0009';ctx.beginPath();ctx.ellipse(0,1,12,5,0,0,Math.PI*2);ctx.fill();
+ ctx.translate(0,-bounce);
+ const side=player.dir==='left'||player.dir==='right',step=wasMoving?Math.sin(player.walk)*3:0;
+ ctx.fillStyle='#10131d';ctx.fillRect(-7,-11+step*.35,6,12);ctx.fillRect(2,-11-step*.35,6,12);
+ ctx.fillStyle='#252a35';ctx.fillRect(-10,-28,20,20);ctx.fillStyle='#f2f0e7';ctx.fillRect(-2,-26,4,13);
+ ctx.fillStyle='#14151b';ctx.fillRect(-13,-26,4,14);ctx.fillRect(9,-26,4,14);
+ ctx.fillStyle='#f2d0b4';ctx.fillRect(-9,-44,18,18);ctx.fillStyle='#211b21';
+ ctx.fillRect(-10,-46,20,9);ctx.fillRect(-10,-42,4,9);
+ if(player.dir!=='up'){
+  ctx.fillStyle='#29252b';
+  if(side)ctx.fillRect(player.dir==='right'?5:-7,-35,2,2);
+  else{ctx.fillRect(-5,-35,2,2);ctx.fillRect(4,-35,2,2);}
+ }
+ ctx.restore();
+}
+function drawDebug(){
+ ctx.save();ctx.lineWidth=2/zoom;
+ for(const p of walkable){
+  ctx.beginPath();p.forEach(([x,y],i)=>i?ctx.lineTo(x,y):ctx.moveTo(x,y));ctx.closePath();
+  ctx.fillStyle='#31dd7433';ctx.fill();ctx.strokeStyle='#53f4a8';ctx.stroke();
+ }
+ for(const [x,y,w,h]of blocked){
+  ctx.fillStyle='#ff47664d';ctx.fillRect(x,y,w,h);
+  ctx.strokeStyle='#ff6985';ctx.strokeRect(x,y,w,h);
+ }
+ // F3: 냉동고 상호작용 가능한 발 위치를 노란 반투명 사각형으로 표시.
+ const f=FREEZER_INTERACT;
+ ctx.fillStyle='rgba(255,220,45,0.38)';
+ ctx.fillRect(f.x1,f.y1,f.x2-f.x1,f.y2-f.y1);
+ ctx.strokeStyle='#ffe73b';ctx.lineWidth=4/zoom;
+ ctx.strokeRect(f.x1,f.y1,f.x2-f.x1,f.y2-f.y1);
+ ctx.fillStyle='#fff3a2';ctx.font='bold 18px monospace';
+ ctx.fillText('E / CLICK',f.x1+8,f.y1+25);
+ ctx.beginPath();ctx.arc(player.x,player.y,player.radius,0,Math.PI*2);
+ ctx.strokeStyle='#ffe66c';ctx.stroke();ctx.restore();
+}
+function frame(t){
+ const dt=Math.min((t-last)/1000||0,.05);last=t;
+ if(!dialogueOpen)move(dt);else wasMoving=false;if(wasMoving)spriteTime+=dt;else spriteTime=0;
+ ctx.setTransform(dpr,0,0,dpr,0,0);ctx.clearRect(0,0,viewW,viewH);
+ // 창 크기가 바뀌어도 전체 맵이 보이도록 contain 방식으로 고정합니다.
+ zoom=Math.min(viewW/MAP_W,viewH/MAP_H)*0.75;
+ const vw=viewW/zoom,vh=viewH/zoom;
+ camX=(MAP_W-vw)/2;
+ camY=(MAP_H-vh)/2;
+ ctx.save();ctx.scale(zoom,zoom);ctx.translate(-camX,-camY);
+ if(image.complete&&image.naturalWidth)ctx.drawImage(image,0,0,MAP_W,MAP_H);
+ else{ctx.fillStyle='#11141f';ctx.fillRect(0,0,MAP_W,MAP_H);}
+ if(debug)drawDebug();drawItemSparkle(t);drawClickMarker(t);drawPlayer();ctx.restore();
+ requestAnimationFrame(frame);
+}
+image.onerror=()=>{console.warn('game2_2.png 파일을 HTML과 같은 폴더에 넣어주세요');};
+requestAnimationFrame(frame);
+
+</script>
+<script src="gw_save_bridge.js" defer></script>
+</body></html>

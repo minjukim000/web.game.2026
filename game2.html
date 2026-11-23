@@ -20,25 +20,241 @@ body{background:#000 url('game_1.png') center/contain no-repeat fixed;color:#f6f
 #dialogueText{position:absolute;left:24%;top:43%;font-size:clamp(13px,1.65vw,23px);letter-spacing:.02em;white-space:pre-line}
 @media(max-width:600px){#dialogueOverlay{width:115vw}#dialogueName{font-size:10px}#dialogueText{font-size:12px}}
 #ch1-wrap.hidden,#dialogueOverlay.hidden{display:none!important}
+#dialoguePortrait.hidden{display:none!important}
+/* game1.html의 점장 선택창과 동일한 도트 스타일 및 위치 */
+#investigateChoices{position:fixed;z-index:95;right:calc((100vw - min(96vw,1250px))/2 + 56px);bottom:clamp(165px,24vw,320px);width:clamp(210px,22vw,285px);padding:10px 9px;background:#292929;border:4px solid #e9e9e9;outline:3px solid #171717;box-shadow:inset 3px 3px 0 #777,inset -3px -3px 0 #101010,5px 5px 0 #111;font-family:'Galmuri11',monospace;image-rendering:pixelated}
+#investigateChoices.hidden{display:none!important}
+#investigateChoices:not(.hidden){display:block;animation:choiceAppear .16s steps(3,end) both}
+@keyframes choiceAppear{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+#investigateChoices .choice-option{width:100%;display:flex;align-items:center;gap:9px;border:0;border-radius:0;background:transparent;color:#f5f5f5;font:inherit;font-size:clamp(17px,1.7vw,24px);text-align:left;padding:6px 8px;cursor:pointer}
+#investigateChoices .choice-cursor{visibility:hidden;color:#242424;font-size:.9em}
+#investigateChoices .choice-option.is-selected,#investigateChoices .choice-option:hover,#investigateChoices .choice-option:focus-visible{background:#e8e8e8;color:#202020;outline:none}
+#investigateChoices .choice-option.is-selected .choice-cursor,#investigateChoices .choice-option:hover .choice-cursor,#investigateChoices .choice-option:focus-visible .choice-cursor{visibility:visible}
+@media(max-width:600px){#investigateChoices{right:calc((100vw - 115vw)/2 + 56px);bottom:27vw;width:210px}}
+/* 창고 진입 선택창: 앞선 선택지와 동일한 도트 스타일 */
+#warehouseChoices{position:fixed;z-index:95;right:calc((100vw - min(96vw,1250px))/2 + 56px);bottom:clamp(165px,24vw,320px);width:clamp(240px,25vw,310px);padding:10px 9px;background:#292929;border:4px solid #e9e9e9;outline:3px solid #171717;box-shadow:inset 3px 3px 0 #777,inset -3px -3px 0 #101010,5px 5px 0 #111;font-family:'Galmuri11',monospace;image-rendering:pixelated}
+#warehouseChoices.hidden{display:none!important}
+#warehouseChoices:not(.hidden){display:block;animation:choiceAppear .16s steps(3,end) both}
+#warehouseChoices .choice-option{width:100%;display:flex;align-items:center;gap:9px;border:0;border-radius:0;background:transparent;color:#f5f5f5;font:inherit;font-size:clamp(17px,1.7vw,24px);text-align:left;padding:6px 8px;cursor:pointer}
+#warehouseChoices .choice-cursor{visibility:hidden;color:#242424;font-size:.9em}
+#warehouseChoices .choice-option.is-selected,#warehouseChoices .choice-option:hover,#warehouseChoices .choice-option:focus-visible{background:#e8e8e8;color:#202020;outline:none}
+#warehouseChoices .choice-option.is-selected .choice-cursor,#warehouseChoices .choice-option:hover .choice-cursor,#warehouseChoices .choice-option:focus-visible .choice-cursor{visibility:visible}
+@media(max-width:600px){#warehouseChoices{right:calc((100vw - 115vw)/2 + 56px);bottom:27vw;width:240px}}
+/* 조사 선택 후 검은 화면을 거쳐 창고 장면으로 전환 */
+#investigationFade{position:fixed;inset:0;z-index:120;background:#000;opacity:0;visibility:hidden;pointer-events:none;transition:opacity .7s ease,visibility 0s linear .7s}
+#investigationFade.active{opacity:1;visibility:visible;pointer-events:auto;transition:opacity .7s ease}
+#investigationFade.reveal{opacity:0;visibility:visible;pointer-events:auto;transition:opacity 1s ease}
 </style>
 </head>
 <body>
 <div id="ch1-wrap"><img src="ch1_1.png" alt="편의점 점장 첫 장면"></div>
 <div id="dialogueOverlay" aria-live="polite"><img src="chat.png" alt=""><img id="dialoguePortrait" src="c_2.png" alt="편의점 점장"><span id="dialogueName">편의점 점장</span><span id="dialogueText">감사합니다!</span></div>
+<div id="investigateChoices" class="hidden" role="group" aria-label="조사 선택">
+  <button class="choice-option is-selected" type="button" data-choice="investigate"><span class="choice-cursor">▶</span><span>조사한다</span></button>
+  <button class="choice-option" type="button" data-choice="decline"><span class="choice-cursor">▶</span><span>하지 않는다</span></button>
+</div>
+<div id="warehouseChoices" class="hidden" role="group" aria-label="창고 진입 선택">
+  <button class="choice-option is-selected" type="button" data-warehouse="enter"><span class="choice-cursor">▶</span><span>들어간다</span></button>
+  <button class="choice-option" type="button" data-warehouse="stay"><span class="choice-cursor">▶</span><span>들어가지 않는다</span></button>
+</div>
+<div id="investigationFade" aria-hidden="true"></div>
 <script>
 (function(){
   let step=0;
+  let audioContext=null;
+  let clockTimer=null;
+  let revealTimer=null;
+  const dialogue=document.getElementById('dialogueOverlay');
+  const portrait=document.getElementById('dialoguePortrait');
+  const choices=document.getElementById('investigateChoices');
+  const warehouseChoices=document.getElementById('warehouseChoices');
+  let warehouseDialogueTimer=null;
+  function playTick(){
+    if(!audioContext || audioContext.state!=='running') return;
+    const now=audioContext.currentTime;
+    const oscillator=audioContext.createOscillator();
+    const gain=audioContext.createGain();
+    oscillator.type='square';
+    oscillator.frequency.setValueAtTime(950,now);
+    oscillator.frequency.exponentialRampToValueAtTime(380,now+0.025);
+    gain.gain.setValueAtTime(0.0001,now);
+    gain.gain.exponentialRampToValueAtTime(0.055,now+0.003);
+    gain.gain.exponentialRampToValueAtTime(0.0001,now+0.052);
+    oscillator.connect(gain).connect(audioContext.destination);
+    oscillator.start(now);
+    oscillator.stop(now+0.06);
+  }
+  function startClock(){
+    try{
+      const AudioCtx=window.AudioContext||window.webkitAudioContext;
+      if(AudioCtx){
+        audioContext=new AudioCtx();
+        audioContext.resume().catch(()=>{});
+        playTick();
+        clockTimer=window.setInterval(playTick,500);
+      }
+    }catch(error){console.warn('시계 소리를 재생할 수 없습니다.',error);}
+  }
+  function stopClock(){
+    if(clockTimer!==null){clearInterval(clockTimer);clockTimer=null;}
+  }
+  function revealInvestigation(){
+    if(step!==2)return;
+    if(revealTimer!==null){clearTimeout(revealTimer);revealTimer=null;}
+    stopClock();
+    portrait.classList.add('hidden');
+    document.getElementById('dialogueName').textContent='-';
+    document.getElementById('dialogueText').textContent='아무도 없는 김에 조사나 더 해볼까..';
+    dialogue.classList.remove('hidden');
+    choices.classList.remove('hidden');
+    choices.querySelectorAll('.choice-option').forEach((button,index)=>button.classList.toggle('is-selected',index===0));
+    step=3;
+  }
   document.addEventListener('click',function(event){
+    if(event.target.closest('#investigateChoices, #warehouseChoices'))return;
     if(step===0){
       document.getElementById('dialogueText').textContent='손님은 안 올거예요.\n1시간만 채워주시고 가주세요!';
       step=1;
     }else if(step===1){
       document.getElementById('ch1-wrap').classList.add('hidden');
-      document.getElementById('dialogueOverlay').classList.add('hidden');
+      dialogue.classList.add('hidden');
       step=2;
+      startClock();
+      revealTimer=window.setTimeout(revealInvestigation,3000);
+    }else if(step===2){
+      // 3초를 기다리는 중에도 화면을 클릭하면 즉시 다음 대화로 진행.
+      revealInvestigation();
+    }else if(step===6){
+      // 창고 발견 독백을 클릭하면 다음 질문과 선택지를 표시합니다.
+      document.getElementById('dialogueText').textContent='(들어갈까?)';
+      warehouseChoices.classList.remove('hidden');
+      step=7;
+    }
+  });
+  function playChoiceSound(){
+    if(!audioContext || audioContext.state!=='running')return;
+    const now=audioContext.currentTime;
+    const osc=audioContext.createOscillator(),gain=audioContext.createGain();
+    osc.type='square';osc.frequency.setValueAtTime(900,now);
+    osc.frequency.exponentialRampToValueAtTime(510,now+.035);
+    gain.gain.setValueAtTime(.085,now);
+    gain.gain.exponentialRampToValueAtTime(.001,now+.045);
+    osc.connect(gain);gain.connect(audioContext.destination);
+    osc.start(now);osc.stop(now+.05);
+  }
+  const choiceButtons=[...choices.querySelectorAll('.choice-option')];
+  function highlightChoice(button){
+    if(!button.classList.contains('is-selected'))playChoiceSound();
+    choiceButtons.forEach(other=>other.classList.toggle('is-selected',other===button));
+  }
+  choiceButtons.forEach(button=>button.addEventListener('mouseenter',()=>highlightChoice(button)));
+  document.addEventListener('keydown',function(event){
+    const activeMenu=step===3 ? choices : step===7 ? warehouseChoices : null;
+    if(!activeMenu || activeMenu.classList.contains('hidden'))return;
+    const activeButtons=[...activeMenu.querySelectorAll('.choice-option')];
+    if(event.key==='ArrowUp'||event.key==='ArrowDown'){
+      event.preventDefault();
+      const current=activeButtons.findIndex(button=>button.classList.contains('is-selected'));
+      const next=(current+(event.key==='ArrowDown'?1:-1)+activeButtons.length)%activeButtons.length;
+      if(activeMenu===choices)highlightChoice(activeButtons[next]);
+      else highlightWarehouseChoice(activeButtons[next]);
+      activeButtons[next].focus();
+    }else if(event.key==='Enter' && !activeButtons.includes(document.activeElement)){
+      event.preventDefault();activeButtons.find(button=>button.classList.contains('is-selected')).click();
+    }
+  });
+  const investigationFade=document.getElementById('investigationFade');
+  let transitioning=false;
+  function playFootsteps(){
+    // 짧은 저음의 발 디딤과 구두굽 소리. 별도 음원 파일은 필요하지 않습니다.
+    if(!audioContext || audioContext.state!=='running')return;
+    const start=audioContext.currentTime+.12;
+    for(let i=0;i<5;i++){
+      const t=start+i*.39;
+      for(const [frequency,level,duration,offset] of [[115,.20,.15,0],[690,.065,.055,.035]]){
+        const osc=audioContext.createOscillator();
+        const gain=audioContext.createGain();
+        osc.type=frequency<200?'triangle':'square';
+        osc.frequency.setValueAtTime(frequency,t+offset);
+        osc.frequency.exponentialRampToValueAtTime(frequency*.55,t+offset+duration);
+        gain.gain.setValueAtTime(.0001,t+offset);
+        gain.gain.exponentialRampToValueAtTime(level,t+offset+.008);
+        gain.gain.exponentialRampToValueAtTime(.0001,t+offset+duration);
+        osc.connect(gain);gain.connect(audioContext.destination);
+        osc.start(t+offset);osc.stop(t+offset+duration+.01);
+      }
+    }
+  }
+  function beginInvestigation(){
+    if(transitioning || step!==3)return;
+    transitioning=true;step=4;
+    stopClock();
+    choices.classList.add('hidden');
+    dialogue.classList.add('hidden');
+    playFootsteps();
+    investigationFade.classList.add('active');
+    // 화면이 완전히 검어진 뒤 배경을 바꾸고 잠시 어둠을 유지합니다.
+    window.setTimeout(()=>{
+      document.body.style.backgroundImage="url('game2_1.png')";
+      document.body.style.backgroundPosition='center';
+      document.body.style.backgroundSize='contain';
+      document.body.style.backgroundRepeat='no-repeat';
+    },750);
+    window.setTimeout(()=>{
+      investigationFade.classList.remove('active');
+      investigationFade.classList.add('reveal');
+      window.setTimeout(()=>{
+        investigationFade.classList.remove('reveal');
+        step=5;
+        // 배경이 드러난 뒤 잠시 기다렸다가 첫 창고 독백을 표시합니다.
+        warehouseDialogueTimer=window.setTimeout(()=>{
+          if(step!==5)return;
+          portrait.classList.add('hidden');
+          document.getElementById('dialogueName').textContent='-';
+          document.getElementById('dialogueText').textContent='(수상해 보이는 창고가 있다.)';
+          dialogue.classList.remove('hidden');
+          step=6;
+        },1100);
+      },1050);
+    },2400);
+  }
+  function highlightWarehouseChoice(button){
+    const buttons=[...warehouseChoices.querySelectorAll('.choice-option')];
+    if(!button.classList.contains('is-selected'))playChoiceSound();
+    buttons.forEach(other=>other.classList.toggle('is-selected',other===button));
+  }
+  warehouseChoices.querySelectorAll('.choice-option').forEach(button=>{
+    button.addEventListener('mouseenter',()=>highlightWarehouseChoice(button));
+  });
+  warehouseChoices.addEventListener('click',function(event){
+    const button=event.target.closest('button[data-warehouse]');
+    if(!button || step!==7)return;
+    event.stopPropagation();
+    playChoiceSound();
+    highlightWarehouseChoice(button);
+    // 선택한 경로에 따라 다음 HTML 장면으로 이동합니다.
+    step=8;
+    warehouseChoices.classList.add('hidden');
+    window.location.href=button.dataset.warehouse==='enter' ? 'game3.html' : 'web_intro.html';
+  });
+  choices.addEventListener('click',function(event){
+    const button=event.target.closest('button[data-choice]');
+    if(!button)return;
+    event.stopPropagation();
+    playChoiceSound();
+    highlightChoice(button);
+    choices.querySelectorAll('button').forEach(b=>b.removeAttribute('aria-pressed'));
+    button.setAttribute('aria-pressed','true');
+    if(button.dataset.choice==='investigate'){
+      beginInvestigation();
+    }else if(button.dataset.choice==='decline'){
+      step=8;
+      choices.classList.add('hidden');
+      window.location.href='web_intro.html';
     }
   });
 })();
 </script>
+<script src="gw_save_bridge.js" defer></script>
 </body>
 </html>
