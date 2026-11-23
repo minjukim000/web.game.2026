@@ -389,8 +389,6 @@
     #storeInterior.active { display:block; }
     #storeInteriorHelp { position:fixed; top:72px; left:20px; z-index:76; display:none; padding:9px 12px; background:#15121acc; border:1px solid #9c8080; color:#f4e4d6; font:13px monospace; pointer-events:none; }
     #storeInteriorHelp.active { display:block; }
-    #storeInteriorDebug { position:fixed; top:16px; right:16px; z-index:76; display:none; background:#201922; color:#fff; border:1px solid #886d6d; padding:8px; cursor:pointer; }
-    #storeInteriorDebug.active { display:block; }
 
   </style>
 </head>
@@ -428,7 +426,7 @@
 
   <!-- 이후 게임 화면 -->
   <div id="gameScreen"><div id="mapStage"><img id="gameMap" src="game1_1.png" alt="기자 사무실 게임 맵"><img id="characterAlert" src="game_icon2.png" alt="캐릭터 알림 아이콘"><svg id="storeDoorOverlay" viewBox="0 0 1672 941" preserveAspectRatio="xMidYMid meet" aria-label="편의점 출입문"><polygon id="storeDoorHit" points="1057,435 1335,435 1335,881 1057,881" tabindex="0" role="button" aria-label="편의점 문"></polygon></svg></div></div>
-  <canvas id="storeInterior" aria-label="GX 편의점 내부 이동 맵"></canvas><div id="storeInteriorHelp">GX 편의점 · 이동 WASD / 방향키 · 조사 E · 충돌 F3</div><button id="storeInteriorDebug" type="button">충돌 표시</button>
+  <canvas id="storeInterior" aria-label="GX 편의점 내부 이동 맵"></canvas><div id="storeInteriorHelp">GX 편의점 · 이동 WASD / 방향키 · 조사 E · 충돌 F3</div>
   <div id="dialogueOverlay" aria-live="polite"><img src="chat.png" alt=""><img id="dialoguePortrait" src="c_1.png" alt="캐릭터 프로필"><span id="dialogueName">-</span><span id="dialogueText">제보인가?</span></div>
 
   <div id="messagePopup" role="dialog" aria-label="익명 메신저 팝업">
@@ -457,7 +455,7 @@
   </div>
   <div id="npcHelpChoiceMenu" role="group" aria-label="점장 부탁 선택">
     <button class="choice-option is-selected" type="button" data-help="accept"><span class="choice-cursor">▶</span><span>한다</span></button>
-    <button class="choice-option" type="button" data-help="decline"><span class="choice-cursor">▶</span><span>안한다</span></button>
+    <button class="choice-option" type="button" data-help="decline"><span class="choice-cursor">▶</span><span>안 한다</span></button>
   </div>
   <script>
     // ==============================
@@ -466,6 +464,7 @@
 
     const scenes = [
       "이 게임은 픽션입니다.",
+      "20XX년 2월 5일 오후 9시",
       "이 이야기는 내가 사건을 맡게 되면서 부터 시작되었다."
     ];
 
@@ -1121,6 +1120,7 @@
     // 마우스로 이동할 목적지. 사물은 첫 클릭에 접근, 가까이서 다시 클릭하면 조사.
     let interiorClickTarget=null;
     let interiorClickPath=[];
+    let interiorClickMarker=null; // 클릭한 최종 목적지의 노란 표시
     function interiorPointerToMap(e){
       const rect=interiorCanvas.getBoundingClientRect();
       const scale=Math.min(rect.width/interiorW,rect.height/interiorH);
@@ -1208,9 +1208,11 @@
     function setInteriorTarget(x,y){
       interiorClickPath=navFindPath(x,y);
       interiorClickTarget=interiorClickPath.shift()||null;
+      // 경로가 없는 지점에는 목적지 표시를 남기지 않습니다.
+      interiorClickMarker=interiorClickTarget ? {...(interiorClickPath.length ? interiorClickPath[interiorClickPath.length-1] : interiorClickTarget)} : null;
     }
-    function clearInteriorTarget(){interiorClickTarget=null;interiorClickPath=[];}
-    function advanceInteriorTarget(){interiorClickTarget=interiorClickPath.shift()||null;}
+    function clearInteriorTarget(){interiorClickTarget=null;interiorClickPath=[];interiorClickMarker=null;}
+    function advanceInteriorTarget(){interiorClickTarget=interiorClickPath.shift()||null;if(!interiorClickTarget)interiorClickMarker=null;}
     interiorCanvas.addEventListener('click',e=>{
       if(!interiorActive||npcDialogueOpen||shelfDialogueOpen)return;
       const {x,y}=interiorPointerToMap(e);
@@ -1269,6 +1271,8 @@
         npcDialogueStep=4;
         setNpcLine('-','어쩌지?');
         showNpcHelpChoices();
+      } else if(npcDialogueStep===5){
+        window.location.href='web_intro.html';
       }
       // 선택지에서는 선택할 때까지 대화창 유지
     }
@@ -1286,8 +1290,15 @@
     function selectNpcHelp(button){
       initAudio();playChoiceTick();
       npcHelpChoiceMenu.classList.remove('visible');
-      // 기존 진행 경로를 재사용: 한다 → game2, 안한다 → web
-      window.location.href=button.dataset.help==='accept'?'game2.html':'web.html';
+      if(button.dataset.help==='accept') {
+        window.location.href='game2.html';
+      } else {
+        npcDialogueStep=5;
+        interiorKeys.clear();
+        clearInteriorTarget();
+        setNpcLine('-','(그럼 일단 집으로 돌아갈까..)');
+        // 독백을 읽고 다음 클릭 또는 E키를 누르면 web_intro.html로 이동합니다.
+      }
     }
     function setupNpcMenu(buttons,choose){
       buttons.forEach(button=>{
@@ -1312,10 +1323,10 @@
       });
     }
     function nearStoreNpc(){
-      // NPC 바로 아래(정면)에서만 E로 대화할 수 있도록 제한.
-      const dx=Math.abs(interiorPlayer.x-storeNpc.x);
-      const dy=interiorPlayer.y-(storeNpcCollision[1]+storeNpcCollision[3]);
-      return dx<=62 && dy>=interiorPlayer.radius && dy<=90;
+      // NPC 주변 통로에서 대화 가능. NPC의 충돌 판정은 그대로 유지.
+      const dx=Math.max(storeNpcCollision[0]-interiorPlayer.x,0,interiorPlayer.x-(storeNpcCollision[0]+storeNpcCollision[2]));
+      const dy=Math.max(storeNpcCollision[1]-interiorPlayer.y,0,interiorPlayer.y-(storeNpcCollision[1]+storeNpcCollision[3]));
+      return Math.hypot(dx,dy)<=155;
     }
     function closeNpcDialogue(){
       if(!npcDialogueOpen)return;
@@ -1449,24 +1460,19 @@
     function enterStoreInterior(){
       if(interiorActive)return;
       playStoreDoorChime();
-      interiorActive=true; interiorClickTarget=null; interiorLast=0; interiorLastMovementAt=performance.now(); interiorFootstepClock=0; closeShelfDialogue(); closeNpcDialogue();
+      interiorActive=true; clearInteriorTarget(); interiorLast=0; interiorLastMovementAt=performance.now(); interiorFootstepClock=0; closeShelfDialogue(); closeNpcDialogue();
       interiorPlayer.x=720;interiorPlayer.y=710;interiorPlayer.dir='up';interiorPlayer.walk=0;
       interiorCanvas.classList.add('active');
       interiorHelp.classList.add('active');
-      document.getElementById('storeInteriorDebug').classList.add('active');
       document.getElementById('storeDoorOverlay').classList.remove('active');
       document.getElementById('dialogueOverlay').classList.remove('visible');
       requestAnimationFrame(interiorFrame);
     }
-    document.getElementById('storeInteriorDebug').addEventListener('click',()=>{
-      interiorDebug=!interiorDebug;
-      document.getElementById('storeInteriorDebug').textContent=interiorDebug?'충돌 숨기기':'충돌 표시';
-    });
     document.addEventListener('keydown',e=>{
       if(!interiorActive)return;
       const k=e.key.toLowerCase();
       if(['w','a','s','d','arrowup','arrowdown','arrowleft','arrowright','shift'].includes(k)){
-        e.preventDefault();interiorKeys.add(k);if(k!=='shift')interiorClickTarget=null;
+        e.preventDefault();interiorKeys.add(k);if(k!=='shift')clearInteriorTarget();
       }
       if(npcChoiceMenu.classList.contains('visible') || npcHelpChoiceMenu.classList.contains('visible')){
         const helpVisible=npcHelpChoiceMenu.classList.contains('visible');
@@ -1485,7 +1491,7 @@
         }
       }
       if(k==='e'){e.preventDefault();if(!e.repeat){if(npcDialogueOpen)advanceNpcDialogue();else if(shelfDialogueOpen)closeShelfDialogue();else if(!talkToStoreNpc())inspectShelf();}}
-      if(k==='f3'){e.preventDefault();if(!e.repeat)document.getElementById('storeInteriorDebug').click();}
+      if(k==='f3'){e.preventDefault();if(!e.repeat)interiorDebug=!interiorDebug;}
     },true);
     document.addEventListener('keyup',e=>interiorKeys.delete(e.key.toLowerCase()),true);
     window.addEventListener('blur',()=>interiorKeys.clear());
@@ -1555,6 +1561,15 @@
         // 조사 가능한 NPC는 일반 장애물과 구분하여 노란색으로 표시.
         {const [x,y,w,h]=storeNpcCollision;interiorCtx.fillStyle='#ffd44778';interiorCtx.fillRect(x,y,w,h);interiorCtx.strokeStyle='#ffe16b';interiorCtx.lineWidth=3;interiorCtx.strokeRect(x,y,w,h);interiorCtx.lineWidth=1;}
 
+      }
+      // game3.html과 같은 연노란색 반투명 타원: 목적지에 도착하면 자동 제거.
+      if(interiorClickMarker){
+        interiorCtx.save();
+        interiorCtx.fillStyle='rgba(255, 239, 153, 0.6)';
+        interiorCtx.beginPath();
+        interiorCtx.ellipse(interiorClickMarker.x,interiorClickMarker.y,23,9,0,0,Math.PI*2);
+        interiorCtx.fill();
+        interiorCtx.restore();
       }
       // NPC를 맵 좌표에 고정하여 배치. 플레이어와 동일한 높이로 그린다.
       if(storeNpcImage.complete && storeNpcImage.naturalWidth){
@@ -1741,5 +1756,6 @@
 
   </script>
 
+<script src="gw_save_bridge.js" defer></script>
 </body>
 </html>
